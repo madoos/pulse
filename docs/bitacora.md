@@ -78,3 +78,14 @@ Todas las decisiones de arquitectura de esta fase están escritas como ADR, con 
 - [ADR-0008](adr/0008-infrastructure-docker-compose-and-k3s.md): Docker Compose para desarrollo local y Kubernetes (k3s) en un VPS para el despliegue, con las imágenes en GitHub Container Registry.
 
 El modelo de datos no está decidido todavía: se irá diseñando a medida que descubramos el problema, porción a porción.
+
+---
+
+## 2026-11-21 — Setup compartido del monorepo
+
+Con la arquitectura diseñada y las decisiones escritas como ADR, el primer paso de construcción es montar el setup compartido. Como decidí que todo el proyecto sería TypeScript ([ADR-0002](adr/0002-use-typescript-across-the-project.md)), todos los proyectos pueden compartir un único tooling, y lo monto una sola vez en la raíz antes de crear ningún proyecto:
+
+- **Workspace de pnpm** (`apps/*` y `packages/*`): una sola instalación y un único lockfile para todo el repo, y proyectos enlazados entre sí sin publicarlos.
+- **`tsconfig.base.json`**: una única fuente de verdad para las reglas del compilador (`strict`, `noUncheckedIndexedAccess`). Cada proyecto la extiende y solo añade lo suyo, así el rigor es el mismo en todo el repo y no se desalinea con el tiempo.
+- **ESLint, Prettier y Vitest** instalados en la raíz, con una sola versión y una sola configuración para todos los proyectos.
+- **CI** que comprueba formato, lint y tipos en cada PR y en cada push a `main`. Los tests están preparados pero desactivados: Vitest no arranca sin proyectos, así que se activan con el primer proyecto, junto con la publicación de la cobertura, que después leerá Sonar.
