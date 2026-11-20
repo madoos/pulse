@@ -16,3 +16,65 @@ En esta primera parte tenemos:
 - Un [ADR](adr/0001-use-conventional-commits.md) que establece que el proyecto usa una convención de commits para automatizar el changelog.
 - El setup inicial del CI, que valida esos commits y pone en marcha release-please. Con él entramos desde el principio en el ciclo de vida de la aplicación, para que la release esté lista cuando la queramos.
 - Por otro lado, me gusta diseñar el arnés alrededor de los ADR. Así el proyecto es consistente y no hacen falta ficheros específicos para agentes: el [`CLAUDE.md`](../CLAUDE.md) solo pide seguir los ADR y, como están [indexados](adr/README.md), el agente los va descubriendo de forma progresiva a medida que los necesita.
+
+---
+
+## 2026-11-20 — Arquitectura y stack
+
+Con los casos de uso definidos, toca elegir la arquitectura y el stack. Lo primero que define la arquitectura de un sistema es si es pesado en lectura o en escritura.
+
+Por la naturaleza de este proyecto, Pulse es claramente de **lectura pesada**:
+
+- **Escritura:** las asesorías generan sus métricas en *batches* mensuales. Es una carga poco frecuente y predecible, no un flujo de transacciones concurrentes.
+- **Lectura:** un manager necesita conocer el estado de la red, el detalle de cada asesoría y las agregaciones (totales, medias ponderadas, evolución mensual, comparación con hace seis meses).
+
+Esto pone el peso del sistema en el **modelo de datos**: ahí vivirán las agregaciones y es lo que soportará la parte más pesada. Hay que tener especial cuidado al diseñarlo. En cambio, los servicios apenas tendrán lógica de negocio: casi todo es leer, agregar y presentar.
+
+### Por qué valoré Go
+
+Mi primera idea fue Go en el backend y React en el frontend. Go tenía argumentos sólidos:
+
+- Compila a un binario estático, con imágenes Docker mínimas (unos 15 MB) y un arranque casi instantáneo, lo que encaja muy bien con `docker compose up` y un CI rápido.
+- Tipado fuerte y un ecosistema de acceso a datos muy honesto: `sqlc` genera código tipado a partir de SQL escrito a mano y lo valida contra el esquema al compilar, y `goose` gestiona migraciones en SQL puro embebidas en el binario.
+- Rendimiento y concurrencia excelentes.
+
+### Por qué no Go
+
+Viendo el perfil de la aplicación, esas ventajas no aplican. Concurrencia y velocidad no significan nada para una herramienta interna con un único usuario, en la que lo pesado vive en la base de datos. A cambio, tener dos lenguajes supone mantener dos toolings: dos linters, dos frameworks de test, dos gestores de dependencias, dos formas de construir imágenes y un contrato entre front y back que hay que sincronizar.
+
+### Decisión
+
+Uso un **stack full TypeScript**. Así no tengo que mantener dos toolings, puedo compartir tipos y contratos entre frontend y backend, y se facilita la entrada de personas al proyecto, porque basta con conocer un lenguaje.
+
+En concreto:
+
+1. **Frontend en React.**
+2. **Backend en Node.js.**
+3. **Un design system.** Asevia es una empresa con múltiples productos que itera rápido. Un design system simplifica mucho las decisiones de diseño, estilo e imagen de marca: los componentes y sus reglas se deciden una vez y se reutilizan en todos los productos, en vez de rediseñarlos en cada iteración.
+
+### Construir producto desde el minuto uno
+
+Otra parte importante del diseño es **cómo** se construye. Desde el minuto uno se construye producto: no se hace primero el backend y luego el frontend, ni se termina una capa para empezar la siguiente.
+
+La idea es aportar valor desde el inicio para poder iterar sobre las ideas:
+
+- **Primero, un mínimo desplegado de punta a punta:** base de datos, API, frontend, CI y despliegue conectados, aunque solo muestren algo muy pequeño. A partir de ahí el producto ya está vivo y entra en un ciclo de release constante.
+- **Después, piezas usables:** cada incremento es una porción vertical que atraviesa todas las capas (por ejemplo, "ver el listado de asesorías" y después "filtrar por provincia"), conectada al CI y desplegada. Nada se queda a medias en una rama esperando a que otra parte esté lista.
+- **Los casos de uso marcan el orden:** cada pieza corresponde a uno o varios escenarios de los [tests de aceptación](../acceptance-test/), así que se sabe cuándo está terminada.
+
+Así el software crece por piezas que funcionan, cada release se puede enseñar y validar, y los problemas de integración aparecen el primer día, no al final.
+
+### Decisiones de arquitectura
+
+Todas las decisiones de arquitectura de esta fase están escritas como ADR, con su contexto, las alternativas que valoré y sus consecuencias:
+
+- [ADR-0001](adr/0001-use-conventional-commits.md): Conventional Commits para automatizar el changelog, y versionado del monorepo (la aplicación con una versión común y el design system con la suya).
+- [ADR-0002](adr/0002-use-typescript-across-the-project.md): TypeScript en todo el proyecto, y por qué descarté Go.
+- [ADR-0003](adr/0003-backend-hono-modular-monolith.md): backend como monolito modular en Hono, con arquitectura hexagonal, screaming architecture y vertical slicing, y OpenAPI generado automáticamente.
+- [ADR-0004](adr/0004-frontend-react-redux-observable.md): frontend en React con Redux y redux-observable, componentes tontos y efectos secundarios detrás de interfaces.
+- [ADR-0005](adr/0005-use-postgresql.md): PostgreSQL como base de datos.
+- [ADR-0006](adr/0006-quality-and-observability.md): calidad con SonarQube Cloud y observabilidad con Sentry, sin analítica de comportamiento porque el usuario es un manager con el que tenemos contacto directo.
+- [ADR-0007](adr/0007-design-system-react-aria-tokens.md): design system sobre React Aria Components, CSS Modules y tokens de diseño, accesible, responsive y con Storybook como catálogo.
+- [ADR-0008](adr/0008-infrastructure-docker-compose-and-k3s.md): Docker Compose para desarrollo local y Kubernetes (k3s) en un VPS para el despliegue, con las imágenes en GitHub Container Registry.
+
+El modelo de datos no está decidido todavía: se irá diseñando a medida que descubramos el problema, porción a porción.

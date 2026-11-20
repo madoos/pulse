@@ -18,3 +18,7 @@ __pycache__/
 
 # Confidential test statement (not to be published)
 *.pdf
+
+# Seed data provided by Asevia (confidential, not to be published)
+*.csv
+*.jsonl
