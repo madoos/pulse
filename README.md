@@ -16,6 +16,10 @@ The use cases are written as Gherkin acceptance tests in [`acceptance-test/`](ac
 - [`detail.feature`](acceptance-test/detail.feature) — advisory firm detail and its monthly evolution.
 - [`network-overview.feature`](acceptance-test/network-overview.feature) — aggregated metrics for the whole network.
 
+## Architecture Decision Records
+
+The significant technical decisions are recorded as ADRs. The [ADR index](docs/adr/README.md) lists every decision with its status and when to read it.
+
 ## Bitácora
 
 All the initial design decisions, and the reasoning behind them, are recorded in the [Bitácora](docs/bitacora.md) (design log, in Spanish).

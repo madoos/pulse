@@ -47,7 +47,7 @@ Any type followed by `!` (e.g. `feat(api)!:`) triggers a **major** version bump.
 
 ### Suggested scopes
 
-`api`, `web`, `db`, `seed`, `infra`, `ci`, `docs`. Scopes are optional and the list can grow with the project.
+`api`, `web`, `contracts`, `design-system`, `db`, `seed`, `infra`, `ci`, `docs`. Scopes are optional and the list can grow with the project. In the monorepo, the scope names the package a change belongs to.
 
 ### Examples
 
@@ -63,9 +63,12 @@ feat(api)!: rename /advisory-firms/{id}/metrics query params
 ## Enforcement and automation
 
 - **Validation — commitlint:** the `Commit lint` workflow (`.github/workflows/commitlint.yml`) checks every commit on pull requests and on `main` against `@commitlint/config-conventional` plus the rules in `commitlint.config.mjs` (header ≤ 72 chars, lowercase subject). A non-conforming commit fails the pipeline.
-- **Changelog and releases — release-please:** the `Release Please` workflow (`.github/workflows/release-please.yml`) runs on every push to `main`. It keeps an open release PR that updates `CHANGELOG.md`, `version.txt` and `.release-please-manifest.json`. Merging that PR creates the git tag and the GitHub Release. `CHANGELOG.md` is never edited by hand.
-- **Versioning:** versions follow [Semantic Versioning](https://semver.org/) and are derived from the commit types. While the project is below `1.0.0`, `feat` bumps the minor version (`bump-minor-pre-major`).
-- **Stack-agnostic setup:** release-please uses the `simple` release type (`version.txt`), so it does not depend on the language or framework chosen for the app.
+- **Changelog and releases — release-please:** the `Release Please` workflow (`.github/workflows/release-please.yml`) runs on every push to `main`. It keeps open release PRs that update the changelogs, the versions and `.release-please-manifest.json`. Merging a release PR creates the git tag and the GitHub Release. Changelogs are never edited by hand.
+- **Versioning:** versions follow [Semantic Versioning](https://semver.org/) and are derived from the commit types. While a component is below `1.0.0`, `feat` bumps the minor version (`bump-minor-pre-major`).
+- **Monorepo, one version per component:** release-please runs in manifest mode over the workspace packages, and each package's version lives in its own `package.json`.
+  - The **application** (`apps/api`, `apps/web` and `packages/contracts`) is released as one product: its packages are **linked** and always share the same version, because they are deployed together and coupled by the contract.
+  - The **design system** (`packages/design-system`) has **its own independent version** and changelog, because other products depend on it and need to see breaking changes explicitly ([ADR-0007](0007-design-system-react-aria-tokens.md)).
+  - Until the workspace packages exist, the repository is released as a single root component.
 
 ### Why release-please
 
@@ -84,5 +87,6 @@ feat(api)!: rename /advisory-firms/{id}/metrics query params
 ### Negative
 
 - It requires discipline: every commit has to be classified, and small changes still need a proper message.
-- It adds tooling (linter, hook, changelog generator) that has to be configured and maintained.
+- It adds tooling (commit linter in CI, changelog and release generator) that has to be configured and maintained.
+- Independent versions in the monorepo mean more than one release PR and tag series to follow.
 - Mixed commits (a fix plus a refactor) should be split, which takes a bit more effort.
