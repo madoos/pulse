@@ -89,3 +89,17 @@ Con la arquitectura diseñada y las decisiones escritas como ADR, el primer paso
 - **`tsconfig.base.json`**: una única fuente de verdad para las reglas del compilador (`strict`, `noUncheckedIndexedAccess`). Cada proyecto la extiende y solo añade lo suyo, así el rigor es el mismo en todo el repo y no se desalinea con el tiempo.
 - **ESLint, Prettier y Vitest** instalados en la raíz, con una sola versión y una sola configuración para todos los proyectos.
 - **CI** que comprueba formato, lint y tipos en cada PR y en cada push a `main`. Los tests están preparados pero desactivados: Vitest no arranca sin proyectos, así que se activan con el primer proyecto, junto con la publicación de la cobertura, que después leerá Sonar.
+
+---
+
+## 2026-11-21 — Contratos compartidos
+
+El primer proyecto del monorepo es `packages/contracts`: los esquemas que comparten la API y la web. Elegí compartir **esquemas zod** en un paquete propio, y no compartir tipos por RPC (importar la API desde la web), por tres motivos:
+
+- **Un esquema sirve para todo:** valida las peticiones en la API, genera el OpenAPI y da los tipos a la web. Con RPC solo se comparten tipos, que desaparecen al ejecutar, y harían falta igualmente esquemas para validar y documentar.
+- **Sin acoplamiento:** ni la API ni la web conocen el código de la otra, solo el contrato. Así se pueden separar en repos distintos sin reescribir nada.
+- **Cualquiera puede consumir la API:** REST con OpenAPI vale para otros productos, otros lenguajes y los tests E2E, no solo para clientes TypeScript.
+
+Los contratos de negocio todavía no los conocemos: saldrán al construir cada porción. De momento el paquete solo tiene lo que ya está decidido: `Problem`, el formato de error RFC 9457 de todas las respuestas de error, y `Health`, el primer contrato del *walking skeleton*, que conecta la API con la web desde el primer día.
+
+Con el primer proyecto, el CI ya ejecuta los tests y publica la cobertura.
