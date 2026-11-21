@@ -24,6 +24,7 @@ Data access and migrations use **[Drizzle ORM](https://orm.drizzle.team/)** with
 - The schema is written in TypeScript, **in the module that owns the tables** (`<module>/infrastructure/repository/postgres/schema.ts`), next to the repository adapters that use it. Drizzle infers the row types from it.
 - Queries use Drizzle's SQL-like builder. Where it falls short (complex aggregations), the `sql` template is used, still typed and parameterised.
 - **Only repository adapters in `infrastructure/` import Drizzle.** Domain and application code depend on ports, never on Drizzle types.
+- **Read queries can join tables owned by another module**, when the aggregation needs their data (for example grouping monthly metrics by an attribute of the advisory firm). The join is written in the repository adapter of the module that runs the query, which imports only the other module's `schema.ts`. Writes stay in the module that owns the table. A single join in the database is far cheaper than fetching the related data through a port and combining it in the application.
 - The database client and connection pool are shared technical infrastructure (`shared/infrastructure/database`), created once in the composition root.
 
 ### Migrations
@@ -52,4 +53,4 @@ Data access and migrations use **[Drizzle ORM](https://orm.drizzle.team/)** with
 
 - Drizzle is younger than Prisma, and some advanced features require falling back to `sql`.
 - Generated migrations must be reviewed: drizzle-kit can propose destructive changes (for example a column rename seen as drop and add).
-- The schema lives in each module, so a query across modules must go through ports instead of joining tables directly.
+- The schema lives in each module, but read queries join across modules: a module that reads another module's tables depends on their schema, and a change to those tables can break it. The integration tests of the repository adapters catch it.

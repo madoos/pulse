@@ -296,3 +296,16 @@ Los errores inesperados de la API y de la web llegan a Sentry, como decía el [A
 Al meter el SDK en el bundle de la API apareció un choque: el banner que añade tsup para poder usar `require` declaraba `createRequire`, y Sentry también lo importa. Ahora el banner usa un alias.
 
 Queda pendiente subir los source maps de la web desde el pipeline de release, para que las trazas de los errores del navegador apunten al TypeScript original y no al código minificado.
+
+## 2026-11-21 — Los datos llegan limpios
+
+Antes de implementar las vistas repasé los CSV de partida y aparecieron datos incorrectos: una asesoría con el mismo mes duplicado e importes distintos, IVA presentado negativo, una satisfacción de 6,2 en una escala de 1 a 5, más consultas resueltas que recibidas y un mes en el que los clientes activos no cuadran con el anterior.
+
+Tratar esos datos no entra en el alcance. Lo recojo en el [ADR-0013](adr/0013-business-data-arrives-sanitized-from-ingestion.md):
+
+- **Sanear y validar los datos es cosa de la capa de ingesta**, que es la que conoce las fuentes y sabe qué significa cada corrección para el negocio. La aplicación no la implementa.
+- **La aplicación parte de que los datos ya llegan saneados y validados contra un contrato:** un registro por asesoría y mes, métricas dentro de su dominio (nada negativo, satisfacción entre 1 y 5), asesorías conocidas con CIF único, categorías normalizadas, y un mes sin datos es un registro que falta, nunca uno a ceros.
+- **La aplicación no limpia, no corrige y no concilia.** Carga y trabaja con lo que recibe. Sí resuelve los casos que el contrato permite, como un mes sin datos o comparar con un valor anterior de cero, porque son datos válidos y no errores.
+- **Los CSV se tratan como la salida de esa ingesta.**
+
+Esta es la base sobre la que diseño el modelo de datos: sin lógica defensiva, pensado para que las agregaciones sean claras y eficientes. El precio es que, si llega un dato que rompe el contrato, la aplicación lo muestra tal cual y no lo detecta.

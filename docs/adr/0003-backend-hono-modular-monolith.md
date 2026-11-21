@@ -64,14 +64,19 @@ Imports use **TypeScript path aliases** (`paths` in `tsconfig.json`), one per mo
 
 Dependencies are wired **by hand in a single composition root** (`main.ts`): it builds the adapters and passes them to the use cases through their constructors. There is no DI container and there are no decorators. This keeps dependencies explicit and the domain free of framework code.
 
-### Data ingestion is a use case
+### Loading business data
 
-Loading seed data is not a separate script. It is a use case of the module that owns the data (`import-firms`, `import-monthly-metrics`). Validation rules (ranges, non-negative values, consistency between fields) are **domain invariants**. File readers are adapters, so a different data source later only means a new adapter.
+Sanitizing and validating the business data belongs to the ingestion layer, outside the backend ([ADR-0013](0013-business-data-arrives-sanitized-from-ingestion.md)). The backend only loads the files that layer produces.
+
+- Loading is a **use case of the module that owns the data** (`import-firms`, `import-monthly-metrics`), run by that module's versioned seeds ([ADR-0012](0012-versioned-seeds-applied-with-migrations.md)).
+- The use case **stores the data as it arrives**: it does not clean, correct or validate business rules.
+- File readers are adapters, so a different data source later only means a new adapter.
 
 ### Module boundaries
 
 - A module **never imports another module's `domain` or `application`**. Modules share only what lives in `shared`.
 - Modules refer to each other only **by identifier** (for example `FirmId`).
+- **The exception is read queries in the database:** a repository adapter can join tables of another module, importing only that module's `schema.ts` ([ADR-0010](0010-drizzle-for-data-access-and-migrations.md)). Network aggregations grouped by firm attributes work this way.
 - These rules are enforced in CI with `eslint-plugin-boundaries`, so they do not depend on discipline alone.
 
 ### API style and contract
@@ -113,5 +118,5 @@ Loading seed data is not a separate script. It is a use case of the module that 
 
 - More folders and files than a flat structure. For a small service this is visible overhead.
 - Manual dependency wiring has to be maintained in the composition root as the number of use cases grows.
-- Strict module boundaries mean some data needed across modules (for example firm attributes for network breakdowns) must be modelled explicitly instead of reached through a direct import.
+- Read queries that join tables of another module couple the modules through the database schema. Extracting one of them into a separate service would mean replacing those joins with an API call or a local copy of the data.
 - Without the RPC client, the frontend needs a thin hand-written HTTP client typed by the `contracts` package.
