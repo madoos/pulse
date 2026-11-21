@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./tokens.css": "./src/tokens/index.css"
+    "./tokens.scss": "./src/tokens/index.scss",
+    "./mixins.scss": "./src/styles/_mixins.scss"
   },
   "scripts": {
     "storybook": "storybook dev -p 6006",
@@ -28,6 +29,7 @@
     "jsdom": "^31.0.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "sass-embedded": "^1.108.2",
     "storybook": "^10.6.7",
     "vite": "^8.3.8"
   },

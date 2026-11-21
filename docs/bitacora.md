@@ -145,3 +145,15 @@ El tercer proyecto es `packages/design-system`, siguiendo el [ADR-0007](adr/0007
 Storybook también se publica. Se construye como una imagen propia (los ficheros estáticos servidos con nginx), `docker compose up` lo levanta junto a la API, y cada release del design system lo despliega en k3s con su propio subdominio, para que el equipo pueda verlo sin instalar nada. El design system tiene versión propia, independiente de la aplicación, como dice el [ADR-0001](adr/0001-use-conventional-commits.md).
 
 Para no repetir la publicación de imágenes, la API y Storybook comparten un workflow reutilizable que construye la imagen y la publica con sus tres tags. El despliegue se lanza cuando hay release de cualquiera de los dos, y fija siempre ambas imágenes a la versión que indica el manifest de release-please.
+
+---
+
+## 2026-11-21 — SCSS y BEM para los estilos
+
+Con el primer componente ya escrito, decido que todos los estilos del proyecto se escriben en **SCSS** y que los nombres de clase siguen **BEM**. Lo recojo en el [ADR-0009](adr/0009-scss-and-bem-for-styles.md).
+
+- **SCSS para escribir mejor:** el anidamiento y el selector padre (`&`) agrupan en un solo sitio todo lo de un componente (sus elementos, variantes y estados), y los mixins evitan copiar la misma lógica, como el anillo de foco.
+- **BEM para nombrar igual en todas partes:** un bloque por componente, elementos con `__` y variantes como modificadores con `--`. Los estados de interacción no son modificadores: los da React Aria con sus atributos.
+- **No cambia lo que ya funcionaba:** cada componente sigue siendo un CSS Module, que aísla sus estilos, y los tokens siguen siendo variables CSS, que se pueden cambiar en tiempo de ejecución. Las variables de SCSS no se usan para decisiones de diseño.
+
+He migrado los tokens y el `Button` a esta forma de escribir, y he centrado los componentes en Storybook para verlos mejor.
