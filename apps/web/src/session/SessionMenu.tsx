@@ -8,7 +8,12 @@ export type SessionMenuProps = {
 
 export const SessionMenu = ({ email, onLogOut }: SessionMenuProps) => (
   <div className={styles['session-menu']}>
-    <span className={styles['session-menu__email']}>{email}</span>
+    <div className={styles['session-menu__user']}>
+      <span className={styles['session-menu__label']}>Sesión iniciada como</span>
+      <span className={styles['session-menu__email']} title={email}>
+        {email}
+      </span>
+    </div>
     <Button variant="secondary" onPress={onLogOut}>
       Cerrar sesión
     </Button>

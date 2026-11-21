@@ -6,6 +6,8 @@
     "types": ["vite/client", "@testing-library/jest-dom/vitest"],
     "paths": {
       "@app/*": ["./src/app/*"],
+      "@advisory-firms/*": ["./src/advisory-firms/*"],
+      "@advisory-firm-detail/*": ["./src/advisory-firm-detail/*"],
       "@shared/*": ["./src/shared/*"],
       "@login/*": ["./src/login/*"],
       "@network-overview/*": ["./src/network-overview/*"],

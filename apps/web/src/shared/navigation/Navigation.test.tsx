@@ -3,18 +3,36 @@ import { MemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
 import { Navigation } from './Navigation';
 
-describe('Navigation', () => {
-  it('links to every view and marks the current one', () => {
-    render(
-      <MemoryRouter initialEntries={['/']}>
-        <Navigation />
-      </MemoryRouter>,
-    );
+const renderAt = (url: string) =>
+  render(
+    <MemoryRouter initialEntries={[url]}>
+      <Navigation />
+    </MemoryRouter>,
+  );
 
-    const nav = screen.getByRole('navigation', { name: 'Principal' });
-    const link = screen.getByRole('link', { name: 'Vista de red' });
-    expect(nav).toContainElement(link);
-    expect(link).toHaveAttribute('href', '/');
-    expect(link).toHaveAttribute('aria-current', 'page');
+describe('Navigation', () => {
+  it('marks the network overview on the home page', () => {
+    renderAt('/');
+
+    expect(screen.getByRole('link', { name: 'Vista de red' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(screen.getByRole('link', { name: 'Asesorías' })).not.toHaveAttribute('aria-current');
+  });
+
+  it('opens the advisory firms over the current page, keeping its filters', () => {
+    renderAt('/?year=2025');
+
+    expect(screen.getByRole('link', { name: 'Asesorías' })).toHaveAttribute(
+      'href',
+      '/?year=2025&firms=open',
+    );
+  });
+
+  it('marks the advisory firms on a detail page', () => {
+    renderAt('/advisory-firms/7');
+
+    expect(screen.getByRole('link', { name: 'Asesorías' })).toHaveAttribute('aria-current', 'page');
   });
 });

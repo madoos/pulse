@@ -1,11 +1,13 @@
 import { useAppDispatch, useAppSelector } from '@app/store';
+import { useFirmsDrawer } from '@advisory-firms/firmsDrawer.url';
+import { PageHeader, Panel, SearchField } from '@pulse/design-system';
 import { formatFiscalYear } from '@shared/format';
 import { useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import { GroupTableContainer } from './groups/GroupTable.container';
 import { NeedsAttentionContainer, StandoutsContainer } from './highlights/Highlights.container';
 import styles from './network-overview.module.scss';
-import { NetworkFilters } from './NetworkFilters';
+import { NetworkFilters, describeFilters } from './NetworkFilters';
 import {
   changeFilters,
   monthsOfPeriod,
@@ -23,6 +25,7 @@ export const NetworkOverviewContainer = () => {
   const { status, fiscalYears } = useAppSelector((state) => state.networkOverview);
   const dispatch = useAppDispatch();
   const [params, setParams] = useSearchParams();
+  const firmsDrawer = useFirmsDrawer();
 
   useEffect(() => {
     if (status === 'idle') dispatch(fiscalYearsRequested());
@@ -44,9 +47,18 @@ export const NetworkOverviewContainer = () => {
 
   return (
     <div className={styles['network-overview']}>
-      <header className={styles['network-overview__header']}>
-        <h1 className={styles['network-overview__title']}>Vista de red</h1>
-      </header>
+      <PageHeader
+        title="Vista de red"
+        description="Cómo evoluciona la red de asesorías y cuáles necesitan atención"
+        actions={
+          <SearchField
+            label="Buscar asesoría"
+            hideLabel
+            placeholder="Buscar asesoría por nombre, ciudad o CIF"
+            onSubmit={(search) => firmsDrawer.open({ search })}
+          />
+        }
+      />
       <SectionState
         status={fiscalYears.length === 0 && status === 'loaded' ? 'loading' : status}
         what="los años con datos"
@@ -54,20 +66,22 @@ export const NetworkOverviewContainer = () => {
       >
         {filters && (
           <>
-            <NetworkFilters fiscalYears={fiscalYears} filters={filters} onChange={onChange} />
-            <section className={styles['network-overview__section']} aria-labelledby="kpis-title">
-              <h2 id="kpis-title" className={styles['network-overview__section-title']}>
-                La red · {formatFiscalYear(filters.fiscalYear)}
-              </h2>
+            <Panel
+              title="Filtros"
+              description={<span aria-live="polite">{describeFilters(filters)}</span>}
+            >
+              <NetworkFilters fiscalYears={fiscalYears} filters={filters} onChange={onChange} />
+            </Panel>
+            <Panel
+              title="Indicadores"
+              description={`La red en ${formatFiscalYear(filters.fiscalYear)}`}
+            >
               <NetworkKpisContainer calendarMonths={monthsOfPeriod(filters)} />
-            </section>
+            </Panel>
             <NeedsAttentionContainer />
-            <section className={styles['network-overview__section']} aria-labelledby="charts-title">
-              <h2 id="charts-title" className={styles['network-overview__section-title']}>
-                Evolución mensual
-              </h2>
+            <Panel title="Evolución mensual" description="Cada indicador mes a mes">
               <NetworkChartsContainer filters={filters} calendarMonths={monthsOfPeriod(filters)} />
-            </section>
+            </Panel>
             <GroupTableContainer filters={filters} />
             <StandoutsContainer />
           </>

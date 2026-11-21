@@ -42,62 +42,55 @@ export const NetworkFilters = ({ fiscalYears, filters, onChange }: NetworkFilter
     (month) => fiscalMonthIndex(month) >= fiscalMonthIndex(filters.fromMonth),
   );
   return (
-    <div className={styles['network-overview__filters-block']}>
-      <form className={styles['network-overview__filters']} aria-label="Filtros">
-        <fieldset className={styles['network-overview__group']}>
-          <legend className={styles['network-overview__group-title']}>Periodo</legend>
-          <Select
-            label="Año fiscal"
-            options={years}
-            selectedKey={String(filters.fiscalYear)}
-            onSelectionChange={(key) => onChange({ fiscalYear: Number(key) })}
-          />
-          <Select
-            label="Desde"
-            options={FISCAL_MONTHS.map(monthOption)}
-            selectedKey={String(filters.fromMonth)}
-            onSelectionChange={(key) => onChange({ fromMonth: Number(key) })}
-          />
-          <Select
-            label="Hasta"
-            options={toMonths.map(monthOption)}
-            selectedKey={String(filters.toMonth)}
-            onSelectionChange={(key) => onChange({ toMonth: Number(key) })}
-          />
-        </fieldset>
-        <fieldset className={styles['network-overview__group']}>
-          <legend className={styles['network-overview__group-title']}>Comparación</legend>
-          <Select
-            label="Comparar con"
-            options={[
-              { id: NONE, label: 'Ninguno' },
-              ...years.filter((year) => year.id !== String(filters.fiscalYear)),
-            ]}
-            selectedKey={filters.compareWith === null ? NONE : String(filters.compareWith)}
-            onSelectionChange={(key) =>
-              onChange({ compareWith: key === NONE ? null : Number(key) })
-            }
-          />
-        </fieldset>
-        <fieldset className={styles['network-overview__group']}>
-          <legend className={styles['network-overview__group-title']}>Desglose</legend>
-          <Select
-            label="Agrupar por"
-            options={[
-              { id: NONE, label: 'Ninguno' },
-              { id: 'specialty', label: 'Especialidad' },
-              { id: 'autonomous-community', label: 'Comunidad autónoma' },
-            ]}
-            selectedKey={filters.groupBy ?? NONE}
-            onSelectionChange={(key) =>
-              onChange({ groupBy: key === NONE ? null : (key as Filters['groupBy']) })
-            }
-          />
-        </fieldset>
-      </form>
-      <p className={styles['network-overview__summary']} aria-live="polite">
-        {describeFilters(filters)}
-      </p>
-    </div>
+    <form className={styles['network-overview__filters']} aria-label="Filtros">
+      <fieldset className={styles['network-overview__group']}>
+        <legend className={styles['network-overview__group-title']}>Periodo</legend>
+        <Select
+          label="Año fiscal"
+          options={years}
+          selectedKey={String(filters.fiscalYear)}
+          onSelectionChange={(key) => onChange({ fiscalYear: Number(key) })}
+        />
+        <Select
+          label="Desde"
+          options={FISCAL_MONTHS.map(monthOption)}
+          selectedKey={String(filters.fromMonth)}
+          onSelectionChange={(key) => onChange({ fromMonth: Number(key) })}
+        />
+        <Select
+          label="Hasta"
+          options={toMonths.map(monthOption)}
+          selectedKey={String(filters.toMonth)}
+          onSelectionChange={(key) => onChange({ toMonth: Number(key) })}
+        />
+      </fieldset>
+      <fieldset className={styles['network-overview__group']}>
+        <legend className={styles['network-overview__group-title']}>Comparación</legend>
+        <Select
+          label="Comparar con"
+          options={[
+            { id: NONE, label: 'Ninguno' },
+            ...years.filter((year) => year.id !== String(filters.fiscalYear)),
+          ]}
+          selectedKey={filters.compareWith === null ? NONE : String(filters.compareWith)}
+          onSelectionChange={(key) => onChange({ compareWith: key === NONE ? null : Number(key) })}
+        />
+      </fieldset>
+      <fieldset className={styles['network-overview__group']}>
+        <legend className={styles['network-overview__group-title']}>Desglose</legend>
+        <Select
+          label="Agrupar por"
+          options={[
+            { id: NONE, label: 'Ninguno' },
+            { id: 'specialty', label: 'Especialidad' },
+            { id: 'autonomous-community', label: 'Comunidad autónoma' },
+          ]}
+          selectedKey={filters.groupBy ?? NONE}
+          onSelectionChange={(key) =>
+            onChange({ groupBy: key === NONE ? null : (key as Filters['groupBy']) })
+          }
+        />
+      </fieldset>
+    </form>
   );
 };

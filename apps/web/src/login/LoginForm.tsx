@@ -1,4 +1,4 @@
-import { Button, TextField } from '@pulse/design-system';
+import { Button, Message, TextField } from '@pulse/design-system';
 import { useState, type FormEvent } from 'react';
 import type { LoginStatus } from './login.slice';
 import styles from './login-form.module.scss';
@@ -26,9 +26,12 @@ export const LoginForm = ({ status, onSubmit }: LoginFormProps) => {
 
   return (
     <form className={styles['login-form']} onSubmit={submit} aria-labelledby="login-title">
-      <h2 id="login-title" className={styles['login-form__title']}>
-        Inicia sesión
-      </h2>
+      <header className={styles['login-form__header']}>
+        <h1 id="login-title" className={styles['login-form__title']}>
+          Inicia sesión
+        </h1>
+        <p className={styles['login-form__subtitle']}>Entra con tu email y tu contraseña.</p>
+      </header>
       <TextField
         label="Email"
         type="email"
@@ -47,11 +50,7 @@ export const LoginForm = ({ status, onSubmit }: LoginFormProps) => {
         value={password}
         onChange={setPassword}
       />
-      {error ? (
-        <p role="alert" className={styles['login-form__error']}>
-          {error}
-        </p>
-      ) : null}
+      {error ? <Message tone="error" title={error} /> : null}
       <Button type="submit" isDisabled={submitting}>
         {submitting ? 'Entrando…' : 'Entrar'}
       </Button>

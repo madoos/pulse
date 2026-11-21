@@ -3,14 +3,14 @@ import type { Api } from '@shared/api';
 import { render } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import { Provider } from 'react-redux';
-import { MemoryRouter, Route, Routes } from 'react-router';
+import { MemoryRouter, Route, Routes, type InitialEntry } from 'react-router';
 import { createFakeApi } from './api';
 
 type Options = {
   api?: Api;
   path?: string;
   /** The URL to start at, if it is not the route path, for example with a query string. */
-  initialEntry?: string;
+  initialEntry?: InitialEntry;
   routes?: Record<string, ReactElement>;
 };
 

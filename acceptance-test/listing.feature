@@ -6,20 +6,24 @@ Feature: Advisory firm listing
   I want to see all advisory firms with their basic data and be able to search and filter them
   So that I know at a glance which advisory firms we have in the network
 
+  # The listing is a drawer that opens over any page, from "Asesorías" in the sidebar
+  # or from the search of the page header. Its search and filters live in the URL.
+
   Background:
     Given there are 50 advisory firms loaded in Pulse
 
   # ---------- UC-01 · View the listing ----------
 
   @UC-01
-  Scenario: See all advisory firms when opening Pulse
-    When I open Pulse
-    Then I see the advisory firm listing
+  Scenario: See all advisory firms when opening the listing
+    When I open "Asesorías" in the sidebar
+    Then the advisory firm listing opens in a drawer over the page
+    And the page behind keeps its filters
     And the counter shows "50 advisory firms"
 
   @UC-01
   Scenario: Each advisory firm shows its basic data
-    When I open Pulse
+    When I open the advisory firm listing
     Then each row of the listing shows:
       | field     |
       | name      |
@@ -44,11 +48,17 @@ Feature: Advisory firm listing
   @UC-01 @error
   Scenario: The API is unavailable
     Given the API does not respond
-    When I open Pulse
+    When I open the advisory firm listing
     Then I see a message saying the advisory firms could not be loaded
     And I do not see a blank screen
 
   # ---------- UC-02 · Search ----------
+
+  @UC-02
+  Scenario: Search from the page header
+    Given I am on the network overview
+    When I search for "gestor" in the page header
+    Then the advisory firm listing opens with the search "gestor"
 
   @UC-02
   Scenario: Search by part of the name, ignoring case and accents
@@ -137,6 +147,12 @@ Feature: Advisory firm listing
   # ---------- UC-08 · Navigation ----------
 
   @UC-08
+  Scenario: Close the listing
+    Given I have filtered by province "Madrid"
+    When I close the listing
+    Then I see the page behind as it was, without the listing filters in the URL
+
+  @UC-08
   Scenario: Go to an advisory firm's detail page
     Given I am on the listing
     When I click on an advisory firm
@@ -146,4 +162,5 @@ Feature: Advisory firm listing
   Scenario: Return from the detail page keeping filters and search
     Given I have filtered by province "Madrid" and searched for "asesores"
     When I open an advisory firm and go back
-    Then the listing is still filtered by "Madrid" with the search "asesores"
+    Then the listing opens again over the page it was on
+    And it is still filtered by "Madrid" with the search "asesores"

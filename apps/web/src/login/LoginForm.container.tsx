@@ -3,6 +3,7 @@ import { sessionRequested } from '@session/session.slice';
 import { useEffect } from 'react';
 import { Navigate } from 'react-router';
 import { LoginForm } from './LoginForm';
+import { LoginScreen } from './LoginScreen';
 import { loginRequested } from './login.slice';
 
 export const LoginFormContainer = () => {
@@ -17,6 +18,8 @@ export const LoginFormContainer = () => {
   if (session === 'authenticated') return <Navigate to="/" replace />;
 
   return (
-    <LoginForm status={login} onSubmit={(credentials) => dispatch(loginRequested(credentials))} />
+    <LoginScreen>
+      <LoginForm status={login} onSubmit={(credentials) => dispatch(loginRequested(credentials))} />
+    </LoginScreen>
   );
 };

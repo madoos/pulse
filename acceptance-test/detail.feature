@@ -130,6 +130,13 @@ Feature: Advisory firm detail
     Then I see its detail page without going through the listing
 
   @UC-08
-  Scenario: Go back to the listing
-    When I click "Back to listing"
-    Then I return to the advisory firm listing
+  Scenario: Go back to where the detail was opened from
+    Given I opened the detail from the advisory firm listing
+    When I click "Volver"
+    Then I return to the page I was on, with the listing open and its filters
+
+  @UC-08
+  Scenario: Go back after opening the URL directly
+    Given I opened the detail page URL directly
+    When I click "Volver"
+    Then I go to the network overview

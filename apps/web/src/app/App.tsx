@@ -1,25 +1,25 @@
+import { AdvisoryFirmDetailContainer } from '@advisory-firm-detail/AdvisoryFirmDetail.container';
 import { LoginFormContainer } from '@login/LoginForm.container';
 import { NetworkOverviewContainer } from '@network-overview/NetworkOverview.container';
 import { RequireSessionContainer } from '@session/RequireSession.container';
-import { SessionMenuContainer } from '@session/SessionMenu.container';
-import { Navigation } from '@shared/navigation/Navigation';
-import { Route, Routes } from 'react-router';
-import styles from './app.module.scss';
+import { LinkRouter } from '@pulse/design-system';
+import { Route, Routes, useHref, useNavigate } from 'react-router';
+import { AppLayout } from './AppLayout';
 
-export const App = () => (
-  <div className={styles.app}>
-    <header className={styles.app__header}>
-      <p className={styles.app__title}>Pulse</p>
-      <Navigation />
-      <SessionMenuContainer />
-    </header>
-    <main className={styles.app__main}>
+export const App = () => {
+  const navigate = useNavigate();
+  // The links of the design system navigate inside the app instead of reloading the page.
+  return (
+    <LinkRouter navigate={navigate} useHref={useHref}>
       <Routes>
         <Route path="/login" element={<LoginFormContainer />} />
         <Route element={<RequireSessionContainer />}>
-          <Route path="/" element={<NetworkOverviewContainer />} />
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<NetworkOverviewContainer />} />
+            <Route path="/advisory-firms/:id" element={<AdvisoryFirmDetailContainer />} />
+          </Route>
         </Route>
       </Routes>
-    </main>
-  </div>
-);
+    </LinkRouter>
+  );
+};
