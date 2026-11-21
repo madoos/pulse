@@ -130,6 +130,8 @@ export const LineChart = ({
             {ordered.map((s) => (
               <LinePath
                 key={s.id}
+                // Names the line for end-to-end tests, which cannot see it in the accessibility tree.
+                data-series={s.label}
                 data={s.values.map((value, index) => ({ value, index }))}
                 x={(d) => xOf(d.index)}
                 y={(d) => y(d.value ?? 0)}

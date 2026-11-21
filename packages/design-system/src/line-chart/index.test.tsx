@@ -90,3 +90,22 @@ describe('LineChart compact', () => {
     expect(screen.queryByRole('list', { name: 'Leyenda' })).not.toBeInTheDocument();
   });
 });
+
+describe('LineChart series', () => {
+  it('names each line after its series', () => {
+    const { container } = render(
+      <LineChart
+        {...props}
+        series={[
+          { id: '2025', label: '2025-26', values: [1, 2] },
+          { id: '2024', label: '2024-25', values: [1, 1], muted: true },
+        ]}
+      />,
+    );
+
+    const names = [...container.querySelectorAll('[data-series]')].map((line) =>
+      line.getAttribute('data-series'),
+    );
+    expect(names.toSorted()).toEqual(['2024-25', '2025-26']);
+  });
+});
