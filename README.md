@@ -18,6 +18,16 @@ docker compose up --build
 
 This builds and starts the whole system. Stop it with `docker compose down`.
 
+### Create a user
+
+There is no sign-up: users are created with a command of the API, which reads the password from standard input so it never shows up in the shell history or the process list.
+
+```bash
+docker compose run --rm -T migrate node create-user.js ana@example.com
+```
+
+Type the password (at least 12 characters), then press `Ctrl+D`.
+
 ## Acceptance tests
 
 The use cases are written as Gherkin acceptance tests in [`acceptance-test/`](acceptance-test/), at the root of the repository:

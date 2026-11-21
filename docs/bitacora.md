@@ -172,3 +172,36 @@ Elegí una *screaming architecture* lo más simple posible. Cada feature es una 
 En local, con `docker compose`, la web llama directamente a la API en otro puerto, así que la API activa CORS solo en desarrollo (`NODE_ENV=development`) y solo para el origen de la web. En producción, en k3s, la web y la API comparten dominio y no hace falta CORS.
 
 Los tests cubren cada nivel: el componente tonto, los epics con *marble testing* (incluida la cancelación de una petición pendiente) y la feature completa con el store real y la API en memoria. La web entra en la versión enlazada de la aplicación, junto con la API y los contratos, y se publica y despliega igual que el resto.
+
+---
+
+## 2026-11-21 — Base de datos
+
+Para tener usuarios registrados y sesiones de verdad empieza a hacer falta la base de datos, así que la monto antes que el login, como una pieza de infraestructura sin lógica de negocio.
+
+- **PostgreSQL con `pgvector` y `unaccent`**, como dice el [ADR-0005](adr/0005-use-postgresql.md). En local es un servicio más de `docker compose`; en k3s, un StatefulSet con su volumen persistente y la contraseña en un Secret que nunca pasa por el repositorio.
+- **Drizzle para el acceso a datos y las migraciones**, que recojo en el [ADR-0010](adr/0010-drizzle-for-data-access-and-migrations.md): el esquema tipado vive en el módulo dueño de las tablas, solo los repositorios lo importan, y las migraciones son ficheros SQL revisables en el repositorio. La primera crea las extensiones.
+- **Las migraciones se aplican antes de que arranque la API**, nunca al arrancar: en compose, un servicio de un solo uso del que depende la API; en k3s, un Job que el despliegue espera antes de actualizar la API.
+- **El health comprueba la base de datos.** Es el primer puerto de salida del proyecto: `checkHealth` recibe una lista de indicadores y no sabe nada de Postgres. Si la base de datos cae, la API responde `503` con `down` y Kubernetes deja de enviarle tráfico, pero no la reinicia, porque el problema no es de la API.
+
+Todo lo de la base de datos vive junto en `shared/infrastructure/database`: el cliente, el comando que aplica las migraciones, la configuración de drizzle-kit y las propias migraciones. Los comandos de terminal no van sueltos en la raíz de `src`: son puertas de entrada a la aplicación, igual que HTTP, así que cada uno vive con el módulo al que pertenece.
+
+Con esto llega también el primer test de integración contra una base de datos real, levantada con testcontainers: aplica las migraciones y comprueba el indicador de salud.
+
+---
+
+## 2026-11-21 — Login en la API
+
+Pulse es una herramienta interna, así que solo pueden entrar usuarios registrados. El registro queda fuera de alcance: los usuarios se crean con un comando de la API (`create-user`), que lee la contraseña de la entrada estándar para que no quede en el historial de la terminal.
+
+La decisión está en el [ADR-0011](adr/0011-authentication-with-jwt-cookie-and-database-sessions.md). Lo importante:
+
+- **El token va en una cookie `HttpOnly`, `Secure` y `SameSite=Strict`.** JavaScript no puede leerla, así que un fallo de XSS no roba la sesión, y el navegador no la envía desde otras webs, lo que corta el CSRF. Nunca viaja en el cuerpo de la respuesta ni en `localStorage`.
+- **JWT y sesión en base de datos a la vez.** El JWT solo lleva el usuario y el id de la sesión, y la API rechaza sin tocar la base de datos cualquier token falsificado o caducado. Para los válidos comprueba además que la sesión sigue activa, así que cerrar sesión la revoca en el momento, aunque alguien hubiera copiado el token.
+- **Las contraseñas se guardan con scrypt**, con una sal por contraseña. Un login fallido responde igual y tarda lo mismo exista o no el email, para no revelar qué usuarios hay.
+- **Un recurso, tres verbos:** `POST /session` inicia sesión, `GET /session` dice quién soy y `DELETE /session` la cierra.
+
+El módulo `auth` sigue la misma estructura que `health`: los puertos (`UserRepository`, `SessionRepository`, `PasswordHasher`, `TokenSigner`) en el dominio y los casos de uso como funciones. En infraestructura, cada carpeta lleva el nombre del puerto que implementa: `repository/` con sus adaptadores de Postgres y en memoria, y en `health`, `indicator/` con el de Postgres. El repositorio en memoria no es un doble de test escondido en otra carpeta, sino un adaptador más que cumple el mismo contrato: los casos de uso se prueban con él y con la criptografía real, y el de Postgres contra una base de datos real.
+
+Queda pendiente limitar los intentos de login antes de abrir la herramienta más allá del uso interno.
+

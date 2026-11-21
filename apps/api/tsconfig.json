@@ -3,6 +3,7 @@
   "compilerOptions": {
     "types": ["node"],
     "paths": {
+      "@auth/*": ["./src/auth/*"],
       "@health/*": ["./src/health/*"],
       "@shared/*": ["./src/shared/*"]
     }

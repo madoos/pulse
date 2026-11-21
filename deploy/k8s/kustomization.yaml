@@ -3,6 +3,8 @@ kind: Kustomization
 namespace: pulse
 resources:
   - namespace.yaml
+  - postgres.yaml
+  - migrate.yaml
   - api.yaml
   - web.yaml
   - storybook.yaml

@@ -19,7 +19,9 @@ export const createApp = (moduleRoutes: OpenAPIHono[], options: AppOptions = {})
   });
   const api = app.basePath(API_BASE_PATH);
 
-  if (options.corsOrigin) api.use('*', cors({ origin: options.corsOrigin }));
+  if (options.corsOrigin) {
+    api.use('*', cors({ origin: options.corsOrigin, credentials: true }));
+  }
 
   for (const routes of moduleRoutes) api.route('/', routes);
 
@@ -37,4 +39,5 @@ export const createApp = (moduleRoutes: OpenAPIHono[], options: AppOptions = {})
 
   return app;
 };
+export { problem } from './problem';
 export { startServer } from './server';

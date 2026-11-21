@@ -5,3 +5,4 @@ pnpm-lock.yaml
 *.md
 *.feature
 .release-please-manifest.json
+apps/api/src/shared/infrastructure/database/migrations/meta

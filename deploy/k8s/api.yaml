@@ -36,14 +36,23 @@ spec:
               value: production
             - name: PORT
               value: '3000'
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database
+                  key: url
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: auth
+                  key: jwt-secret
           readinessProbe:
             httpGet:
               path: /api/v1/health
               port: http
             periodSeconds: 5
           livenessProbe:
-            httpGet:
-              path: /api/v1/health
+            tcpSocket:
               port: http
             periodSeconds: 10
             failureThreshold: 3

@@ -4,11 +4,12 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status';
 
 const titles: Partial<Record<ContentfulStatusCode, string>> = {
   400: 'Bad Request',
+  401: 'Unauthorized',
   404: 'Not Found',
   500: 'Internal Server Error',
 };
 
-export const problem = (c: Context, status: ContentfulStatusCode, detail?: string) => {
+export const problem = <S extends ContentfulStatusCode>(c: Context, status: S, detail?: string) => {
   const body: Problem = {
     type: 'about:blank',
     title: titles[status] ?? 'Error',
@@ -16,5 +17,5 @@ export const problem = (c: Context, status: ContentfulStatusCode, detail?: strin
     instance: c.req.path,
     ...(detail ? { detail } : {}),
   };
-  return c.body(JSON.stringify(body), status, { 'Content-Type': 'application/problem+json' });
+  return c.json(body, status, { 'Content-Type': 'application/problem+json' });
 };
