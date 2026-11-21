@@ -262,3 +262,20 @@ Para no enterarme de estas cosas después de subir, los mismos checks corren en 
 - **Hooks de git con lefthook**, que se instalan con `pnpm install`. Antes de cada commit se validan el mensaje, el formato, el lint, los tipos y los tests relacionados con lo que cambia; antes de cada push, todos los tests con cobertura.
 
 Los hooks se pueden saltar, así que el CI sigue comprobándolo todo. Y lo que no es TypeScript (Dockerfiles, workflows, manifiestos) solo lo ve Sonar, o la extensión SonarQube for IDE en el editor.
+
+---
+
+## 2026-11-21 — Vulnerabilidades en dependencias e imágenes
+
+Sonar mira nuestro código, pero casi todo lo que corre en producción no lo hemos escrito nosotros: son las dependencias de npm y lo que traen las imágenes de Docker. Para eso añado Snyk al CI, y lo recojo en el [ADR-0015](adr/0015-dependency-and-image-scanning-with-snyk.md):
+
+- **Dependencias:** `snyk test` revisa los paquetes del monorepo y el CI falla con vulnerabilidades altas o críticas que tengan arreglo. Las que aún no lo tienen no bloquean, porque no hay nada que hacer salvo esperar.
+- **Imágenes:** cada imagen que construye el CI (API, web y Storybook) pasa por `snyk container test` y falla con vulnerabilidades altas o críticas.
+- **Vigilancia:** en cada push a `main`, `snyk monitor` registra lo desplegado y Snyk avisa por email si aparece una vulnerabilidad nueva.
+
+El primer análisis encontró problemas en las imágenes, no en nuestras dependencias:
+
+- **La imagen de la API traía 11 vulnerabilidades en npm**, que viene con la imagen de Node pero no se usa para ejecutar la API. Lo quito de la imagen final.
+- **Las imágenes de nginx traían paquetes del sistema sin parchear** (zlib, libxml2, expat y brotli, una de ellas crítica). La imagen base tiene un mes y los arreglos ya estaban publicados, así que las imágenes aplican los parches con `apk upgrade` al construirse.
+
+Con esto las tres imágenes quedan sin vulnerabilidades altas ni críticas. El precio de `apk upgrade` es que dos builds del mismo commit pueden llevar versiones distintas de los paquetes del sistema; prefiero eso a imágenes con vulnerabilidades conocidas que nadie actualiza.

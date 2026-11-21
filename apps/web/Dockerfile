@@ -13,6 +13,10 @@ COPY apps/web apps/web
 RUN pnpm --filter @pulse/web build
 
 FROM nginxinc/nginx-unprivileged:1.31-alpine
+# Apply the OS security patches released after the base image.
+USER root
+RUN apk upgrade --no-cache
+USER 101
 COPY apps/web/docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --chmod=755 apps/web/docker/40-runtime-config.sh /docker-entrypoint.d/
 COPY --from=build /repo/apps/web/dist /usr/share/nginx/html

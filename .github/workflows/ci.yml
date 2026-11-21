@@ -41,8 +41,27 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+  dependencies:
+    name: Scan dependencies
+    runs-on: ubuntu-latest
+    env:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: lts/*
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Fails on high or critical vulnerabilities that can be fixed by upgrading.
+      - run: npx --yes snyk@1.1309.0 test --all-projects --org=madoos --severity-threshold=high --fail-on=upgradable
+      # On main, records the dependencies in Snyk, which alerts on vulnerabilities found later.
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: npx --yes snyk@1.1309.0 monitor --all-projects --org=madoos
+
   images:
-    name: Build ${{ matrix.image.name }} image
+    name: Build and scan ${{ matrix.image.name }} image
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -58,5 +77,19 @@ jobs:
           context: .
           file: ${{ matrix.image.dockerfile }}
           push: false
+          load: true
+          tags: pulse-${{ matrix.image.name }}:ci
           cache-from: type=gha,scope=${{ matrix.image.name }}
           cache-to: type=gha,scope=${{ matrix.image.name }},mode=max
+      # Fails on high or critical vulnerabilities in the operating system or the bundled packages.
+      - run: >-
+          npx --yes snyk@1.1309.0 container test pulse-${{ matrix.image.name }}:ci
+          --file=${{ matrix.image.dockerfile }} --org=madoos --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: >-
+          npx --yes snyk@1.1309.0 container monitor pulse-${{ matrix.image.name }}:ci
+          --file=${{ matrix.image.dockerfile }} --org=madoos --project-name=pulse-${{ matrix.image.name }}
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}

@@ -2,6 +2,7 @@
 
 [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=madoos_pulse&token=1241f1429d7916225aa2fdd38b306b266deb3e91)](https://sonarcloud.io/summary/new_code?id=madoos_pulse)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=madoos_pulse&metric=coverage&token=1241f1429d7916225aa2fdd38b306b266deb3e91)](https://sonarcloud.io/component_measures?id=madoos_pulse&metric=coverage)
+[![Snyk](https://snyk.io/test/github/madoos/pulse/badge.svg)](https://app.snyk.io/org/madoos/projects)
 
 ### A project by Maurice Domínguez Osorto
 

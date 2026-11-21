@@ -11,6 +11,10 @@ COPY apps/api apps/api
 RUN pnpm --filter @pulse/api build
 
 FROM node:26-alpine
+# Apply the OS security patches released after the base image, and drop npm,
+# which is not needed to run the API and brings its own vulnerable dependencies.
+RUN apk upgrade --no-cache \
+  && rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 WORKDIR /app
 COPY --from=build /repo/apps/api/dist ./
 COPY apps/api/src/shared/infrastructure/database/migrations ./migrations
