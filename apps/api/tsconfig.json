@@ -3,8 +3,10 @@
   "compilerOptions": {
     "types": ["node"],
     "paths": {
+      "@advisory-firms/*": ["./src/advisory-firms/*"],
       "@auth/*": ["./src/auth/*"],
       "@health/*": ["./src/health/*"],
+      "@performance/*": ["./src/performance/*"],
       "@shared/*": ["./src/shared/*"]
     }
   },

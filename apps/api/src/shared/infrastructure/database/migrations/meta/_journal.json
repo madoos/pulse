@@ -22,6 +22,13 @@
       "when": 1795260442257,
       "tag": "0002_seeds",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795279672551,
+      "tag": "0003_advisory_firms_and_monthly_metrics",
+      "breakpoints": true
     }
   ]
 }
