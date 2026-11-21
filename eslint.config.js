@@ -9,6 +9,10 @@ export default defineConfig(
   js.configs.recommended,
   tseslint.configs.recommended,
   { languageOptions: { globals: { ...globals.node } } },
+  {
+    files: ['apps/web/**', 'packages/design-system/**'],
+    languageOptions: { globals: { ...globals.browser } },
+  },
   // Turns off style rules that Prettier already handles.
   prettier,
 );
