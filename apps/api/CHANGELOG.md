@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/madoos/pulse/compare/api-v0.4.0...api-v0.5.0) (2026-11-21)
+
+
+### Features
+
+* **api:** add the network performance and highlights endpoints ([f85d1ad](https://github.com/madoos/pulse/commit/f85d1ad2b8c1f3a874f64fc2fb56ab17e2202cc6))
+
 ## [0.4.0](https://github.com/madoos/pulse/compare/api-v0.3.0...api-v0.4.0) (2026-11-21)
 
 
