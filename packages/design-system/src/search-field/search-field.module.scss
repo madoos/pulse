@@ -1,0 +1,94 @@
+@use '../styles/mixins';
+
+.search-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+
+  &__label {
+    font-weight: var(--font-weight-semibold);
+
+    &--hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  &__box {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  &__icon {
+    position: absolute;
+    left: var(--space-3);
+    width: 1.125rem;
+    height: 1.125rem;
+    color: var(--color-text-muted);
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: var(--space-2) 2.75rem var(--space-2) 2.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    outline: none;
+
+    &::placeholder {
+      color: var(--color-text-muted);
+    }
+
+    &::-webkit-search-cancel-button {
+      appearance: none;
+    }
+
+    &[data-hovered] {
+      border-color: var(--color-action-primary);
+    }
+
+    &[data-focus-visible] {
+      @include mixins.focus-ring;
+    }
+  }
+
+  &__clear {
+    position: absolute;
+    right: var(--space-1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: none;
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    outline: none;
+
+    &[data-hovered] {
+      background: var(--color-surface-subtle);
+    }
+
+    &[data-focus-visible] {
+      @include mixins.focus-ring;
+    }
+  }
+
+  &[data-empty] &__clear {
+    display: none;
+  }
+}

@@ -1,0 +1,112 @@
+@use '../styles/mixins';
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(28rem, 100vw);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-text);
+  font: var(--font-body);
+
+  &[data-entering] {
+    animation: drawer-slide 200ms ease-out;
+  }
+
+  &[data-exiting] {
+    animation: drawer-slide 150ms ease-in reverse;
+  }
+
+  &__overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--color-overlay);
+
+    &[data-entering] {
+      animation: drawer-fade 200ms ease-out;
+    }
+
+    &[data-exiting] {
+      animation: drawer-fade 150ms ease-in reverse;
+    }
+  }
+
+  &__dialog {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    outline: none;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-6);
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  &__title {
+    flex: 1;
+    margin: 0;
+    font-size: var(--font-size-500);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+  }
+
+  &__aside {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-200);
+  }
+
+  &__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: none;
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--color-text);
+    font-size: var(--font-size-400);
+    cursor: pointer;
+    outline: none;
+
+    &[data-hovered] {
+      background: var(--color-surface-subtle);
+    }
+
+    &[data-focus-visible] {
+      @include mixins.focus-ring;
+    }
+  }
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-4) var(--space-6) var(--space-6);
+  }
+}
+
+@keyframes drawer-slide {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes drawer-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer,
+  .drawer__overlay {
+    animation: none !important;
+  }
+}

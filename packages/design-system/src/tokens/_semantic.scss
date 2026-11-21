@@ -14,6 +14,13 @@
   --color-surface-danger: var(--color-red-50);
   --color-surface-success: var(--color-green-50);
 
+  // The navigation and the brand: a dark surface that frames the content.
+  --color-surface-inverse: var(--color-blue-950);
+  --color-surface-inverse-hover: var(--color-blue-900);
+  --color-text-on-inverse: var(--color-neutral-0);
+  --color-text-on-inverse-muted: var(--color-blue-300);
+  --color-overlay: rgb(12 20 54 / 0.45);
+
   // Series colours of the charts, in order. They contrast at least 3:1 with the surface
   // and differ in lightness, not only in hue.
   --color-chart-1: var(--color-blue-700);

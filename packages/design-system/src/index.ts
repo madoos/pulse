@@ -1,11 +1,16 @@
+export { AppShell, SideNavLink, type AppShellProps, type SideNavLinkProps } from './app-shell';
 export { Badge, type BadgeProps } from './badge';
 export { Button, type ButtonProps } from './button';
 export { ChartLegend, type ChartLegendItem, type ChartLegendProps } from './chart-legend';
 export { Delta, type DeltaProps } from './delta';
+export { Drawer, type DrawerProps } from './drawer';
 export { FilterChips, type FilterChip, type FilterChipsProps } from './filter-chips';
 export { LineChart, type LineChartProps, type LineChartSeries } from './line-chart';
+export { LinkRouter, type LinkRouterProps } from './link-router';
 export { Message, type MessageProps } from './message';
+export { PageHeader, type PageHeaderProps } from './page-header';
 export { Panel, type PanelProps } from './panel';
+export { SearchField, type SearchFieldProps } from './search-field';
 export { Select, type SelectOption, type SelectProps } from './select';
 export { Sparkline, type SparklineProps } from './sparkline';
 export { StatCard, type StatCardProps } from './stat-card';
