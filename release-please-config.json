@@ -61,6 +61,17 @@
     "packages/contracts": {
       "component": "contracts",
       "initial-version": "0.1.0"
+    },
+    "apps/api": {
+      "component": "api",
+      "initial-version": "0.1.0"
     }
-  }
+  },
+  "plugins": [
+    {
+      "type": "linked-versions",
+      "groupName": "application",
+      "components": ["api", "contracts"]
+    }
+  ]
 }

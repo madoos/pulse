@@ -103,3 +103,31 @@ El primer proyecto del monorepo es `packages/contracts`: los esquemas que compar
 Los contratos de negocio todavía no los conocemos: saldrán al construir cada porción. De momento el paquete solo tiene lo que ya está decidido: `Problem`, el formato de error RFC 9457 de todas las respuestas de error, y `Health`, el primer contrato del *walking skeleton*, que conecta la API con la web desde el primer día.
 
 Con el primer proyecto, el CI ya ejecuta los tests y publica la cobertura.
+
+---
+
+## 2026-11-21 — Esqueleto de la API
+
+El segundo proyecto es `apps/api`, el primer paso del *walking skeleton*: una API mínima pero completa, que se construye, se empaqueta en una imagen y se publica en cada release.
+
+La estructura sigue el [ADR-0003](adr/0003-backend-hono-modular-monolith.md) desde el primer día. Aunque `health` es trivial, lo monté como un módulo más para que el patrón quede visible y el resto de módulos lo copien:
+
+- **Casos de uso como funciones**, no como clases. Un caso de uso es una sola operación, así que una función lo expresa sin ceremonia. Cuando necesite dependencias, una factoría las recibe y las cierra en un *closure*.
+- **Puertos según su dirección.** Los de entrada (lo que el módulo ofrece) son el tipo del caso de uso y viven junto a él en `application/`. Los de salida (lo que el módulo necesita de fuera, como un repositorio) se definen en `domain/` y se implementan en `infrastructure/`. La infraestructura técnica que solo usa el *composition root* (crear la app, arrancar el servidor) no lleva interfaz: nadie del núcleo depende de ella.
+- **Un `index.ts` por caso de uso o adaptador.** El nombre de la carpeta ya dice qué es, así que los imports se leen como la arquitectura (`@health/application/check-health`). Nunca un `index.ts` por capa o módulo, para no romper los límites.
+- **`main.ts` solo conecta piezas.** No conoce Hono ni Node.
+- **Sin comentarios en el código.** Los nombres tienen que explicarlo.
+
+La API se versiona en la URL (`/api/v1`): `/api` la separa de la web en el mismo dominio y `/v1` es la versión del contrato. El OpenAPI y Swagger se generan solos y muestran esa versión.
+
+Para el empaquetado, el build mete todas las dependencias en un único fichero, así que la imagen final solo lleva Node y ese fichero: sin `node_modules`, sin pnpm, y con un usuario sin privilegios. `docker compose up` ya levanta la API, y el resto de piezas se irán sumando.
+
+Cada release de la API publica su imagen en GitHub Container Registry con tres tags: la versión, el commit y `latest`. La publicación va en el mismo workflow que release-please, porque lo que crea el `GITHUB_TOKEN` no dispara otros workflows. Además, el CI construye la imagen en cada PR, para detectar un Dockerfile roto antes de la release. La API y los contratos comparten versión, como dice el [ADR-0001](adr/0001-use-conventional-commits.md).
+
+Con la imagen publicada, el último paso del esqueleto es verla desplegada. Cada release de la API se despliega sola en k3s, en el VPS, como dice el [ADR-0008](adr/0008-infrastructure-docker-compose-and-k3s.md), con algunas adaptaciones al servidor que ya tenía:
+
+- **k3s detrás del Caddy existente.** El VPS ya sirve otra aplicación, cuyo Caddy ocupa los puertos 80 y 443. En lugar de quitarlo, instalé k3s sin Traefik y Caddy sirve Pulse desde su propio fichero de sitio, con HTTPS automático. La API se expone en k3s con una IP interna fija, así que no abre ningún puerto a internet.
+- **Despliegue por SSH con una clave restringida.** El CI entra con una clave que solo puede ejecutar el script de despliegue: recibe los manifiestos, los aplica y espera a que el *rollout* termine. La API de Kubernetes queda cerrada a internet.
+- **Imagen privada con un token de solo lectura.** El clúster descarga la imagen con un token que solo tiene `read:packages`, nunca con un token personal.
+
+Los manifiestos viven en el repo (`deploy/k8s/`), igual que el script y la configuración de Caddy (`deploy/vps/`), así que el despliegue se puede reconstruir desde el código.

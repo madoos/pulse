@@ -8,6 +8,16 @@ Pulse is an internal tool for Asevia that gives a quick snapshot of its network 
 - Open an advisory firm and see how it evolves month by month.
 - See the network as a whole, with aggregated monthly metrics.
 
+## Getting started
+
+The only requirement is Docker. From the root of the repository:
+
+```bash
+docker compose up --build
+```
+
+This builds and starts the whole system. Stop it with `docker compose down`.
+
 ## Acceptance tests
 
 The use cases are written as Gherkin acceptance tests in [`acceptance-test/`](acceptance-test/), at the root of the repository:
