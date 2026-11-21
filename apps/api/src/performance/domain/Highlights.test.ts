@@ -118,7 +118,7 @@ describe('standoutsOf', () => {
 
     const result = standoutsOf(firms);
 
-    expect(result.map((s) => s.firm.name)).toEqual(['F', 'E', 'D', 'C', 'B']);
+    expect(result.map((s) => s.firm.name)).toEqual(['F', 'E', 'D', 'C']);
     expect(result[0]?.clientGrowth).toBeCloseTo(0.6);
   });
 

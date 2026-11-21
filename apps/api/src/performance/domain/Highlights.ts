@@ -18,7 +18,7 @@ export const HIGH_CHURN_FACTOR = 1.5;
 /** Revenue per client this much below the previous year means the firm is losing value. */
 export const LOSING_VALUE_DROP = 0.1;
 
-export const STANDOUTS = 5;
+export const STANDOUTS = 4;
 
 export type FirmReference = { id: number; name: string; specialty: string; province: string };
 
