@@ -33,3 +33,4 @@ This folder records the significant decisions made in Pulse: the context, the de
 | [0017](0017-fiscal-year-from-april-to-march.md) | Metrics are analysed by fiscal year, from April to March | Data | Accepted | Filtering or comparing metrics by year, labelling years or building charts over a year |
 | [0018](0018-read-only-database-viewer-with-pgweb.md) | Read-only database viewer with pgweb | Infrastructure | Accepted | Looking at the data, changing the database viewer, its credentials or how it is published |
 | [0019](0019-charts-with-visx.md) | Charts built with visx | Architecture | Accepted | Building or changing a chart, or adding a charting dependency |
+| [0020](0020-acceptance-tests-with-playwright-bdd.md) | Acceptance tests run the feature files with playwright-bdd and page objects | Quality | Accepted | Writing or running acceptance tests, adding steps or page objects, or changing the acceptance CI job |

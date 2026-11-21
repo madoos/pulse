@@ -124,7 +124,7 @@ Feature: Advisory firm detail
 
   # ---------- UC-08 · Navigation ----------
 
-  @UC-08
+  @UC-08 @e2e
   Scenario: Direct access by URL
     When I open the advisory firm's detail page URL directly
     Then I see its detail page without going through the listing
@@ -135,7 +135,7 @@ Feature: Advisory firm detail
     When I click "Volver"
     Then I return to the page I was on, with the listing open and its filters
 
-  @UC-08
+  @UC-08 @e2e
   Scenario: Go back after opening the URL directly
     Given I opened the detail page URL directly
     When I click "Volver"

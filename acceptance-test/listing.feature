@@ -54,7 +54,7 @@ Feature: Advisory firm listing
 
   # ---------- UC-02 · Search ----------
 
-  @UC-02
+  @UC-02 @e2e
   Scenario: Search from the page header
     Given I am on the network overview
     When I search for "gestor" in the page header

@@ -32,3 +32,8 @@ packages/*/src/**/*.css
 
 # Business data loaded by the migration task, already sanitized (see ADR-0013)
 !apps/api/src/shared/infrastructure/database/business-data/*.csv
+
+# Acceptance tests: generated from the .feature files, and their reports
+acceptance-test/.features-gen/
+acceptance-test/playwright-report/
+acceptance-test/test-results/

@@ -38,7 +38,7 @@ Feature: Network overview
 
   # ---------- Filters ----------
 
-  @UC-07
+  @UC-07 @e2e
   Scenario: The available years come from the data
     Then the year selector offers 2023-24, 2024-25 and 2025-26
     And 2025-26 is selected by default
@@ -48,37 +48,37 @@ Feature: Network overview
     Given metrics arrive for April 2026
     Then the year selector also offers 2026-27
 
-  @UC-07
+  @UC-07 @e2e
   Scenario: No comparison by default
     Then no year is selected to compare with
     And the KPIs and charts only show 2025-26
 
-  @UC-07
+  @UC-07 @e2e
   Scenario: Compare with one other year at most
     When I open the "Compare with" selector
     Then it offers "None", 2024-25 and 2023-24
     And it does not offer the selected year
     And I can only pick one of them
 
-  @UC-07
+  @UC-07 @e2e
   Scenario: Changing the selected year resets an invalid comparison
     Given 2025-26 is compared with 2024-25
     When I select 2024-25 as the year
     Then no year is selected to compare with
 
-  @UC-07
+  @UC-07 @e2e
   Scenario: The view says in words what it shows
     Given 2025-26 is compared with 2024-25
     When I filter the months from January to March
     Then I read "Estás viendo de enero a marzo 2025-26 frente a los mismos meses de 2024-25."
 
-  @UC-07
+  @UC-07 @e2e
   Scenario: Each KPI shows one line per year
     Given 2025-26 is compared with 2024-25
     Then the small chart of each KPI shows one line for 2025-26 and another for 2024-25
     And it has a vertical scale and the months of the period below
 
-  @UC-07
+  @UC-07 @e2e
   Scenario: Filter by months
     When I filter the months from April to June
     Then the KPIs and charts only use April, May and June of the selected year
@@ -111,10 +111,10 @@ Feature: Network overview
     Then the network's active clients are 400
     And the network's revenue is "35.000 €"
 
-  @UC-07
+  @UC-07 @e2e
   Scenario: Active clients of a period are those of its last month
-    Given the network has 7000 active clients in April 2025 and 8000 in March 2026
-    Then the network's active clients for 2025-26 are 8000
+    Given the network has 6868 active clients in April 2025 and 8148 in March 2026
+    Then the network's active clients for 2025-26 are 8148
 
   @UC-07
   Scenario: Revenue per client and churn of a period
@@ -131,11 +131,13 @@ Feature: Network overview
     Then that month's aggregate is calculated with the advisory firms that do have data
     And it shows how many advisory firms contributed data that month
 
-  @UC-07
+  # The scenarios tagged @e2e run in a browser against the whole system and the seeded data.
+
+  @UC-07 @e2e
   Scenario: KPIs show the change against the compared year
     Given 2025-26 is compared with 2024-25
-    And the network's revenue is 16.600.000 € in 2025-26 and 13.700.000 € in 2024-25
-    Then the revenue KPI shows "▲ +21,2 % · antes 13.700.000 €"
+    And the network's revenue is "16.608.611 €" in 2025-26 and "13.588.759 €" in 2024-25
+    Then the revenue KPI shows "▲ +22,2 % · antes 13.588.759 €"
 
   @UC-07
   Scenario Outline: The colour of a change says whether it is good or bad
@@ -175,12 +177,12 @@ Feature: Network overview
 
   # ---------- Grouping ----------
 
-  @UC-07
+  @UC-07 @e2e
   Scenario: Group by specialty or autonomous community
     When I open the "Group by" selector
     Then it offers "None", "Specialty" and "Autonomous community"
 
-  @UC-07
+  @UC-07 @e2e
   Scenario: The groups come from the data
     When I group by autonomous community
     Then I only see the autonomous communities that have advisory firms
@@ -204,7 +206,7 @@ Feature: Network overview
       | mean monthly churn           |
     And I can sort the table by any column
 
-  @UC-07
+  @UC-07 @e2e
   Scenario: The group table appears closed, right after the filters
     When I group by specialty
     Then the group panel appears right after the filters, closed
@@ -242,7 +244,7 @@ Feature: Network overview
     When I click "Ver todas (6)"
     Then I see the 6
 
-  @UC-07
+  @UC-07 @e2e
   Scenario: Advisory firms that stand out
     Then I see the 4 advisory firms with the highest active client growth
     And each one shows its client growth and its mean monthly churn
@@ -258,7 +260,7 @@ Feature: Network overview
     Given an advisory firm has no metrics in 2024-25
     Then it does not appear among the advisory firms that stand out
 
-  @UC-07
+  @UC-07 @e2e
   Scenario: The first year has nothing to compare with
     When I select 2023-24 as the year
     Then the "Compare with" selector only offers "None", 2024-25 and 2025-26
@@ -310,7 +312,7 @@ Feature: Network overview
     Given one advisory firm has two alerts and another one has one
     Then the advisory firm with two alerts comes first
 
-  @UC-07
+  @UC-07 @e2e
   Scenario: Filter by type of alert
     When I filter the advisory firms that need attention by "High churn"
     Then I only see the advisory firms with a high churn
@@ -333,16 +335,16 @@ Feature: Network overview
 
   # ---------- UC-08 · Navigation ----------
 
-  @UC-08
+  @UC-08 @e2e
   Scenario: Go to an advisory firm from the ones that stand out
     When I click on an advisory firm among the ones that stand out
     Then the detail page of that advisory firm opens
 
-  @UC-08
+  @UC-08 @e2e
   Scenario: Go to an advisory firm that needs attention
     When I click on an advisory firm among the ones that need attention
     Then the detail page of that advisory firm opens
 
-  @UC-08
+  @UC-08 @e2e
   Scenario: Global navigation
     Then from the menu I can go to the listing and to the network overview from any screen

@@ -14,7 +14,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:acceptance": "docker compose up --build --detach --wait db migrate api web && pnpm --filter @pulse/acceptance-test test"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",

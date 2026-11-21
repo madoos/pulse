@@ -6,3 +6,6 @@ pnpm-lock.yaml
 *.feature
 .release-please-manifest.json
 apps/api/src/shared/infrastructure/database/migrations/meta
+acceptance-test/.features-gen
+acceptance-test/playwright-report
+acceptance-test/test-results

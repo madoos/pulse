@@ -1,6 +1,7 @@
 packages:
   - apps/*
   - packages/*
+  - acceptance-test
 
 allowBuilds:
   '@parcel/watcher': false
