@@ -36,15 +36,20 @@ jobs:
           if-no-files-found: ignore
 
   images:
-    name: Build images
+    name: Build ${{ matrix.image.name }} image
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image:
+          - { name: api, dockerfile: apps/api/Dockerfile }
+          - { name: storybook, dockerfile: packages/design-system/Dockerfile }
     steps:
       - uses: actions/checkout@v7
       - uses: docker/setup-buildx-action@v4
       - uses: docker/build-push-action@v7
         with:
           context: .
-          file: apps/api/Dockerfile
+          file: ${{ matrix.image.dockerfile }}
           push: false
-          cache-from: type=gha,scope=api
-          cache-to: type=gha,scope=api,mode=max
+          cache-from: type=gha,scope=${{ matrix.image.name }}
+          cache-to: type=gha,scope=${{ matrix.image.name }},mode=max

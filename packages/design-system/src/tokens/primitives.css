@@ -1,0 +1,48 @@
+:root {
+  --color-blue-50: #eef2ff;
+  --color-blue-300: #9eb8ff;
+  --color-blue-700: #2346c8;
+  --color-blue-800: #1b37a0;
+
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #f6f7f9;
+  --color-neutral-100: #eceef2;
+  --color-neutral-300: #c9cdd6;
+  --color-neutral-500: #5f6672;
+  --color-neutral-900: #282828;
+
+  --color-red-700: #b3261e;
+  --color-green-700: #1e7b34;
+
+  --font-family-sans: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-size-100: 0.75rem;
+  --font-size-200: 0.875rem;
+  --font-size-300: 1rem;
+  --font-size-400: 1.125rem;
+  --font-size-500: 1.5rem;
+  --font-size-600: 2rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.08);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.12);
+
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+}

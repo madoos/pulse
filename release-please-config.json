@@ -65,6 +65,10 @@
     "apps/api": {
       "component": "api",
       "initial-version": "0.1.0"
+    },
+    "packages/design-system": {
+      "component": "design-system",
+      "initial-version": "0.1.0"
     }
   },
   "plugins": [

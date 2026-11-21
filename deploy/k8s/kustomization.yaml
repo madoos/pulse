@@ -4,7 +4,11 @@ namespace: pulse
 resources:
   - namespace.yaml
   - api.yaml
+  - storybook.yaml
 images:
   - name: api
     newName: ghcr.io/madoos/pulse-api
+    newTag: latest
+  - name: storybook
+    newName: ghcr.io/madoos/pulse-storybook
     newTag: latest
