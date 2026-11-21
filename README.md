@@ -1,8 +1,8 @@
 # Pulse
 
-### Technical test by Maurice Domínguez Osorto
+### A project by Maurice Domínguez Osorto
 
-Pulse is an internal tool for Asevia that gives a quick snapshot of its network of tax and accounting advisory firms across Spain. It lets you:
+Pulse is an internal tool that gives a quick snapshot of a network of tax and accounting advisory firms across Spain. It lets you:
 
 - Browse all advisory firms with their basic data, and search and filter them.
 - Open an advisory firm and see how it evolves month by month.
@@ -10,13 +10,31 @@ Pulse is an internal tool for Asevia that gives a quick snapshot of its network 
 
 ## Getting started
 
+The project is deployed continuously to Kubernetes: every release is built and rolled out automatically. It is running at:
+
+| Service | URL |
+| --- | --- |
+| App | https://pulse.0t4da4u.cserverhost.cloud |
+| API docs | https://pulse.0t4da4u.cserverhost.cloud/api/v1/docs |
+| Storybook | https://storybook.0t4da4u.cserverhost.cloud |
+
+### Run it locally
+
 The only requirement is Docker. From the root of the repository:
 
 ```bash
 docker compose up --build
 ```
 
-This builds and starts the whole system. Open http://localhost:8080 and log in with the initial user, the same one created in the deployment:
+This builds and starts the whole system:
+
+| Service | URL |
+| --- | --- |
+| App | http://localhost:8080 |
+| API docs | http://localhost:3000/api/v1/docs |
+| Storybook | http://localhost:6006 |
+
+Log in with the initial user, the same one created in the deployment:
 
 | Email | Password |
 | --- | --- |
