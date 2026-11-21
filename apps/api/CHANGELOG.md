@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.0](https://github.com/madoos/pulse/compare/api-v0.3.0...api-v0.4.0) (2026-11-21)
+
+
+### Features
+
+* **api:** add the advisory firms and monthly metrics tables ([df7acae](https://github.com/madoos/pulse/commit/df7acae9a02e6e96f2455f5e435e27dcd1627d93))
+* **api:** load the business data and add a read-only database viewer ([bfffed6](https://github.com/madoos/pulse/commit/bfffed6ac6f7a40c75b2506f1dd490c39dfb4d2c))
+* report production errors to sentry ([a8cd9ed](https://github.com/madoos/pulse/commit/a8cd9ed7f7d06c1b785e48ec7a68ed463372cb18))
+
 ## [0.3.0](https://github.com/madoos/pulse/compare/api-v0.2.0...api-v0.3.0) (2026-11-21)
 
 

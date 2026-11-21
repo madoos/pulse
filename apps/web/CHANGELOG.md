@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/madoos/pulse/compare/web-v0.3.0...web-v0.4.0) (2026-11-21)
+
+
+### Features
+
+* report production errors to sentry ([a8cd9ed](https://github.com/madoos/pulse/commit/a8cd9ed7f7d06c1b785e48ec7a68ed463372cb18))
+
 ## [0.3.0](https://github.com/madoos/pulse/compare/web-v0.2.0...web-v0.3.0) (2026-11-21)
 
 
