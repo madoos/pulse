@@ -1,0 +1,26 @@
+{
+  "name": "@pulse/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsup",
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.9",
+    "@hono/swagger-ui": "^0.6.2",
+    "@hono/zod-openapi": "^1.6.3",
+    "@pulse/contracts": "workspace:*",
+    "hono": "^4.13.19",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsup": "^9.0.0",
+    "tsx": "^4.23.15",
+    "vite-tsconfig-paths": "^6.1.1"
+  }
+}
