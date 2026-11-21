@@ -20,10 +20,11 @@ const renderApp = (path: string, api: Api = createFakeApi()) =>
   );
 
 describe('App', () => {
-  it('shows the title', async () => {
+  it('shows the name of the app and the navigation', async () => {
     renderApp('/login');
 
-    expect(await screen.findByRole('heading', { name: 'Pulse' })).toBeInTheDocument();
+    expect(await screen.findByText('Pulse')).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Principal' })).toBeInTheDocument();
   });
 
   it('serves the login', async () => {
@@ -38,10 +39,12 @@ describe('App', () => {
     expect(await screen.findByRole('heading', { name: 'Inicia sesión' })).toBeInTheDocument();
   });
 
-  it('shows the system status and the user menu with a session', async () => {
+  it('shows the network overview and the user menu with a session', async () => {
     renderApp('/', createFakeApi({ session: { get: () => of({ user: ana }) } }));
 
-    expect(await screen.findByText('API operativa')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Vista de red' }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cerrar sesión' })).toBeInTheDocument();
   });
 });

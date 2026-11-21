@@ -12,7 +12,8 @@
 #   - Active clients      -> the engine of the business: is the network growing?
 #   - Revenue             -> the result of the business
 #   - Revenue per client  -> are we growing in value or only in volume?
-#   - Churn               -> the risk signal
+#   - Churn               -> the risk signal: the share of clients that leave in a month.
+#                            The UI calls it "Bajas al mes" (monthly churn rate)
 #   Tax filings, satisfaction and the revenue mix belong to the advisory firm detail.
 #   Hours, queries, documents and tax agency incidents are left out: they follow
 #   active clients and add no signal of their own.
@@ -64,6 +65,18 @@ Feature: Network overview
     Given 2025-26 is compared with 2024-25
     When I select 2024-25 as the year
     Then no year is selected to compare with
+
+  @UC-07
+  Scenario: The view says in words what it shows
+    Given 2025-26 is compared with 2024-25
+    When I filter the months from January to March
+    Then I read "Estás viendo de enero a marzo 2025-26 frente a los mismos meses de 2024-25."
+
+  @UC-07
+  Scenario: Each KPI shows one line per year
+    Given 2025-26 is compared with 2024-25
+    Then the small chart of each KPI shows one line for 2025-26 and another for 2024-25
+    And it has a vertical scale and the months of the period below
 
   @UC-07
   Scenario: Filter by months
@@ -122,7 +135,7 @@ Feature: Network overview
   Scenario: KPIs show the change against the compared year
     Given 2025-26 is compared with 2024-25
     And the network's revenue is 16.600.000 € in 2025-26 and 13.700.000 € in 2024-25
-    Then the revenue KPI shows "▲ +21,2 % vs 2024-25"
+    Then the revenue KPI shows "▲ +21,2 % · antes 13.700.000 €"
 
   @UC-07
   Scenario Outline: The colour of a change says whether it is good or bad
@@ -211,8 +224,8 @@ Feature: Network overview
   @UC-07
   Scenario: Advisory firms that stand out
     Then I see the 5 advisory firms with the highest active client growth
-    And I see the 5 advisory firms with the lowest active client growth
     And each one shows its client growth and its mean monthly churn
+    And the ones that also need attention are marked
 
   @UC-07
   Scenario: Growth of an advisory firm is measured against the previous year
@@ -230,11 +243,83 @@ Feature: Network overview
     Then the "Compare with" selector only offers "None", 2024-25 and 2025-26
     And the advisory firms that stand out show that there is no previous year to compare with
 
+  # ---------- Advisory firms that need attention ----------
+  #
+  # Question this section answers: what is going wrong, and where?
+  # Every rule compares the selected period with the same months of the previous
+  # fiscal year, so seasonality never raises an alert. Thresholds are relative to
+  # the network or to the firm itself, so they do not go stale.
+  #
+  #   - Losing clients      -> fewer active clients at the end of the period than in the
+  #                            same month of the previous year
+  #   - High churn          -> mean monthly churn of 1.5 times the network's or more
+  #   - Falling revenue     -> less revenue than in the same months of the previous year
+  #   - Losing value        -> revenue per client 10 % or more below the same months of
+  #                            the previous year
+  #   - Missing data        -> no metrics for the last month of the period
+
+  @UC-07
+  Scenario Outline: Detect an advisory firm that needs attention
+    Given 2025-26 is selected
+    And an advisory firm <situation>
+    Then it appears among the advisory firms that need attention with the alert "<alert>"
+
+    Examples:
+      | situation                                                           | alert           |
+      | has 238 active clients in March 2026 and had 248 in March 2025      | Losing clients  |
+      | has a mean monthly churn of 3,0 % while the network has 1,6 %       | High churn      |
+      | bills 300.000 € in 2025-26 and billed 320.000 € in 2024-25          | Falling revenue |
+      | bills 1.800 € per client in 2025-26 and billed 2.100 € in 2024-25   | Losing value    |
+      | has no metrics for March 2026                                       | Missing data    |
+
+  @UC-07
+  Scenario: An advisory firm that is doing well needs no attention
+    Given 2025-26 is selected
+    And an advisory firm grows in clients, revenue and revenue per client with a churn below 1.5 times the network's
+    Then it does not appear among the advisory firms that need attention
+
+  @UC-07
+  Scenario: Each advisory firm shows all its alerts
+    Given an advisory firm is losing clients and has a high churn
+    Then it appears once with both alerts
+    And each alert shows its value and the reference it is compared with
+
+  @UC-07
+  Scenario: The ones with more alerts come first
+    Given one advisory firm has two alerts and another one has one
+    Then the advisory firm with two alerts comes first
+
+  @UC-07
+  Scenario: Filter by type of alert
+    When I filter the advisory firms that need attention by "High churn"
+    Then I only see the advisory firms with a high churn
+    And each filter shows how many advisory firms have that alert
+
+  @UC-07
+  Scenario: The alerts follow the selected months
+    When I filter the months from April to June
+    Then the alerts compare April to June with April to June of the previous year
+
+  @UC-07
+  Scenario: The first year only has the alerts that need no previous year
+    When I select 2023-24 as the year
+    Then the advisory firms that need attention only show the alerts "High churn" and "Missing data"
+
+  @UC-07
+  Scenario: Nothing needs attention
+    Given no advisory firm has any alert
+    Then I see a message saying that no advisory firm needs attention
+
   # ---------- UC-08 · Navigation ----------
 
   @UC-08
   Scenario: Go to an advisory firm from the ones that stand out
     When I click on an advisory firm among the ones that stand out
+    Then the detail page of that advisory firm opens
+
+  @UC-08
+  Scenario: Go to an advisory firm that needs attention
+    When I click on an advisory firm among the ones that need attention
     Then the detail page of that advisory firm opens
 
   @UC-08

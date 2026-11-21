@@ -8,6 +8,15 @@ describe('createStore', () => {
   it('starts with the state of every feature', () => {
     expect(createStore({ api: createFakeApi() }).getState()).toEqual({
       login: { status: 'idle' },
+      networkOverview: { status: 'idle', fiscalYears: [] },
+      networkPerformance: { status: 'idle', query: null, data: null },
+      networkGroups: {
+        status: 'idle',
+        query: null,
+        data: null,
+        sort: { column: 'revenuePerFirm', direction: 'descending' },
+      },
+      networkHighlights: { status: 'idle', query: null, data: null, alertFilter: 'all' },
       session: { status: 'unknown', user: null },
       systemStatus: { status: 'checking' },
     });

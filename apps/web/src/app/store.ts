@@ -2,6 +2,14 @@ import type { Api } from '@shared/api';
 import { combineReducers, configureStore, type Action } from '@reduxjs/toolkit';
 import { loginEpic } from '@login/login.epics';
 import { loginSlice } from '@login/login.slice';
+import { networkGroupsEpic } from '@network-overview/groups/networkGroups.epics';
+import { networkGroupsSlice } from '@network-overview/groups/networkGroups.slice';
+import { networkHighlightsEpic } from '@network-overview/highlights/networkHighlights.epics';
+import { networkHighlightsSlice } from '@network-overview/highlights/networkHighlights.slice';
+import { loadFiscalYearsEpic } from '@network-overview/networkOverview.epics';
+import { networkOverviewSlice } from '@network-overview/networkOverview.slice';
+import { networkPerformanceEpic } from '@network-overview/performance/networkPerformance.epics';
+import { networkPerformanceSlice } from '@network-overview/performance/networkPerformance.slice';
 import { sessionEpic } from '@session/session.epics';
 import { sessionSlice } from '@session/session.slice';
 import { checkSystemStatusEpic } from '@system-status/systemStatus.epics';
@@ -15,6 +23,10 @@ export type Dependencies = {
 
 const rootReducer = combineReducers({
   login: loginSlice.reducer,
+  networkOverview: networkOverviewSlice.reducer,
+  networkPerformance: networkPerformanceSlice.reducer,
+  networkGroups: networkGroupsSlice.reducer,
+  networkHighlights: networkHighlightsSlice.reducer,
   session: sessionSlice.reducer,
   systemStatus: systemStatusSlice.reducer,
 });
@@ -23,6 +35,10 @@ const rootEpic = combineEpics<Action, Action, RootState, Dependencies>(
   loginEpic,
   sessionEpic,
   checkSystemStatusEpic,
+  loadFiscalYearsEpic,
+  networkPerformanceEpic,
+  networkGroupsEpic,
+  networkHighlightsEpic,
 );
 
 export const createStore = (dependencies: Dependencies) => {

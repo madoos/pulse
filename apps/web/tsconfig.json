@@ -8,6 +8,7 @@
       "@app/*": ["./src/app/*"],
       "@shared/*": ["./src/shared/*"],
       "@login/*": ["./src/login/*"],
+      "@network-overview/*": ["./src/network-overview/*"],
       "@session/*": ["./src/session/*"],
       "@system-status/*": ["./src/system-status/*"]
     }
