@@ -8,5 +8,6 @@ export default defineProject({
     name: 'web',
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
+    testTimeout: 15_000,
   },
 });

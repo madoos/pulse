@@ -5,6 +5,10 @@
   font: var(--font-body);
 
   &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
     padding: var(--space-4);
     background: var(--color-action-primary);
     color: var(--color-text-on-action);

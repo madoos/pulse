@@ -7,6 +7,8 @@
     "paths": {
       "@app/*": ["./src/app/*"],
       "@shared/*": ["./src/shared/*"],
+      "@login/*": ["./src/login/*"],
+      "@session/*": ["./src/session/*"],
       "@system-status/*": ["./src/system-status/*"]
     }
   },

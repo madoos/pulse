@@ -1,5 +1,9 @@
 import type { Api } from '@shared/api';
 import { combineReducers, configureStore, type Action } from '@reduxjs/toolkit';
+import { loginEpic } from '@login/login.epics';
+import { loginSlice } from '@login/login.slice';
+import { sessionEpic } from '@session/session.epics';
+import { sessionSlice } from '@session/session.slice';
 import { checkSystemStatusEpic } from '@system-status/systemStatus.epics';
 import { systemStatusSlice } from '@system-status/systemStatus.slice';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,10 +14,16 @@ export type Dependencies = {
 };
 
 const rootReducer = combineReducers({
+  login: loginSlice.reducer,
+  session: sessionSlice.reducer,
   systemStatus: systemStatusSlice.reducer,
 });
 
-const rootEpic = combineEpics<Action, Action, RootState, Dependencies>(checkSystemStatusEpic);
+const rootEpic = combineEpics<Action, Action, RootState, Dependencies>(
+  loginEpic,
+  sessionEpic,
+  checkSystemStatusEpic,
+);
 
 export const createStore = (dependencies: Dependencies) => {
   const epicMiddleware = createEpicMiddleware<Action, Action, RootState, Dependencies>({

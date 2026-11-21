@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ApiError, createRequest } from './request';
+import { ApiError, createRequest, noContent } from './request';
 
 const request = createRequest('https://api.test/api/v1');
 
@@ -22,7 +22,10 @@ describe('request', () => {
     const fetch = respondWith(200, { id: 1 });
 
     await expect(firstValueFrom(request('GET', '/things', strict))).resolves.toEqual({ id: 1 });
-    expect(fetch).toHaveBeenCalledWith('https://api.test/api/v1/things', { method: 'GET' });
+    expect(fetch).toHaveBeenCalledWith('https://api.test/api/v1/things', {
+      method: 'GET',
+      credentials: 'include',
+    });
   });
 
   it('sends the body as JSON', async () => {
@@ -32,9 +35,18 @@ describe('request', () => {
 
     expect(fetch).toHaveBeenCalledWith('https://api.test/api/v1/things', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: '{"name":"a"}',
     });
+  });
+
+  it('accepts an empty response', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }));
+
+    await expect(
+      firstValueFrom(request('DELETE', '/things/1', noContent)),
+    ).resolves.toBeUndefined();
   });
 
   it('fails with the status when the API answers with an error', async () => {

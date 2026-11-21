@@ -14,6 +14,9 @@ describe('health', () => {
       .mockResolvedValue(new Response(JSON.stringify({ status: 'ok' })));
 
     await expect(firstValueFrom(health.get())).resolves.toEqual({ status: 'ok' });
-    expect(fetch).toHaveBeenCalledWith('https://api.test/api/v1/health', { method: 'GET' });
+    expect(fetch).toHaveBeenCalledWith('https://api.test/api/v1/health', {
+      method: 'GET',
+      credentials: 'include',
+    });
   });
 });

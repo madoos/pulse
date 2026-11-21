@@ -205,3 +205,18 @@ El módulo `auth` sigue la misma estructura que `health`: los puertos (`UserRepo
 
 Queda pendiente limitar los intentos de login antes de abrir la herramienta más allá del uso interno.
 
+---
+
+## 2026-11-21 — Login en la web
+
+La web ya no se ve sin sesión: quien llega sin ella va a `/login`, y tras entrar vuelve a la aplicación con su email y un botón para cerrar sesión en la cabecera.
+
+- **Dos features que dicen lo que hacen:** `login` inicia sesión, y `session` sabe si hay una sesión activa, protege las rutas y la cierra. Cuando el login tiene éxito, `session` lo escucha y pasa a estar autenticada, así que `login` no depende de ella. Las rutas protegidas cuelgan de un contenedor que comprueba la sesión al cargar y redirige al login si no la hay.
+- **El token nunca pasa por JavaScript.** La web solo envía las peticiones con `credentials: 'include'` y el navegador adjunta la cookie; el estado de Redux guarda el usuario, no el token.
+- **El formulario distingue dos fallos:** credenciales incorrectas, o una API que no responde. Mientras se envía, el botón queda deshabilitado y el epic ignora nuevos intentos (`exhaustMap`), así que un doble clic no abre dos sesiones.
+- **Cerrar sesión siempre cierra en la web**, aunque la API no responda: el usuario no se queda atrapado en una sesión que quiere terminar.
+- **El design system crece con un `TextField`** sobre React Aria, con su etiqueta y su mensaje de error accesibles, sus historias y su test de axe.
+
+La `api` compartida suma `session` con sus tres verbos.
+
+**Cada fichero de la web tiene su propio test, con el mismo nombre y al lado.** Así se entiende qué hace cada pieza leyendo solo su test: el componente tonto, con props; el contenedor, con un store real; el slice, acción a acción; y los epics, con tests de canicas. Las utilidades comunes (la API falsa, `expectEpic` y el render con store y router) están en `shared/testing`. El recorrido completo de entrar, ver la app y salir quedará para los tests E2E.

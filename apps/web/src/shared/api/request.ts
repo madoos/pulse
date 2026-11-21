@@ -4,6 +4,8 @@ export type Method = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 export type Schema<T> = { parse: (data: unknown) => T };
 
+export const noContent: Schema<void> = { parse: () => undefined };
+
 export type Request = <T>(
   method: Method,
   path: string,
@@ -23,10 +25,11 @@ export const createRequest =
     defer(async () => {
       const response = await fetch(`${baseUrl}${path}`, {
         method,
+        credentials: 'include',
         ...(body === undefined
           ? {}
           : { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
       });
       if (!response.ok) throw new ApiError(response.status);
-      return schema.parse(await response.json());
+      return schema.parse(response.status === 204 ? undefined : await response.json());
     });
