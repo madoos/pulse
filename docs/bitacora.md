@@ -131,3 +131,17 @@ Con la imagen publicada, el último paso del esqueleto es verla desplegada. Cada
 - **Imagen privada con un token de solo lectura.** El clúster descarga la imagen con un token que solo tiene `read:packages`, nunca con un token personal.
 
 Los manifiestos viven en el repo (`deploy/k8s/`), igual que el script y la configuración de Caddy (`deploy/vps/`), así que el despliegue se puede reconstruir desde el código.
+
+---
+
+## 2026-11-21 — Esqueleto del design system
+
+El tercer proyecto es `packages/design-system`, siguiendo el [ADR-0007](adr/0007-design-system-react-aria-tokens.md). Igual que con la API, el objetivo no es tener muchos componentes, sino fijar el patrón y tenerlo publicado desde el primer día, para que crezca componente a componente a medida que lo pidan las porciones.
+
+- **Tokens en tres niveles.** Los primitivos recogen la identidad de la marca: la paleta sacada de su web y la tipografía Figtree, cargada desde Google Fonts. Los semánticos dan significado a esos valores (texto, superficies, acciones, foco), y los componentes solo usan estos. Así se puede cambiar la imagen sin tocar ningún componente. Cada par de texto y fondo cumple el contraste AA: el acento claro de la marca lleva texto oscuro, no blanco.
+- **Un primer componente como patrón.** `Button` envuelve el de React Aria, que aporta el teclado, el foco y la semántica accesible. Sus estilos viven en un CSS Module que solo consume tokens, y los estados se estilan con los atributos que expone React Aria. Llega con sus historias y con tests que incluyen una comprobación automática de accesibilidad.
+- **Storybook como catálogo vivo.** Con el addon de accesibilidad, cualquier violación aparece como error en cada historia.
+
+Storybook también se publica. Se construye como una imagen propia (los ficheros estáticos servidos con nginx), `docker compose up` lo levanta junto a la API, y cada release del design system lo despliega en k3s con su propio subdominio, para que el equipo pueda verlo sin instalar nada. El design system tiene versión propia, independiente de la aplicación, como dice el [ADR-0001](adr/0001-use-conventional-commits.md).
+
+Para no repetir la publicación de imágenes, la API y Storybook comparten un workflow reutilizable que construye la imagen y la publica con sus tres tags. El despliegue se lanza cuando hay release de cualquiera de los dos, y fija siempre ambas imágenes a la versión que indica el manifest de release-please.
