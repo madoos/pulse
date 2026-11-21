@@ -320,3 +320,68 @@ Con los datos cargados necesitaba una forma sencilla de ver qué hay en la base 
 - En k3s sigue el patrón de Storybook: un Service con IP fija y su propio fichero de sitio en Caddy, instalado a mano en el VPS.
 
 El precio es que cualquiera con esas credenciales, que son las de la demo y están en el repo, puede leer toda la base de datos desde internet. Con datos reales habría que mover la contraseña a un Secret y usar un rol de PostgreSQL de solo lectura, o dejar de publicarlo.
+
+---
+
+## 2026-11-21 — La vista de red: ¿la red va a mejor o a peor?
+
+La primera vista que construyo es la de la red, porque es la que responde a la pregunta que más importa: cómo va el negocio en su conjunto y dónde hay que mirar.
+
+### Qué mide y cómo se compara
+
+- **Cuatro indicadores:** clientes activos, facturación, facturación por cliente y bajas al mes. El churn se queda como `churnRate` en el código y en los contratos, pero en pantalla se llama **"Bajas al mes"**: es lo que cualquiera entiende sin explicación.
+- **Los años se comparan mes a mes**, abril con abril, siempre sobre los mismos meses. Así la estacionalidad nunca parece crecimiento ni caída.
+- **Detectar lo que va mal es tan importante como ver los totales.** Una asesoría necesita atención si pierde clientes, tiene muchas bajas (1,5 veces las de la red o más), factura menos, pierde valor por cliente (un 10 % o más) o le faltan datos. Los umbrales son relativos a la red o a la propia asesoría, para que no se queden viejos cuando la red crezca.
+- **Las alertas y las que destacan se comparan siempre con el año anterior**, elijas el año que elijas para comparar. Una alerta tiene que significar lo mismo siempre.
+
+### Cómo está construida
+
+- **Un endpoint por sección y una consulta agregada por endpoint**, apoyada en el índice `(fiscal_year, month)`. La base de datos hace las sumas; la aplicación solo aplica las reglas.
+- **Los filtros viven en la URL.** Cada sección se queda con la parte de los filtros que le importa y solo recarga cuando esa parte cambia: agrupar no vuelve a pedir los indicadores, y cambiar la comparación no vuelve a pedir las alertas.
+- **Los gráficos se hacen con visx**, envuelto en el design system, como recojo en el [ADR-0019](adr/0019-charts-with-visx.md). Da las piezas (escalas, ejes, líneas) sin imponer un aspecto, así que los gráficos usan los mismos tokens que el resto de componentes.
+- **El design system crece con la vista:** tarjetas de indicadores, tablas ordenables, selectores, filtros por chips, paneles, mensajes y gráficos. Todos con su historia en Storybook y su test de accesibilidad, listos para las siguientes vistas.
+
+### Lo que cambió al verla
+
+La primera versión funcionaba, pero al usarla no se entendía bien qué hacía cada filtro: al comparar con otro año solo aparecía una flechita, y nada decía qué estabas viendo. La rehíce:
+
+- **Los filtros se leen como una frase**, agrupados en periodo, comparación y desglose, y debajo se dice en palabras: *"Estás viendo de enero a marzo 2025-26 frente a los mismos meses de 2024-25."*
+- **Cada indicador lleva su gráfica mes a mes**, con una línea por año (o por grupo al agrupar), y el cambio enseña el valor anterior: *"▲ +22,2 % · antes 13.588.759 €"*. La comparación se ve, no solo se lee.
+- **Las asesorías que necesitan atención y las que destacan van lado a lado**, en tarjetas, para verlas de un vistazo sin hacer scroll.
+- **Cada panel dice qué filtros le afectan** ("Usa: periodo"). Es la forma de que no sorprenda que las alertas no cambien al elegir otro año para comparar.
+- **El desglose por grupos aparece justo después de los filtros, plegado** y con un resumen en una línea; se abre para ver la tabla.
+
+El precio de las gráficas por grupo es que, agrupando por comunidad autónoma, salen 17 líneas por gráfica y los colores se repiten. Si molesta, habrá que limitar los grupos o cambiar de tipo de gráfico.
+
+---
+
+## 2026-11-21 — Un marco para la aplicación
+
+Con una vista en marcha y dos más por llegar (el listado y el detalle de cada asesoría), la aplicación necesitaba un marco común y un login a la altura:
+
+- **Barra lateral fija** con el logo de Asevia, la navegación y la sesión. El contenido se organiza en paneles, uno por sección.
+- **El listado de asesorías va en un cajón** que se abre desde cualquier página, por encima de lo que estás viendo, en vez de en una página aparte. Buscar una asesoría es algo que se hace en mitad de otra tarea, y así no se pierde el contexto. Su estado (abierto, búsqueda y filtros) vive también en la URL, así que sobrevive a una recarga.
+- **El detalle tiene su propia página** y su "Volver" lleva a donde estabas, con el cajón y sus filtros. Si entras por la URL directamente, vuelve a la vista de red. De momento es solo el esqueleto.
+- **El login separa la marca del formulario**, con una frase de qué es la herramienta.
+- **Los enlaces del design system navegan con el router de la aplicación** a través de un componente propio, `LinkRouter`, porque el [ADR-0007](adr/0007-design-system-react-aria-tokens.md) dice que las aplicaciones no importan React Aria directamente.
+
+La vista de red pasa a ser la página de inicio. La del estado de la API deja de tener ruta, pero no la borro: sigue en el repo por si vuelve a hacer falta.
+
+---
+
+## 2026-11-22 — Tests de aceptación de punta a punta
+
+Los casos de uso se escribieron en Gherkin desde el primer día precisamente para esto: automatizar los más importantes y tener una red de seguridad. Lo recojo en el [ADR-0020](adr/0020-acceptance-tests-with-playwright-bdd.md):
+
+- **Los `.feature` se ejecutan tal cual** con playwright-bdd, que convierte cada escenario en un test de Playwright. La especificación y los tests no pueden separarse: si un escenario cambia, falla hasta que sus pasos lo sigan.
+- **Se prueba el sistema entero**, como en local: Docker Compose levanta la base de datos, aplica las migraciones con los seeds y arranca la API y la web. Los tests entran con el usuario de la demo y usan los datos reales.
+- **Lo esperado sale de la base de datos**, con SQL escrito en los pasos, no de la API que se está probando. Si la API sumara mal, el test no se lo creería.
+- **Page objects:** los pasos no conocen el HTML. Hablan con objetos que representan las páginas y encuentran los elementos por su rol y su nombre accesible, como un usuario o un lector de pantalla. Si cambia el marcado, se arregla en un sitio.
+- **No todos los escenarios pasan por el navegador.** Solo los marcados `@e2e`, los que necesitan el sistema entero o los datos reales para fiarse del resultado. Los cálculos, los colores y los errores ya los cubren los tests unitarios y de integración, que son mucho más rápidos.
+- **Corren en un job aparte del CI**, para que un fallo de punta a punta no tape el resultado del resto de checks. Si fallan, el job guarda el informe de Playwright con las trazas y los logs de los servicios.
+
+Empiezo con 21 escenarios: 18 de la vista de red, la búsqueda desde la cabecera y la navegación del detalle. Tardan unos 40 segundos. Para comprobar que de verdad detectan errores, cambié a propósito un valor esperado y el test falló.
+
+Por el camino salieron dos ajustes. Las líneas de los gráficos no están en el árbol de accesibilidad, así que les añado un atributo con el nombre de su serie para poder contarlas sin depender de clases CSS. Y el login tardaba más de cinco segundos con varios tests entrando a la vez, porque comprobar una contraseña es lento a propósito: le doy más margen.
+
+El precio es que los escenarios que necesitan datos que los seeds no tienen (un año nuevo que llega, un mes sin datos, un periodo sin alertas) no se pueden probar de punta a punta sin inventar datos. Esos se quedan en los tests de integración.
