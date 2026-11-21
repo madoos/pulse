@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/madoos/pulse/compare/api-v0.5.0...api-v0.6.0) (2026-11-21)
+
+
+### Features
+
+* **api:** rank the top four advisory firms that stand out ([68dc0f2](https://github.com/madoos/pulse/commit/68dc0f21806460bffeaa079fbacef15aac546cbd))
+
 ## [0.5.0](https://github.com/madoos/pulse/compare/api-v0.4.0...api-v0.5.0) (2026-11-21)
 
 

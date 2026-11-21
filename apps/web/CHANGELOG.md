@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0](https://github.com/madoos/pulse/compare/web-v0.5.0...web-v0.6.0) (2026-11-21)
+
+
+### Features
+
+* **web:** add the app layout, the firms drawer and a new login ([dabf14d](https://github.com/madoos/pulse/commit/dabf14d66627e7678f12b3e38d29d7b7296f16fb))
+* **web:** rearrange the network overview around the kpis ([3cc4cc1](https://github.com/madoos/pulse/commit/3cc4cc164d9164f813cdf9329a94d4eab4a97cef))
+
 ## [0.5.0](https://github.com/madoos/pulse/compare/web-v0.4.0...web-v0.5.0) (2026-11-21)
 
 

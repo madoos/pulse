@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/madoos/pulse/compare/contracts-v0.5.0...contracts-v0.6.0) (2026-11-21)
+
+
+### Chores
+
+* **contracts:** Synchronize application versions
+
 ## [0.5.0](https://github.com/madoos/pulse/compare/contracts-v0.4.0...contracts-v0.5.0) (2026-11-21)
 
 
