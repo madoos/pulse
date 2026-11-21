@@ -16,9 +16,15 @@ The only requirement is Docker. From the root of the repository:
 docker compose up --build
 ```
 
-This builds and starts the whole system. Stop it with `docker compose down`.
+This builds and starts the whole system. Open http://localhost:8080 and log in with the initial user, the same one created in the deployment:
 
-### Create a user
+| Email | Password |
+| --- | --- |
+| `admin@pulse.com` | `pulse-demo-password` |
+
+Stop it with `docker compose down`, or with `docker compose down -v` to also delete the database.
+
+### Create more users
 
 There is no sign-up: users are created with a command of the API, which reads the password from standard input so it never shows up in the shell history or the process list.
 

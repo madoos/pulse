@@ -10,7 +10,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U pulse -d pulse']
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U pulse -d pulse']
       interval: 2s
       timeout: 3s
       retries: 30
@@ -22,6 +22,8 @@ services:
     command: ['node', 'migrate.js']
     environment:
       DATABASE_URL: postgres://pulse:pulse@db:5432/pulse
+      SEED_USER_EMAIL: admin@pulse.com
+      SEED_USER_PASSWORD: pulse-demo-password
     depends_on:
       db:
         condition: service_healthy

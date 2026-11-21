@@ -220,3 +220,25 @@ La web ya no se ve sin sesión: quien llega sin ella va a `/login`, y tras entra
 La `api` compartida suma `session` con sus tres verbos.
 
 **Cada fichero de la web tiene su propio test, con el mismo nombre y al lado.** Así se entiende qué hace cada pieza leyendo solo su test: el componente tonto, con props; el contenedor, con un store real; el slice, acción a acción; y los epics, con tests de canicas. Las utilidades comunes (la API falsa, `expectEpic` y el render con store y router) están en `shared/testing`. El recorrido completo de entrar, ver la app y salir quedará para los tests E2E.
+
+---
+
+## 2026-11-21 — Un usuario desde el primer despliegue
+
+Con el login, un entorno recién desplegado no servía de nada hasta que alguien entraba al servidor a crear un usuario. Y con `docker compose up`, quien evalúe la prueba no podría ni entrar.
+
+En vez de asegurar el usuario en cada despliegue, lo trato como las migraciones, y lo recojo en el [ADR-0012](adr/0012-versioned-seeds-applied-with-migrations.md):
+
+- **Semillas versionadas que se aplican una sola vez.** Cada semilla tiene un id con el módulo dueño de los datos (`auth/0001-initial-user`) y una tabla `seeds` recuerda cuáles se aplicaron. Si una falla, no se registra, se vuelve a intentar en el siguiente despliegue y la API no se actualiza.
+- **Corren en la misma tarea que las migraciones**, justo después. No hay un servicio ni un Job más que ordenar.
+- **Cada módulo tiene sus semillas** y reutilizan sus casos de uso: el usuario inicial se crea con `create-user`, con la misma validación y el mismo hash de la contraseña.
+- **Las credenciales vienen del entorno**, con el mismo usuario en local y en k3s: `admin@pulse.com` con la contraseña `pulse-demo-password`, apuntado en el README.
+- **Se crea una vez y no se vuelve a tocar.** Cambiar después las variables no cambia el usuario: así la base de datos, y no la configuración, manda sobre los usuarios.
+
+**Cómo llega el usuario en Kubernetes.** Igual que en `docker compose`: el Job `migrate` recibe el email y la contraseña como variables de entorno escritas en su manifiesto (`SEED_USER_EMAIL` y `SEED_USER_PASSWORD`). En cada despliegue, `deploy.sh` lanza el Job antes de actualizar la API; la primera vez crea el usuario, y las siguientes ve la semilla registrada en `seeds` y no hace nada.
+
+Lo pongo en claro a propósito, por simplicidad: es una prueba técnica y así cualquiera que la evalúe puede entrar tanto en local como en el despliegue. El precio es que la contraseña está en el repositorio. En un entorno real iría en un Secret creado fuera del repositorio, el Job la leería con `secretKeyRef`, y el usuario cambiaría la contraseña tras el primer acceso.
+
+El mismo mecanismo servirá para cargar los CSV de asesorías y métricas.
+
+De paso apareció una carrera al levantar la base de datos desde cero: la imagen de Postgres arranca un servidor temporal para inicializarla y lo reinicia, y el healthcheck daba por buena la base de datos antes de tiempo porque preguntaba por el socket local. Ahora pregunta por TCP, que el servidor temporal no escucha.

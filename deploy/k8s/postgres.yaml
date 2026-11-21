@@ -33,11 +33,11 @@ spec:
                   key: password
           readinessProbe:
             exec:
-              command: ['pg_isready', '-U', 'pulse', '-d', 'pulse']
+              command: ['pg_isready', '-h', '127.0.0.1', '-U', 'pulse', '-d', 'pulse']
             periodSeconds: 5
           livenessProbe:
             exec:
-              command: ['pg_isready', '-U', 'pulse', '-d', 'pulse']
+              command: ['pg_isready', '-h', '127.0.0.1', '-U', 'pulse', '-d', 'pulse']
             periodSeconds: 20
             failureThreshold: 3
           resources:

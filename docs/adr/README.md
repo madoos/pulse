@@ -25,3 +25,4 @@ This folder records the significant decisions made in Pulse: the context, the de
 | [0009](0009-scss-and-bem-for-styles.md) | Write styles in SCSS with BEM naming | Conventions and code style | Accepted | Writing or reviewing any stylesheet, class names or style mixins |
 | [0010](0010-drizzle-for-data-access-and-migrations.md) | Drizzle for data access and migrations | Data | Accepted | Writing database schemas, queries, repositories or migrations |
 | [0011](0011-authentication-with-jwt-cookie-and-database-sessions.md) | Authentication with a JWT in an HttpOnly cookie, backed by database sessions | Security | Accepted | Login, sessions, users, protecting routes, cookies, CORS with credentials |
+| [0012](0012-versioned-seeds-applied-with-migrations.md) | Versioned seeds applied with the migrations | Data | Accepted | Adding data that must exist in every environment, such as the initial user or seed files |

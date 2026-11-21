@@ -29,6 +29,10 @@ spec:
                 secretKeyRef:
                   name: database
                   key: url
+            - name: SEED_USER_EMAIL
+              value: admin@pulse.com
+            - name: SEED_USER_PASSWORD
+              value: pulse-demo-password
           resources:
             requests:
               cpu: 50m

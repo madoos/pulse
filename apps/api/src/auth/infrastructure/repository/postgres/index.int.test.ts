@@ -1,23 +1,15 @@
-import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
-import { MIGRATIONS_FOLDER, createDatabase } from '@shared/infrastructure/database';
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { startTestDatabase } from '@shared/infrastructure/database/testing';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPostgresSessionRepository, createPostgresUserRepository } from '.';
 
 describe('Postgres user and session repositories', () => {
-  let container: StartedPostgreSqlContainer;
-  let database: ReturnType<typeof createDatabase>;
+  let database: Awaited<ReturnType<typeof startTestDatabase>>;
 
   beforeAll(async () => {
-    container = await new PostgreSqlContainer('pgvector/pgvector:0.8.7-pg18-trixie').start();
-    database = createDatabase(container.getConnectionUri());
-    await migrate(database.db, { migrationsFolder: MIGRATIONS_FOLDER });
+    database = await startTestDatabase();
   }, 120_000);
 
-  afterAll(async () => {
-    await database?.close();
-    await container?.stop();
-  });
+  afterAll(() => database?.stop());
 
   it('creates and finds users, with a unique email', async () => {
     const users = createPostgresUserRepository(database.db);

@@ -1,24 +1,17 @@
-import { PostgreSqlContainer, type StartedPostgreSqlContainer } from '@testcontainers/postgresql';
-import { MIGRATIONS_FOLDER, createDatabase } from '@shared/infrastructure/database';
+import { createDatabase } from '@shared/infrastructure/database';
+import { startTestDatabase } from '@shared/infrastructure/database/testing';
 import { sql } from 'drizzle-orm';
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createPostgresHealthIndicator } from '.';
 
 describe('Postgres health indicator', () => {
-  let container: StartedPostgreSqlContainer;
-  let database: ReturnType<typeof createDatabase>;
+  let database: Awaited<ReturnType<typeof startTestDatabase>>;
 
   beforeAll(async () => {
-    container = await new PostgreSqlContainer('pgvector/pgvector:0.8.7-pg18-trixie').start();
-    database = createDatabase(container.getConnectionUri());
-    await migrate(database.db, { migrationsFolder: MIGRATIONS_FOLDER });
+    database = await startTestDatabase();
   }, 120_000);
 
-  afterAll(async () => {
-    await database?.close();
-    await container?.stop();
-  });
+  afterAll(() => database?.stop());
 
   it('applies the migrations, including the extensions', async () => {
     const { rows } = await database.db.execute<{ extname: string }>(
