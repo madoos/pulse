@@ -72,7 +72,7 @@ The network view still has to add up every row of the selected year, so past a c
 
 ### Loading
 
-The data is loaded with versioned seeds ([ADR-0012](0012-versioned-seeds-applied-with-migrations.md)): the reference data and the firms by the `advisory-firms` module, the metrics by the `performance` module. The seed files are the output of the ingestion layer: clean and covering three fiscal years.
+The data is loaded by a single versioned seed from `shared/infrastructure/database/business-data/`, one CSV file per table ([ADR-0012](0012-versioned-seeds-applied-with-migrations.md)). The files are the output of the ingestion layer: clean, in the shape of the tables (province by its official code, specialty by its code, month as a date, amounts in cents) and covering three fiscal years.
 
 ## Alternatives considered
 

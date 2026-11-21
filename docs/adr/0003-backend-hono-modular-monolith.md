@@ -68,9 +68,10 @@ Dependencies are wired **by hand in a single composition root** (`main.ts`): it 
 
 Sanitizing and validating the business data belongs to the ingestion layer, outside the backend ([ADR-0013](0013-business-data-arrives-sanitized-from-ingestion.md)). The backend only loads the files that layer produces.
 
-- Loading is a **use case of the module that owns the data** (`import-firms`, `import-monthly-metrics`), run by that module's versioned seeds ([ADR-0012](0012-versioned-seeds-applied-with-migrations.md)).
-- The use case **stores the data as it arrives**: it does not clean, correct or validate business rules.
-- File readers are adapters, so a different data source later only means a new adapter.
+- All the business data lives in **one folder**, `shared/infrastructure/database/business-data/`: one CSV file per table, in the shape of the table, and the loader that inserts them.
+- The loader is **one versioned seed applied by the migration task** ([ADR-0012](0012-versioned-seeds-applied-with-migrations.md)). It is technical infrastructure, not a use case of each module: it maps each file to its table and inserts the rows in one transaction.
+- It **stores the data as it arrives**: it does not clean, correct or validate business rules.
+- A different data source later (an API, a queue) would replace this initial load with use cases in the module that owns the data.
 
 ### Module boundaries
 

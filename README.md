@@ -22,6 +22,7 @@ The project is deployed continuously to Kubernetes: every release is built and r
 | App | https://pulse.0t4da4u.cserverhost.cloud |
 | API docs | https://pulse.0t4da4u.cserverhost.cloud/api/v1/docs |
 | Storybook | https://storybook.0t4da4u.cserverhost.cloud |
+| Database (read-only) | https://pgweb.0t4da4u.cserverhost.cloud |
 
 ### Run it locally
 
@@ -38,6 +39,7 @@ This builds and starts the whole system:
 | App | http://localhost:8080 |
 | API docs | http://localhost:3000/api/v1/docs |
 | Storybook | http://localhost:6006 |
+| Database (read-only) | http://localhost:8081 |
 
 Log in with the initial user, the same one created in the deployment:
 

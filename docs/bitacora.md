@@ -309,3 +309,14 @@ Tratar esos datos no entra en el alcance. Lo recojo en el [ADR-0013](adr/0013-bu
 - **Los CSV se tratan como la salida de esa ingesta.**
 
 Esta es la base sobre la que diseño el modelo de datos: sin lógica defensiva, pensado para que las agregaciones sean claras y eficientes. El precio es que, si llega un dato que rompe el contrato, la aplicación lo muestra tal cual y no lo detecta.
+
+## 2026-11-21 — Ver la base de datos
+
+Con los datos cargados necesitaba una forma sencilla de ver qué hay en la base de datos, en local y en el despliegue. La base solo es accesible dentro de su red, y en el VPS eso obliga a abrir un túnel SSH cada vez. Lo recojo en el [ADR-0018](adr/0018-read-only-database-viewer-with-pgweb.md):
+
+- **pgweb**, un visor web ligero, junto a la base de datos en Docker Compose (http://localhost:8081) y en k3s (https://pgweb.0t4da4u.cserverhost.cloud).
+- **Solo lectura:** rechaza cualquier sentencia que cambie datos o schema, y no deja conectarse a otra base de datos.
+- **Autenticación básica con las mismas credenciales del usuario por defecto** de la web, para no tener que recordar otras.
+- En k3s sigue el patrón de Storybook: un Service con IP fija y su propio fichero de sitio en Caddy, instalado a mano en el VPS.
+
+El precio es que cualquiera con esas credenciales, que son las de la demo y están en el repo, puede leer toda la base de datos desde internet. Con datos reales habría que mover la contraseña a un Secret y usar un rol de PostgreSQL de solo lectura, o dejar de publicarlo.

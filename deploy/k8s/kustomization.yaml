@@ -8,6 +8,7 @@ resources:
   - api.yaml
   - web.yaml
   - storybook.yaml
+  - pgweb.yaml
 images:
   - name: api
     newName: ghcr.io/madoos/pulse-api

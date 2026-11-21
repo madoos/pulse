@@ -18,6 +18,7 @@ RUN apk upgrade --no-cache \
 WORKDIR /app
 COPY --from=build /repo/apps/api/dist ./
 COPY apps/api/src/shared/infrastructure/database/migrations ./migrations
+COPY apps/api/src/shared/infrastructure/database/business-data/*.csv ./business-data/
 USER node
 # The released version, passed by the release pipeline, tags every error reported to Sentry.
 ARG VERSION=dev

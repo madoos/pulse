@@ -29,3 +29,6 @@ packages/*/src/**/*.css
 # Seed data provided by Asevia (confidential, not to be published)
 *.csv
 *.jsonl
+
+# Business data loaded by the migration task, already sanitized (see ADR-0013)
+!apps/api/src/shared/infrastructure/database/business-data/*.csv

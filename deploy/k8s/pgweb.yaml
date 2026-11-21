@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgweb
+  labels:
+    app: pgweb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgweb
+  template:
+    metadata:
+      labels:
+        app: pgweb
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: pgweb
+          image: sosedoff/pgweb:0.16.2
+          command:
+            - pgweb
+            - --bind=0.0.0.0
+            - --listen=8081
+            - --readonly
+            - --lock-session
+            - --host=postgres
+            - --user=pulse
+            - --db=pulse
+            - --ssl=disable
+            - --pass=$(DATABASE_PASSWORD)
+          env:
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database
+                  key: password
+            # The same demo credentials as the initial user of the application (see migrate.yaml).
+            - name: PGWEB_AUTH_USER
+              value: admin@pulse.com
+            - name: PGWEB_AUTH_PASS
+              value: pulse-demo-password
+          ports:
+            - name: http
+              containerPort: 8081
+          readinessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgweb
+spec:
+  type: ClusterIP
+  clusterIP: 10.43.100.40
+  selector:
+    app: pgweb
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

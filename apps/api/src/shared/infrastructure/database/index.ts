@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { Pool } from 'pg';
 
 export const MIGRATIONS_FOLDER = fileURLToPath(new URL('./migrations', import.meta.url));
+export const BUSINESS_DATA_FOLDER = fileURLToPath(new URL('./business-data', import.meta.url));
 
 export const createDatabase = (url: string) => {
   const pool = new Pool({ connectionString: url, max: 10, connectionTimeoutMillis: 3000 });
