@@ -18,6 +18,11 @@ __pycache__/
 *.pyc
 .venv/
 
+# CSS compiled from SCSS by editor extensions (styles are written in SCSS, see ADR-0009)
+*.css.map
+apps/*/src/**/*.css
+packages/*/src/**/*.css
+
 # Confidential test statement (not to be published)
 *.pdf
 
