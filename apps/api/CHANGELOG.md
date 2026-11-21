@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/madoos/pulse/compare/api-v0.2.0...api-v0.3.0) (2026-11-21)
+
+
+### Features
+
+* **api:** add postgres and login with jwt cookie sessions ([b0adba0](https://github.com/madoos/pulse/commit/b0adba063c5901e44c3895971cbb642ddaa73b63))
+
 ## [0.2.0](https://github.com/madoos/pulse/compare/api-v0.1.0...api-v0.2.0) (2026-11-21)
 
 
