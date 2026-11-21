@@ -242,3 +242,23 @@ Lo pongo en claro a propósito, por simplicidad: es una prueba técnica y así c
 El mismo mecanismo servirá para cargar los CSV de asesorías y métricas.
 
 De paso apareció una carrera al levantar la base de datos desde cero: la imagen de Postgres arranca un servidor temporal para inicializarla y lo reinicia, y el healthcheck daba por buena la base de datos antes de tiempo porque preguntaba por el socket local. Ahora pregunta por TCP, que el servidor temporal no escucha.
+
+---
+
+## 2026-11-21 — Calidad de código en el CI y en local
+
+Conecto SonarQube Cloud al CI, como decía el [ADR-0006](adr/0006-quality-and-observability.md): cada push a `main` y cada pull request se analizan después de los tests, con la cobertura de Vitest, y el job falla si no pasa el quality gate.
+
+El primer análisis salió en rojo, y no por el código TypeScript, sino por la seguridad de los workflows y las imágenes:
+
+- **Las actions se fijan por SHA**, con la versión en un comentario. Una etiqueta como `v7` se puede mover y cambiar el código que corre en el CI con acceso a los secretos; un SHA no.
+- **Los permisos de escritura van en el job que los usa.** En `release-please.yml` estaban en todo el workflow; ahora el workflow no da ninguno y cada job declara los suyos.
+- **`npm install -g pnpm` sin scripts** en los Dockerfiles, para que ningún paquete ejecute código al instalarse.
+- **La web ya no escribe en su propia carpeta.** El script de arranque generaba `config.js` dentro de los estáticos, así que nginx tenía que poder modificarlos. Ahora lo escribe en `/tmp` y nginx lo sirve desde ahí, y los estáticos son de root y de solo lectura.
+
+Para no enterarme de estas cosas después de subir, los mismos checks corren en local, y lo recojo en el [ADR-0014](adr/0014-local-checks-with-git-hooks-and-sonarjs.md):
+
+- **Las reglas de Sonar para JavaScript y TypeScript van en ESLint** (`eslint-plugin-sonarjs`). Sacaron dos template literals anidados, que corregí, y los tests de epics sin aserciones, que sí las tienen dentro de `expectEpic`: ahí la regla queda apagada con el motivo al lado.
+- **Hooks de git con lefthook**, que se instalan con `pnpm install`. Antes de cada commit se validan el mensaje, el formato, el lint, los tipos y los tests relacionados con lo que cambia; antes de cada push, todos los tests con cobertura.
+
+Los hooks se pueden saltar, así que el CI sigue comprobándolo todo. Y lo que no es TypeScript (Dockerfiles, workflows, manifiestos) solo lo ve Sonar, o la extensión SonarQube for IDE en el editor.

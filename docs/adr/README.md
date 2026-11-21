@@ -26,3 +26,4 @@ This folder records the significant decisions made in Pulse: the context, the de
 | [0010](0010-drizzle-for-data-access-and-migrations.md) | Drizzle for data access and migrations | Data | Accepted | Writing database schemas, queries, repositories or migrations |
 | [0011](0011-authentication-with-jwt-cookie-and-database-sessions.md) | Authentication with a JWT in an HttpOnly cookie, backed by database sessions | Security | Accepted | Login, sessions, users, protecting routes, cookies, CORS with credentials |
 | [0012](0012-versioned-seeds-applied-with-migrations.md) | Versioned seeds applied with the migrations | Data | Accepted | Adding data that must exist in every environment, such as the initial user or seed files |
+| [0014](0014-local-checks-with-git-hooks-and-sonarjs.md) | Local checks with git hooks and the SonarJS rules in ESLint | Quality | Accepted | Changing lint rules, git hooks or the checks that run before committing and pushing |

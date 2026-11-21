@@ -1,5 +1,5 @@
 FROM node:26-alpine AS build
-RUN npm install -g pnpm@12.6.0
+RUN npm install -g --ignore-scripts pnpm@12.6.0
 WORKDIR /repo
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY packages/design-system/package.json packages/design-system/

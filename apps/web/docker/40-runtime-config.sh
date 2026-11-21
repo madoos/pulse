@@ -3,4 +3,5 @@ set -eu
 
 : "${API_URL:?API_URL is required}"
 
-printf 'window.__CONFIG__ = { apiUrl: "%s" };\n' "$API_URL" > /usr/share/nginx/html/config.js
+# Written outside the web root, which belongs to root and stays read-only for nginx.
+printf 'window.__CONFIG__ = { apiUrl: "%s" };\n' "$API_URL" > /tmp/config.js

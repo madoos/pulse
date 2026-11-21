@@ -4,14 +4,16 @@ on:
   push:
     branches: [main]
 
-permissions:
-  contents: write
-  pull-requests: write
+# Each job declares only the permissions it needs.
+permissions: {}
 
 jobs:
   release-please:
     name: Create release PR / release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     outputs:
       api-released: ${{ steps.release.outputs['apps/api--release_created'] }}
       api-version: ${{ steps.release.outputs['apps/api--version'] }}
@@ -20,7 +22,7 @@ jobs:
       design-system-released: ${{ steps.release.outputs['packages/design-system--release_created'] }}
       design-system-version: ${{ steps.release.outputs['packages/design-system--version'] }}
     steps:
-      - uses: googleapis/release-please-action@v5
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
         with:
           config-file: release-please-config.json
@@ -78,7 +80,7 @@ jobs:
       contents: read
     concurrency: deploy
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Pin the released images
         working-directory: deploy/k8s
         run: |

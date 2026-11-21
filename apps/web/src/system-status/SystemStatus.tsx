@@ -13,19 +13,19 @@ export type SystemStatusProps = {
   onRetry: () => void;
 };
 
-export const SystemStatus = ({ status, onRetry }: SystemStatusProps) => (
-  <section className={styles['system-status']} aria-label="Estado del sistema">
-    <span
-      className={`${styles['system-status__indicator']} ${styles[`system-status__indicator--${status}`] ?? ''}`}
-      aria-hidden="true"
-    />
-    <p className={styles['system-status__label']} role="status">
-      {labels[status]}
-    </p>
-    {status === 'down' && (
-      <Button variant="secondary" onPress={onRetry}>
-        Reintentar
-      </Button>
-    )}
-  </section>
-);
+export const SystemStatus = ({ status, onRetry }: SystemStatusProps) => {
+  const statusClass = styles[`system-status__indicator--${status}`] ?? '';
+  return (
+    <section className={styles['system-status']} aria-label="Estado del sistema">
+      <span className={`${styles['system-status__indicator']} ${statusClass}`} aria-hidden="true" />
+      <p className={styles['system-status__label']} role="status">
+        {labels[status]}
+      </p>
+      {status === 'down' && (
+        <Button variant="secondary" onPress={onRetry}>
+          Reintentar
+        </Button>
+      )}
+    </section>
+  );
+};
