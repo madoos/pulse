@@ -16,8 +16,8 @@ import {
   type NetworkFilters as Filters,
 } from './networkOverview.filters';
 import { fiscalYearsRequested, networkFiltersChanged } from './networkOverview.slice';
-import { NetworkChartsContainer } from './performance/NetworkCharts.container';
-import { NetworkKpisContainer } from './performance/NetworkKpis.container';
+import { FilterScope } from './FilterScope';
+import { IndicatorsContainer } from './performance/Indicators.container';
 import { SectionState } from './SectionState';
 
 /** The network overview. The filters live in the URL; every section loads from them. */
@@ -72,18 +72,18 @@ export const NetworkOverviewContainer = () => {
             >
               <NetworkFilters fiscalYears={fiscalYears} filters={filters} onChange={onChange} />
             </Panel>
+            <GroupTableContainer filters={filters} />
             <Panel
               title="Indicadores"
-              description={`La red en ${formatFiscalYear(filters.fiscalYear)}`}
+              description={`La red en ${formatFiscalYear(filters.fiscalYear)}, mes a mes`}
+              aside={<FilterScope uses={['period', 'compare', 'group']} />}
             >
-              <NetworkKpisContainer calendarMonths={monthsOfPeriod(filters)} />
+              <IndicatorsContainer filters={filters} calendarMonths={monthsOfPeriod(filters)} />
             </Panel>
-            <NeedsAttentionContainer />
-            <Panel title="Evolución mensual" description="Cada indicador mes a mes">
-              <NetworkChartsContainer filters={filters} calendarMonths={monthsOfPeriod(filters)} />
-            </Panel>
-            <GroupTableContainer filters={filters} />
-            <StandoutsContainer />
+            <div className={styles['network-overview__highlights']}>
+              <NeedsAttentionContainer />
+              <StandoutsContainer />
+            </div>
           </>
         )}
       </SectionState>

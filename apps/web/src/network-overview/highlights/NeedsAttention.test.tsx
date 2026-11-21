@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
 import { manchega, tinerfeno } from '@network-overview/networkOverview.fixtures';
@@ -17,10 +18,37 @@ const renderWith = (props: Partial<Parameters<typeof NeedsAttention>[0]> = {}) =
     </MemoryRouter>,
   );
 
+const firmsNamed = (count: number) =>
+  Array.from({ length: count }, (_, i) => ({
+    ...manchega,
+    firm: { ...manchega.firm, id: i + 10, name: `Asesoría ${i + 1}` },
+  }));
+
 describe('NeedsAttention', () => {
+  it('shows four advisory firms and the rest on demand', async () => {
+    renderWith({ firms: firmsNamed(6) });
+    const cards = () =>
+      within(screen.getByRole('list', { name: 'Asesorías que necesitan atención' })).getAllByRole(
+        'link',
+      );
+
+    expect(cards()).toHaveLength(4);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ver todas (6)' }));
+
+    expect(cards()).toHaveLength(6);
+    expect(screen.getByRole('button', { name: 'Ver menos' })).toBeInTheDocument();
+  });
+
+  it('hides "Ver todas" when every advisory firm fits', () => {
+    renderWith();
+
+    expect(screen.queryByRole('button', { name: /Ver todas/ })).toBeNull();
+  });
+
   it('shows each alert with its value and its reference', () => {
     renderWith();
-    const table = within(screen.getByRole('grid'));
+    const table = within(screen.getByRole('list', { name: 'Asesorías que necesitan atención' }));
 
     expect(table.getByText('Cae la facturación').closest('li')).toHaveTextContent(
       '−6,3 %300.000 €, frente a 320.000 € hace un año',

@@ -1,5 +1,6 @@
 import type { GroupBy, GroupPerformance } from '@pulse/contracts';
 import { Delta, Panel, Table, type TableColumn, type TableSort } from '@pulse/design-system';
+import { FilterScope } from '@network-overview/FilterScope';
 import {
   formatChange,
   formatEuros,
@@ -19,6 +20,21 @@ export type GroupTableProps = {
 const TITLES: Record<GroupBy, string> = {
   specialty: 'Especialidad',
   'autonomous-community': 'Comunidad autónoma',
+};
+
+const PLURALS: Record<GroupBy, [string, string]> = {
+  specialty: ['especialidad', 'especialidades'],
+  'autonomous-community': ['comunidad autónoma', 'comunidades autónomas'],
+};
+
+/** The groups in one line, for the closed panel: how many, and the best and worst. */
+export const summarizeGroups = (groupBy: GroupBy, groups: GroupPerformance[]) => {
+  const [one, many] = PLURALS[groupBy];
+  const count = `${formatNumber(groups.length)} ${groups.length === 1 ? one : many}`;
+  const [best, ...rest] = sortGroups(groups, { column: 'revenuePerFirm', direction: 'descending' });
+  const worst = rest.at(-1);
+  if (!best || !worst) return count;
+  return `${count} · más facturación por asesoría: ${best.name} (${formatEuros(best.revenuePerFirm)}) · menos: ${worst.name} (${formatEuros(worst.revenuePerFirm)})`;
 };
 
 const sortValue = (group: GroupPerformance, column: string): string | number => {
@@ -100,6 +116,9 @@ export const GroupTable = ({
     <Panel
       title={`Por ${TITLES[groupBy].toLowerCase()}`}
       description="La facturación por asesoría separa el tamaño del grupo de su rendimiento."
+      aside={<FilterScope uses={['period', 'compare', 'group']} />}
+      collapsible
+      summary={summarizeGroups(groupBy, groups)}
     >
       <Table
         label={`Grupos por ${TITLES[groupBy].toLowerCase()}`}

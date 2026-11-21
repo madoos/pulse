@@ -1,8 +1,10 @@
 import { ALERT_TYPES, type FirmNeedingAttention } from '@pulse/contracts';
-import { Badge, FilterChips, Message, Panel, Table } from '@pulse/design-system';
+import { Badge, Button, FilterChips, Message, Panel } from '@pulse/design-system';
+import { FilterScope } from '@network-overview/FilterScope';
 import { formatFiscalYear } from '@shared/format';
+import { useState } from 'react';
 import { ALERT_LABELS, ALERT_RULES, describeAlert } from './alerts';
-import { FirmLink } from './FirmLink';
+import { FirmCard, FirmCards } from './FirmCard';
 import styles from './highlights.module.scss';
 import type { AlertFilter } from './networkHighlights.slice';
 
@@ -13,11 +15,8 @@ export type NeedsAttentionProps = {
   onAlertFilterChange: (filter: AlertFilter) => void;
 };
 
-const columns = [
-  { id: 'firm', label: 'Asesoría', isRowHeader: true },
-  { id: 'alerts', label: 'Alertas' },
-  { id: 'count', label: 'Nº', align: 'end' as const },
-];
+/** How many squares are shown before "Ver todas". */
+export const SHOWN = 4;
 
 export const NeedsAttention = ({
   firms,
@@ -25,6 +24,7 @@ export const NeedsAttention = ({
   alertFilter,
   onAlertFilterChange,
 }: NeedsAttentionProps) => {
+  const [showAll, setShowAll] = useState(false);
   const withAlert = (type: AlertFilter) =>
     type === 'all' ? firms : firms.filter((f) => f.alerts.some((a) => a.type === type));
   const chips = [
@@ -35,7 +35,8 @@ export const NeedsAttention = ({
       count: withAlert(type).length,
     })),
   ];
-  const shown = withAlert(alertFilter);
+  const filtered = withAlert(alertFilter);
+  const shown = showAll ? filtered : filtered.slice(0, SHOWN);
 
   return (
     <Panel
@@ -44,9 +45,9 @@ export const NeedsAttention = ({
       description={
         previousFiscalYear === null
           ? 'No hay año anterior: solo se comprueban las bajas y los datos que faltan.'
-          : `Frente a los mismos meses de ${formatFiscalYear(previousFiscalYear)}.`
+          : `Frente a los mismos meses de ${formatFiscalYear(previousFiscalYear)}, el año anterior, aunque compares con otro.`
       }
-      aside={`${firms.length} ${firms.length === 1 ? 'asesoría' : 'asesorías'}`}
+      aside={<FilterScope uses={['period']} />}
     >
       {firms.length === 0 ? (
         <Message title="Ninguna asesoría necesita atención en este periodo" />
@@ -58,31 +59,31 @@ export const NeedsAttention = ({
             selectedKey={alertFilter}
             onSelectionChange={(key) => onAlertFilterChange(key as AlertFilter)}
           />
-          <Table
-            label="Asesorías que necesitan atención"
-            columns={columns}
-            rows={shown.map(({ firm, alerts }) => ({
-              id: String(firm.id),
-              cells: {
-                firm: <FirmLink firm={firm} />,
-                alerts: (
-                  <ul className={styles.highlights__alerts}>
-                    {alerts.map((alert) => {
-                      const { value, context } = describeAlert(alert);
-                      return (
-                        <li key={alert.type} className={styles.highlights__alert}>
-                          <Badge tone="danger">{ALERT_LABELS[alert.type]}</Badge>
-                          {value && <span className={styles.highlights__value}>{value}</span>}
-                          <span className={styles.highlights__context}>{context}</span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ),
-                count: alerts.length,
-              },
-            }))}
-          />
+          <FirmCards label="Asesorías que necesitan atención">
+            {shown.map(({ firm, alerts }) => (
+              <FirmCard key={firm.id} firm={firm}>
+                <ul className={styles.highlights__alerts}>
+                  {alerts.map((alert) => {
+                    const { value, context } = describeAlert(alert);
+                    return (
+                      <li key={alert.type} className={styles.highlights__alert}>
+                        <Badge tone="danger">{ALERT_LABELS[alert.type]}</Badge>
+                        {value && <span className={styles.highlights__value}>{value}</span>}
+                        <span className={styles.highlights__context}>{context}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </FirmCard>
+            ))}
+          </FirmCards>
+          {filtered.length > SHOWN && (
+            <div>
+              <Button variant="secondary" onPress={() => setShowAll(!showAll)}>
+                {showAll ? 'Ver menos' : `Ver todas (${filtered.length})`}
+              </Button>
+            </div>
+          )}
         </>
       )}
       <details className={styles.highlights__rules}>

@@ -43,15 +43,39 @@
     text-transform: uppercase;
   }
 
-  &__grid {
+  // Four squares in a row on a wide screen, two on a tablet, one on a phone.
+  &__kpis {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
     gap: var(--space-4);
   }
 
-  &__charts {
+  // Needs attention and standouts side by side, stacked on narrow screens.
+  &__highlights {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
-    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+    align-items: start;
+    gap: var(--space-6);
+  }
+
+  &__scope {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-100);
+  }
+
+  &__scope-label {
+    font-weight: var(--font-weight-semibold);
+  }
+
+  &__scope-filter {
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--color-surface-subtle);
+    color: var(--color-text);
+    line-height: 1.6;
   }
 }

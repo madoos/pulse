@@ -1,10 +1,14 @@
 import type { GroupPerformance, NetworkPerformance } from '@pulse/contracts';
 import type { LineChartSeries } from '@pulse/design-system';
 import { formatFiscalYear, formatNumber } from '@shared/format';
-import { valuesByMonth, type MetricKey } from '@network-overview/metrics';
-import type { MetricChart } from './MetricCharts';
+import { METRIC_KEYS, valuesByMonth, type MetricKey } from '@network-overview/metrics';
 
-export const CHARTED: MetricKey[] = ['revenue', 'activeClients', 'revenuePerClient'];
+/** The chart of a metric over the months of the period. */
+export type MetricChart = {
+  metric: MetricKey;
+  series: LineChartSeries[];
+  describeMonth?: (index: number) => string | undefined;
+};
 
 type Color = NonNullable<LineChartSeries['color']>;
 
@@ -34,7 +38,7 @@ export const networkCharts = (
   calendarMonths: number[],
 ): MetricChart[] => {
   const [selected] = performance.years;
-  return CHARTED.map((metric) => ({
+  return METRIC_KEYS.map((metric) => ({
     metric,
     series: yearSeries(performance, calendarMonths, metric),
     describeMonth: (index) => {
@@ -48,7 +52,7 @@ export const networkCharts = (
 
 /** One line per group, for the selected year only. */
 export const groupCharts = (groups: GroupPerformance[], calendarMonths: number[]): MetricChart[] =>
-  CHARTED.map((metric) => ({
+  METRIC_KEYS.map((metric) => ({
     metric,
     series: groups.map((group, index) => ({
       id: group.key,

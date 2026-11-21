@@ -63,9 +63,9 @@ describe('NetworkOverviewContainer', () => {
       'href',
       '/advisory-firms/1',
     );
-    expect(
-      within(within(panel).getByRole('grid')).getByText('Pierde clientes'),
-    ).toBeInTheDocument();
+    const cards = within(panel).getByRole('list', { name: 'Asesorías que necesitan atención' });
+    expect(within(cards).getByText('Pierde clientes')).toBeInTheDocument();
+    expect(within(panel).getByText('periodo')).toBeInTheDocument();
 
     await userEvent.click(within(panel).getByRole('radio', { name: 'Muchas bajas 1' }));
 
@@ -79,9 +79,12 @@ describe('NetworkOverviewContainer', () => {
     renderAt('');
 
     const panel = await screen.findByRole('region', { name: 'Asesorías que destacan' });
-    const rows = within(panel).getAllByRole('row');
-    expect(rows[1]).toHaveTextContent(/Asesoría Fiscal del Norte.*\+40,8/);
-    expect(rows[2]).toHaveTextContent('También necesita atención');
+    const cards = within(
+      within(panel).getByRole('list', { name: 'Asesorías que más crecen en clientes' }),
+    ).getAllByRole('listitem');
+    expect(cards[0]).toHaveTextContent(/Asesoría Fiscal del Norte.*\+40,8/);
+    expect(cards[0]).not.toHaveTextContent('También necesita atención');
+    expect(cards[1]).toHaveTextContent('También necesita atención');
   });
 
   it('shows the group table while grouped, and loads the groups only then', async () => {
@@ -89,6 +92,8 @@ describe('NetworkOverviewContainer', () => {
     renderAt('?group=specialty', api({ network: { groups } }));
 
     const panel = await screen.findByRole('region', { name: 'Por especialidad' });
+    expect(panel).toHaveTextContent('2 especialidades');
+    await userEvent.click(within(panel).getByRole('button', { name: 'Por especialidad' }));
     const [, first] = within(panel).getAllByRole('row');
     expect(first).toHaveTextContent('Laboral');
     expect(groups).toHaveBeenCalledOnce();

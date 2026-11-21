@@ -205,6 +205,14 @@ Feature: Network overview
     And I can sort the table by any column
 
   @UC-07
+  Scenario: The group table appears closed, right after the filters
+    When I group by specialty
+    Then the group panel appears right after the filters, closed
+    And it sums the groups up in one line: how many, and the best and worst by revenue per advisory firm
+    When I open it
+    Then I see the group table
+
+  @UC-07
   Scenario: The group table shows the change against the compared year
     Given 2025-26 is compared with 2024-25
     When I group by specialty
@@ -219,11 +227,24 @@ Feature: Network overview
     When I group by specialty and sort by revenue per advisory firm
     Then Laboral comes before Fiscal
 
+  @UC-07
+  Scenario: Each section says which filters change it
+    Then the indicators and the group table say they use the period, the comparison and the grouping
+    And the advisory firms that need attention and stand out say they use the period only
+    And they say they are always compared with the previous year, whatever year is compared
+
   # ---------- Advisory firms that stand out ----------
 
   @UC-07
+  Scenario: The advisory firms that need attention show four at first
+    Given 6 advisory firms need attention
+    Then I see 4 of them, each in its own square with its alerts
+    When I click "Ver todas (6)"
+    Then I see the 6
+
+  @UC-07
   Scenario: Advisory firms that stand out
-    Then I see the 5 advisory firms with the highest active client growth
+    Then I see the 4 advisory firms with the highest active client growth
     And each one shows its client growth and its mean monthly churn
     And the ones that also need attention are marked
 
