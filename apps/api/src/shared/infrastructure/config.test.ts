@@ -19,6 +19,17 @@ describe('loadConfig', () => {
     expect(() => loadConfig({ DATABASE_URL, JWT_SECRET: 'short' })).toThrow('JWT_SECRET');
   });
 
+  it('accepts the optional error monitoring settings', () => {
+    const sentry = {
+      SENTRY_DSN: 'https://key@o1.ingest.sentry.io/1',
+      SENTRY_ENVIRONMENT: 'production',
+      SENTRY_RELEASE: 'api@1.2.3',
+    };
+
+    expect(loadConfig({ ...required, ...sentry })).toMatchObject(sentry);
+    expect(() => loadConfig({ ...required, SENTRY_DSN: 'not-a-url' })).toThrow('SENTRY_DSN');
+  });
+
   it('requires the allowed CORS origin in development', () => {
     expect(() => loadConfig({ ...required, NODE_ENV: 'development' })).toThrow('CORS_ORIGIN');
     expect(

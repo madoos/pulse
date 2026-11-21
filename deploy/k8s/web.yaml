@@ -34,6 +34,11 @@ spec:
           env:
             - name: API_URL
               value: https://pulse.0t4da4u.cserverhost.cloud/api/v1
+            - name: APP_ENVIRONMENT
+              value: production
+            # A DSN only allows sending events to the project, so it is not a secret.
+            - name: SENTRY_DSN
+              value: https://de8293a509c4132dc4ef98bf84dd80f0@o4512470119612416.ingest.de.sentry.io/4512470152577104
           readinessProbe:
             httpGet:
               path: /

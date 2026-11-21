@@ -10,6 +10,9 @@ COPY tsconfig.base.json ./
 COPY packages/contracts packages/contracts
 COPY packages/design-system packages/design-system
 COPY apps/web apps/web
+# The released version, passed by the release pipeline, tags every error reported to Sentry.
+ARG VERSION=dev
+ENV VITE_RELEASE=web@${VERSION}
 RUN pnpm --filter @pulse/web build
 
 FROM nginxinc/nginx-unprivileged:1.31-alpine

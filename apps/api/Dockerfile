@@ -19,6 +19,8 @@ WORKDIR /app
 COPY --from=build /repo/apps/api/dist ./
 COPY apps/api/src/shared/infrastructure/database/migrations ./migrations
 USER node
-ENV NODE_ENV=production PORT=3000
+# The released version, passed by the release pipeline, tags every error reported to Sentry.
+ARG VERSION=dev
+ENV NODE_ENV=production PORT=3000 SENTRY_RELEASE=api@${VERSION}
 EXPOSE 3000
 CMD ["node", "main.js"]

@@ -1,5 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { API_BASE_PATH, createApp } from '.';
 
 const failingRoutes = new OpenAPIHono();
@@ -51,6 +51,22 @@ describe('HTTP app', () => {
       status: 500,
       instance: '/api/v1/boom',
     });
+  });
+
+  it('reports unexpected errors', async () => {
+    const reportError = vi.fn();
+
+    await createApp([failingRoutes], { reportError }).request('/api/v1/boom');
+
+    expect(reportError).toHaveBeenCalledWith(new Error('boom'));
+  });
+
+  it('does not report requests answered with a client error', async () => {
+    const reportError = vi.fn();
+
+    await createApp([failingRoutes], { reportError }).request('/does-not-exist');
+
+    expect(reportError).not.toHaveBeenCalled();
   });
 
   it('allows cross-origin requests only from the configured origin', async () => {

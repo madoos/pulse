@@ -9,6 +9,8 @@ export const API_BASE_PATH = `/api/${API_VERSION}`;
 
 export type AppOptions = {
   corsOrigin?: string;
+  /** Receives every unexpected error, for example to send it to error monitoring. */
+  reportError?: (error: unknown) => void;
 };
 
 export const createApp = (moduleRoutes: OpenAPIHono[], options: AppOptions = {}) => {
@@ -34,6 +36,7 @@ export const createApp = (moduleRoutes: OpenAPIHono[], options: AppOptions = {})
   app.notFound((c) => problem(c, 404));
   app.onError((error, c) => {
     console.error(error);
+    options.reportError?.(error);
     return problem(c, 500);
   });
 

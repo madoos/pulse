@@ -16,6 +16,7 @@
     "@hono/swagger-ui": "^0.6.2",
     "@hono/zod-openapi": "^1.6.3",
     "@pulse/contracts": "workspace:*",
+    "@sentry/node": "^11.16.0",
     "drizzle-orm": "^0.45.4",
     "hono": "^4.13.19",
     "pg": "^8.23.1",

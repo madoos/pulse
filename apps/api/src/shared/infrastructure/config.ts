@@ -7,6 +7,10 @@ const ConfigSchema = z
     DATABASE_URL: z.url(),
     JWT_SECRET: z.string().min(32),
     CORS_ORIGIN: z.url().optional(),
+    // Error monitoring: without a DSN, errors are only logged.
+    SENTRY_DSN: z.url().optional(),
+    SENTRY_ENVIRONMENT: z.string().optional(),
+    SENTRY_RELEASE: z.string().optional(),
   })
   .refine((config) => config.NODE_ENV !== 'development' || config.CORS_ORIGIN, {
     message: 'CORS_ORIGIN is required in development',

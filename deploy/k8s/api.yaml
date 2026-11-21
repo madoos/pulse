@@ -46,6 +46,9 @@ spec:
                 secretKeyRef:
                   name: auth
                   key: jwt-secret
+            # A DSN only allows sending events to the project, so it is not a secret.
+            - name: SENTRY_DSN
+              value: https://959b2b61d594913be41b66cab131475e@o4512470119612416.ingest.de.sentry.io/4512470135406672
           readinessProbe:
             httpGet:
               path: /api/v1/health

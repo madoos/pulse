@@ -35,6 +35,7 @@ jobs:
           context: .
           file: ${{ inputs.dockerfile }}
           push: true
+          build-args: VERSION=${{ inputs.version }}
           tags: |
             ${{ env.IMAGE }}:${{ inputs.version }}
             ${{ env.IMAGE }}:sha-${{ github.sha }}

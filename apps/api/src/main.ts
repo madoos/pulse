@@ -13,8 +13,15 @@ import { createPostgresHealthIndicator } from '@health/infrastructure/indicator/
 import { loadConfig } from '@shared/infrastructure/config';
 import { createDatabase } from '@shared/infrastructure/database';
 import { createApp, startServer } from '@shared/infrastructure/http';
+import { createErrorReporter } from '@shared/infrastructure/monitoring';
 
 const config = loadConfig();
+const reportError = createErrorReporter({
+  enabled: config.NODE_ENV === 'production',
+  dsn: config.SENTRY_DSN,
+  environment: config.SENTRY_ENVIRONMENT ?? config.NODE_ENV,
+  release: config.SENTRY_RELEASE,
+});
 const { db } = createDatabase(config.DATABASE_URL);
 
 const users = createPostgresUserRepository(db);
@@ -36,7 +43,10 @@ const app = createApp(
       cookie: { secure: config.NODE_ENV === 'production' },
     }),
   ],
-  { corsOrigin: config.NODE_ENV === 'development' ? config.CORS_ORIGIN : undefined },
+  {
+    corsOrigin: config.NODE_ENV === 'development' ? config.CORS_ORIGIN : undefined,
+    reportError,
+  },
 );
 
 startServer(app, config.PORT);

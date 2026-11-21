@@ -279,3 +279,20 @@ El primer análisis encontró problemas en las imágenes, no en nuestras depende
 - **Las imágenes de nginx traían paquetes del sistema sin parchear** (zlib, libxml2, expat y brotli, una de ellas crítica). La imagen base tiene un mes y los arreglos ya estaban publicados, así que las imágenes aplican los parches con `apk upgrade` al construirse.
 
 Con esto las tres imágenes quedan sin vulnerabilidades altas ni críticas. El precio de `apk upgrade` es que dos builds del mismo commit pueden llevar versiones distintas de los paquetes del sistema; prefiero eso a imágenes con vulnerabilidades conocidas que nadie actualiza.
+
+---
+
+## 2026-11-21 — Errores en Sentry, solo en producción
+
+Los errores inesperados de la API y de la web llegan a Sentry, como decía el [ADR-0006](adr/0006-quality-and-observability.md), cada uno a su proyecto (`pulse-api` y `pulse-web`).
+
+- **Solo en producción.** La API envía errores solo con `NODE_ENV=production` y un DSN; la web, solo si su configuración de runtime dice `environment: production` y trae un DSN. Esos valores solo están en los manifiestos de k3s: en local, con `docker compose` o con `pnpm dev`, nada sale de la máquina y los errores solo se ven en el log o en la consola. Así Sentry solo tiene errores reales de usuarios reales.
+- **En la API, el HTTP no sabe de Sentry.** `createApp` recibe una función `reportError` y la llama con cada error que termina en un `500`. Las respuestas `4xx` no son errores del sistema y no se reportan. Quien conecta Sentry es `main.ts`, igual que el resto de adaptadores.
+- **En la web, React avisa de todos sus errores.** La raíz de React reporta los errores que captura, y un error boundary muestra un mensaje en vez de una pantalla en blanco. El entorno y el DSN llegan en `config.js`, que genera el contenedor al arrancar, igual que la URL de la API: la misma imagen sirve para local y para producción.
+- **Cada evento lleva la versión.** El pipeline de release pasa la versión de release-please al construir las imágenes (`api@0.3.0`, `web@0.3.0`). Así un error se puede atribuir a la versión que lo introdujo.
+- **Ningún dato personal ni de negocio sale del sistema.** Sentry 11 ya no tiene la opción `sendDefaultPii` que menciona el ADR: la sustituye `dataCollection`, que por defecto lo recoge casi todo. La configuro para no enviar usuarios, cookies, cabeceras, cuerpos, parámetros de la URL, consultas a la base de datos ni variables locales. Llega el error con su traza, nada más.
+- **El DSN no es un secreto:** solo permite enviar eventos al proyecto, así que va en claro en los manifiestos.
+
+Al meter el SDK en el bundle de la API apareció un choque: el banner que añade tsup para poder usar `require` declaraba `createRequire`, y Sentry también lo importa. Ahora el banner usa un alias.
+
+Queda pendiente subir los source maps de la web desde el pipeline de release, para que las trazas de los errores del navegador apunten al TypeScript original y no al código minificado.
