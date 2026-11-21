@@ -1,0 +1,46 @@
+@use '../styles/mixins';
+
+.text-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  color: var(--color-text);
+  font: var(--font-body);
+
+  &__label {
+    font-weight: var(--font-weight-semibold);
+  }
+
+  &__input {
+    min-height: 2.75rem;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    outline: none;
+
+    &[data-hovered] {
+      border-color: var(--color-action-primary);
+    }
+
+    &[data-focus-visible] {
+      @include mixins.focus-ring;
+    }
+
+    &[data-invalid] {
+      border-color: var(--color-text-danger);
+    }
+
+    &[data-disabled] {
+      background: var(--color-action-disabled);
+      color: var(--color-text-disabled);
+    }
+  }
+
+  &__error {
+    color: var(--color-text-danger);
+    font-size: var(--font-size-200);
+  }
+}
