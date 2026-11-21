@@ -69,13 +69,17 @@
     "packages/design-system": {
       "component": "design-system",
       "initial-version": "0.1.0"
+    },
+    "apps/web": {
+      "component": "web",
+      "initial-version": "0.1.0"
     }
   },
   "plugins": [
     {
       "type": "linked-versions",
       "groupName": "application",
-      "components": ["api", "contracts"]
+      "components": ["api", "web", "contracts"]
     }
   ]
 }

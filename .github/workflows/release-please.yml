@@ -15,6 +15,8 @@ jobs:
     outputs:
       api-released: ${{ steps.release.outputs['apps/api--release_created'] }}
       api-version: ${{ steps.release.outputs['apps/api--version'] }}
+      web-released: ${{ steps.release.outputs['apps/web--release_created'] }}
+      web-version: ${{ steps.release.outputs['apps/web--version'] }}
       design-system-released: ${{ steps.release.outputs['packages/design-system--release_created'] }}
       design-system-version: ${{ steps.release.outputs['packages/design-system--version'] }}
     steps:
@@ -37,6 +39,19 @@ jobs:
       dockerfile: apps/api/Dockerfile
       version: ${{ needs.release-please.outputs.api-version }}
 
+  web-image:
+    name: Publish web image
+    needs: release-please
+    if: needs.release-please.outputs.web-released == 'true'
+    uses: ./.github/workflows/publish-image.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      image: web
+      dockerfile: apps/web/Dockerfile
+      version: ${{ needs.release-please.outputs.web-version }}
+
   storybook-image:
     name: Publish Storybook image
     needs: release-please
@@ -52,10 +67,11 @@ jobs:
 
   deploy:
     name: Deploy to k3s
-    needs: [release-please, api-image, storybook-image]
+    needs: [release-please, api-image, web-image, storybook-image]
     if: >-
       !failure() && !cancelled() &&
       (needs.release-please.outputs.api-released == 'true' ||
+       needs.release-please.outputs.web-released == 'true' ||
        needs.release-please.outputs.design-system-released == 'true')
     runs-on: ubuntu-latest
     permissions:
@@ -67,8 +83,10 @@ jobs:
         working-directory: deploy/k8s
         run: |
           api=$(jq -r '."apps/api"' ../../.release-please-manifest.json)
+          web=$(jq -r '."apps/web"' ../../.release-please-manifest.json)
           storybook=$(jq -r '."packages/design-system"' ../../.release-please-manifest.json)
           kustomize edit set image "api=ghcr.io/${{ github.repository }}-api:$api"
+          kustomize edit set image "web=ghcr.io/${{ github.repository }}-web:$web"
           kustomize edit set image "storybook=ghcr.io/${{ github.repository }}-storybook:$storybook"
       - name: Apply the manifests on the VPS
         env:

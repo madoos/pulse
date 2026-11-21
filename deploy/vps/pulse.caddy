@@ -11,4 +11,8 @@ pulse.0t4da4u.cserverhost.cloud {
 	handle /api/* {
 		reverse_proxy 10.43.100.10:80
 	}
+
+	handle {
+		reverse_proxy 10.43.100.30:80
+	}
 }

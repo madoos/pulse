@@ -1,0 +1,25 @@
+.app {
+  min-height: 100dvh;
+  background: var(--color-surface-subtle);
+  color: var(--color-text);
+  font: var(--font-body);
+
+  &__header {
+    padding: var(--space-4);
+    background: var(--color-action-primary);
+    color: var(--color-text-on-action);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: var(--font-size-500);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+  }
+
+  &__main {
+    max-width: var(--breakpoint-lg);
+    margin-inline: auto;
+    padding: var(--space-6) var(--space-4);
+  }
+}

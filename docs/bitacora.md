@@ -157,3 +157,18 @@ Con el primer componente ya escrito, decido que todos los estilos del proyecto s
 - **No cambia lo que ya funcionaba:** cada componente sigue siendo un CSS Module, que aísla sus estilos, y los tokens siguen siendo variables CSS, que se pueden cambiar en tiempo de ejecución. Las variables de SCSS no se usan para decisiones de diseño.
 
 He migrado los tokens y el `Button` a esta forma de escribir, y he centrado los componentes en Storybook para verlos mejor.
+
+---
+
+## 2026-11-21 — Esqueleto de la web
+
+La última pieza del *walking skeleton* es `apps/web`, siguiendo el [ADR-0004](adr/0004-frontend-react-redux-observable.md). Muestra una sola cosa, el estado de la API, pero recorre todo el camino: la web llama a la API, valida la respuesta con el contrato compartido y la pinta con el design system.
+
+Elegí una *screaming architecture* lo más simple posible. Cada feature es una carpeta con su componente tonto, su container, su slice, sus epics y sus tests, y nada más. Lo que comparten las features vive en `shared/`:
+
+- **Un único módulo `api`.** Es lo que se inyecta a los epics, en vez de que cada feature tenga su propio cliente. Cada entidad tiene su fichero, con un objeto del mismo nombre y sus verbos (`api.health.get()`), y lo común (la URL base, el cuerpo JSON, los errores y la validación con el contrato) está en un solo sitio. En los tests, la API es un objeto en memoria con solo lo que usa cada caso, así que ninguna feature necesita backend para probarse.
+- **Un módulo `config`** que lee en tiempo de ejecución la URL de la API. La misma imagen sirve para cualquier entorno: el contenedor genera la configuración al arrancar a partir de sus variables de entorno.
+
+En local, con `docker compose`, la web llama directamente a la API en otro puerto, así que la API activa CORS solo en desarrollo (`NODE_ENV=development`) y solo para el origen de la web. En producción, en k3s, la web y la API comparten dominio y no hace falta CORS.
+
+Los tests cubren cada nivel: el componente tonto, los epics con *marble testing* (incluida la cancelación de una petición pendiente) y la feature completa con el store real y la API en memoria. La web entra en la versión enlazada de la aplicación, junto con la API y los contratos, y se publica y despliega igual que el resto.

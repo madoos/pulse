@@ -42,6 +42,7 @@ jobs:
       matrix:
         image:
           - { name: api, dockerfile: apps/api/Dockerfile }
+          - { name: web, dockerfile: apps/web/Dockerfile }
           - { name: storybook, dockerfile: packages/design-system/Dockerfile }
     steps:
       - uses: actions/checkout@v7
