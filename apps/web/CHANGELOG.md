@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/madoos/pulse/compare/web-v0.4.0...web-v0.5.0) (2026-11-21)
+
+
+### Features
+
+* **web:** add the network overview as the home page ([24ebb9e](https://github.com/madoos/pulse/commit/24ebb9e62ac3a70f6e43de3e0a3ebeb65133cc7a))
+
 ## [0.4.0](https://github.com/madoos/pulse/compare/web-v0.3.0...web-v0.4.0) (2026-11-21)
 
 

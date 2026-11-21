@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/madoos/pulse/compare/design-system-v0.2.0...design-system-v0.3.0) (2026-11-21)
+
+
+### Features
+
+* **design-system:** add charts, tables, filters and cards ([11fa534](https://github.com/madoos/pulse/commit/11fa5342ab92aa33494ee99cfe1ff08c2eafd149))
+
 ## [0.2.0](https://github.com/madoos/pulse/compare/design-system-v0.1.0...design-system-v0.2.0) (2026-11-21)
 
 
