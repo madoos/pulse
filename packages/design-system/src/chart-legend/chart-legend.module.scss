@@ -1,0 +1,33 @@
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  padding: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+  font-size: var(--font-size-200);
+  list-style: none;
+
+  @for $i from 1 through 6 {
+    &--color-#{$i} {
+      --chart-legend-color: var(--color-chart-#{$i});
+    }
+  }
+
+  &__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  &__swatch {
+    width: var(--space-6);
+    border-top: 3px solid var(--chart-legend-color);
+
+    &--muted {
+      border-top-width: 2px;
+      border-top-style: dashed;
+    }
+  }
+}

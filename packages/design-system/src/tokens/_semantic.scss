@@ -10,6 +10,20 @@
   --color-surface-subtle: var(--color-neutral-50);
   --color-surface-accent: var(--color-blue-300);
   --color-border: var(--color-neutral-300);
+  --color-border-subtle: var(--color-neutral-100);
+  --color-surface-danger: var(--color-red-50);
+  --color-surface-success: var(--color-green-50);
+
+  // Series colours of the charts, in order. They contrast at least 3:1 with the surface
+  // and differ in lightness, not only in hue.
+  --color-chart-1: var(--color-blue-700);
+  --color-chart-2: var(--color-orange-700);
+  --color-chart-3: var(--color-teal-700);
+  --color-chart-4: var(--color-purple-700);
+  --color-chart-5: var(--color-pink-700);
+  --color-chart-6: var(--color-neutral-500);
+  --color-chart-grid: var(--color-neutral-100);
+  --color-chart-axis: var(--color-neutral-500);
 
   --color-action-primary: var(--color-blue-700);
   --color-action-primary-hover: var(--color-blue-800);

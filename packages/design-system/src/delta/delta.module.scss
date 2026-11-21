@@ -1,0 +1,25 @@
+.delta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  color: var(--delta-text);
+  font-size: var(--font-size-200);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+
+  &--good {
+    --delta-text: var(--color-text-success);
+  }
+
+  &--bad {
+    --delta-text: var(--color-text-danger);
+  }
+
+  &--neutral {
+    --delta-text: var(--color-text-muted);
+  }
+
+  &__arrow {
+    font-size: var(--font-size-100);
+  }
+}

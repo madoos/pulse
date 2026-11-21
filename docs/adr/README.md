@@ -32,3 +32,4 @@ This folder records the significant decisions made in Pulse: the context, the de
 | [0016](0016-data-model-for-advisory-firms-and-monthly-metrics.md) | Data model for advisory firms and their monthly metrics | Data | Accepted | Designing tables, migrations, seeds or aggregation queries for advisory firms and metrics |
 | [0017](0017-fiscal-year-from-april-to-march.md) | Metrics are analysed by fiscal year, from April to March | Data | Accepted | Filtering or comparing metrics by year, labelling years or building charts over a year |
 | [0018](0018-read-only-database-viewer-with-pgweb.md) | Read-only database viewer with pgweb | Infrastructure | Accepted | Looking at the data, changing the database viewer, its credentials or how it is published |
+| [0019](0019-charts-with-visx.md) | Charts built with visx | Architecture | Accepted | Building or changing a chart, or adding a charting dependency |

@@ -1,0 +1,90 @@
+.line-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text);
+  font: var(--font-body);
+
+  @for $i from 1 through 6 {
+    &--color-#{$i} {
+      --line-chart-color: var(--color-chart-#{$i});
+    }
+  }
+
+  &__plot {
+    position: relative;
+    min-width: 0;
+
+    svg {
+      display: block;
+      overflow: visible;
+    }
+  }
+
+  &__grid line {
+    stroke: var(--color-chart-grid);
+  }
+
+  &__baseline {
+    stroke: var(--color-border);
+  }
+
+  &__tick {
+    fill: var(--color-chart-axis);
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-100);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__line {
+    fill: none;
+    stroke: var(--line-chart-color);
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+
+    &--muted {
+      stroke-width: 1.5;
+      stroke-dasharray: 5 4;
+      opacity: 0.7;
+    }
+  }
+
+  &__cursor {
+    stroke: var(--color-border);
+  }
+
+  &__dot {
+    fill: var(--color-surface);
+    stroke: var(--line-chart-color);
+    stroke-width: 2;
+  }
+
+  &__tooltip {
+    position: absolute;
+    top: 0;
+    z-index: 1;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    background: var(--color-text);
+    box-shadow: var(--shadow-md);
+    color: var(--color-surface);
+    font-size: var(--font-size-100);
+    pointer-events: none;
+    white-space: nowrap;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &__tooltip-title {
+    font-weight: var(--font-weight-semibold);
+  }
+
+  &__tooltip-detail {
+    opacity: 0.8;
+  }
+}
