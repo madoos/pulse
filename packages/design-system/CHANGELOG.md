@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0](https://github.com/madoos/pulse/compare/design-system-v0.3.0...design-system-v0.4.0) (2026-11-21)
+
+
+### Features
+
+* **design-system:** add collapsible panels and the storybook favicon ([10245d4](https://github.com/madoos/pulse/commit/10245d4eddd74b66036af772b596e8b9368450b6))
+* **design-system:** add the app shell, drawer and search field ([b049068](https://github.com/madoos/pulse/commit/b049068b02a76e00fa1a3b3a78d50e93352be24c))
+
 ## [0.3.0](https://github.com/madoos/pulse/compare/design-system-v0.2.0...design-system-v0.3.0) (2026-11-21)
 
 
