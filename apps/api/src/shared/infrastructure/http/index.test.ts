@@ -52,4 +52,15 @@ describe('HTTP app', () => {
       instance: '/api/v1/boom',
     });
   });
+
+  it('allows cross-origin requests only from the configured origin', async () => {
+    const withCors = createApp([failingRoutes], { corsOrigin: 'http://localhost:8080' });
+    const headers = { Origin: 'http://localhost:8080' };
+
+    const allowed = await withCors.request('/api/v1/openapi.json', { headers });
+    const withoutCors = await app.request('/api/v1/openapi.json', { headers });
+
+    expect(allowed.headers.get('access-control-allow-origin')).toBe('http://localhost:8080');
+    expect(withoutCors.headers.get('access-control-allow-origin')).toBeNull();
+  });
 });

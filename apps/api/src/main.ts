@@ -5,6 +5,8 @@ import { createApp, startServer } from '@shared/infrastructure/http';
 
 const config = loadConfig();
 
-const app = createApp([createHealthRoutes(checkHealth)]);
+const app = createApp([createHealthRoutes(checkHealth)], {
+  corsOrigin: config.NODE_ENV === 'development' ? config.CORS_ORIGIN : undefined,
+});
 
 startServer(app, config.PORT);

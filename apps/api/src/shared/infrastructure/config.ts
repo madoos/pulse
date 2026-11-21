@@ -1,8 +1,15 @@
 import { z } from 'zod';
 
-const ConfigSchema = z.object({
-  PORT: z.coerce.number().int().positive().default(3000),
-});
+const ConfigSchema = z
+  .object({
+    NODE_ENV: z.enum(['development', 'production', 'test']).default('production'),
+    PORT: z.coerce.number().int().positive().default(3000),
+    CORS_ORIGIN: z.url().optional(),
+  })
+  .refine((config) => config.NODE_ENV !== 'development' || config.CORS_ORIGIN, {
+    message: 'CORS_ORIGIN is required in development',
+    path: ['CORS_ORIGIN'],
+  });
 
 export type Config = z.infer<typeof ConfigSchema>;
 
