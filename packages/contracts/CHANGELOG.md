@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/madoos/pulse/compare/contracts-v0.2.0...contracts-v0.3.0) (2026-11-21)
+
+
+### Features
+
+* **contracts:** add session contracts and a down health status ([874de4b](https://github.com/madoos/pulse/commit/874de4bfb8014ec83ddf72a95251647baa4ca2c3))
+
 ## [0.2.0](https://github.com/madoos/pulse/compare/contracts-v0.1.0...contracts-v0.2.0) (2026-11-21)
 
 
