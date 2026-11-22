@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/madoos/pulse/compare/design-system-v0.4.0...design-system-v0.5.0) (2026-11-21)
+
+
+### Features
+
+* **design-system:** name each line of a chart after its series ([8d0b924](https://github.com/madoos/pulse/commit/8d0b924d59aa116e8843354ff585b58962daeb27))
+
 ## [0.4.0](https://github.com/madoos/pulse/compare/design-system-v0.3.0...design-system-v0.4.0) (2026-11-21)
 
 
