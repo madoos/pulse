@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/madoos/pulse/compare/api-v0.8.0...api-v0.9.0) (2026-11-22)
+
+
+### Chores
+
+* **api:** Synchronize application versions
+
 ## [0.8.0](https://github.com/madoos/pulse/compare/api-v0.7.0...api-v0.8.0) (2026-11-22)
 
 
