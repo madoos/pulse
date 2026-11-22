@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/madoos/pulse/compare/api-v0.8.0...api-v0.9.0) (2026-11-22)
+
+
+### Bug Fixes
+
+* **api:** build the image for arm64 as well as x64 ([7932f6a](https://github.com/madoos/pulse/commit/7932f6a1033fc5b4ab0f14f33268855bda24c3c6))
+
 ## [0.8.0](https://github.com/madoos/pulse/compare/api-v0.7.0...api-v0.8.0) (2026-11-22)
 
 

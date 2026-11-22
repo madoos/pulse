@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/madoos/pulse/compare/design-system-v0.7.0...design-system-v0.8.0) (2026-11-22)
+
+
+### Features
+
+* **design-system:** final design adjustments ([89dad81](https://github.com/madoos/pulse/commit/89dad818d375863b0bbfb1a4390866da62b4dd38))
+
 ## [0.7.0](https://github.com/madoos/pulse/compare/design-system-v0.6.0...design-system-v0.7.0) (2026-11-22)
 
 
