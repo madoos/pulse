@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/madoos/pulse/compare/web-v0.8.0...web-v0.9.0) (2026-11-22)
+
+
+### Features
+
+* **web:** final design adjustments ([a35d94e](https://github.com/madoos/pulse/commit/a35d94e8e1028c2a8223b0d0ccc0d66e8303f6d1))
+
 ## [0.8.0](https://github.com/madoos/pulse/compare/web-v0.7.0...web-v0.8.0) (2026-11-22)
 
 
