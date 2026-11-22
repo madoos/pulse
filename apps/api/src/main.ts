@@ -1,3 +1,7 @@
+import { makeListAdvisoryFirms } from '@advisory-firms/application/list-advisory-firms';
+import { makeListFirmFilters } from '@advisory-firms/application/list-firm-filters';
+import { createAdvisoryFirmRoutes } from '@advisory-firms/infrastructure/http';
+import { createPostgresAdvisoryFirmRepository } from '@advisory-firms/infrastructure/repository/postgres';
 import { makeGetSession } from '@auth/application/get-session';
 import { makeLogIn } from '@auth/application/log-in';
 import { makeLogOut } from '@auth/application/log-out';
@@ -34,6 +38,7 @@ const users = createPostgresUserRepository(db);
 const sessions = createPostgresSessionRepository(db);
 const tokens = createJwtTokenSigner(config.JWT_SECRET);
 const networkPerformance = createPostgresNetworkPerformanceRepository(db);
+const advisoryFirms = createPostgresAdvisoryFirmRepository(db);
 
 const checkHealth = makeCheckHealth([createPostgresHealthIndicator(db)]);
 const logIn = makeLogIn({ users, sessions, tokens, hasher: scryptPasswordHasher });
@@ -43,6 +48,8 @@ const listFiscalYears = makeListFiscalYears({ repository: networkPerformance });
 const getNetworkPerformance = makeGetNetworkPerformance({ repository: networkPerformance });
 const getNetworkGroups = makeGetNetworkGroups({ repository: networkPerformance });
 const getNetworkHighlights = makeGetNetworkHighlights({ repository: networkPerformance });
+const listAdvisoryFirms = makeListAdvisoryFirms({ repository: advisoryFirms });
+const listFirmFilters = makeListFirmFilters({ repository: advisoryFirms });
 
 const app = createApp(
   [
@@ -60,6 +67,7 @@ const app = createApp(
       getNetworkHighlights,
       requireSession,
     }),
+    createAdvisoryFirmRoutes({ listAdvisoryFirms, listFirmFilters, requireSession }),
   ],
   {
     corsOrigin: config.NODE_ENV === 'development' ? config.CORS_ORIGIN : undefined,

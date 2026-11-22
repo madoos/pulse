@@ -1,0 +1,1 @@
+CREATE INDEX "advisory_firms_name_id_idx" ON "advisory_firms" USING btree ("name","id");

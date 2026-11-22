@@ -1,4 +1,4 @@
-import { date, integer, pgTable, smallint, text } from 'drizzle-orm/pg-core';
+import { date, index, integer, pgTable, smallint, text } from 'drizzle-orm/pg-core';
 
 export const autonomousCommunities = pgTable('autonomous_communities', {
   id: smallint('id').primaryKey(),
@@ -18,17 +18,22 @@ export const specialties = pgTable('specialties', {
   name: text('name').notNull(),
 });
 
-export const advisoryFirms = pgTable('advisory_firms', {
-  id: integer('id').primaryKey(),
-  name: text('name').notNull(),
-  taxId: text('tax_id').notNull().unique(),
-  provinceId: smallint('province_id')
-    .notNull()
-    .references(() => provinces.id),
-  city: text('city').notNull(),
-  specialtyCode: text('specialty_code')
-    .notNull()
-    .references(() => specialties.code),
-  onboardedOn: date('onboarded_on').notNull(),
-  employees: smallint('employees').notNull(),
-});
+export const advisoryFirms = pgTable(
+  'advisory_firms',
+  {
+    id: integer('id').primaryKey(),
+    name: text('name').notNull(),
+    taxId: text('tax_id').notNull().unique(),
+    provinceId: smallint('province_id')
+      .notNull()
+      .references(() => provinces.id),
+    city: text('city').notNull(),
+    specialtyCode: text('specialty_code')
+      .notNull()
+      .references(() => specialties.code),
+    onboardedOn: date('onboarded_on').notNull(),
+    employees: smallint('employees').notNull(),
+  },
+  // The listing is sorted and paged by name and id.
+  (table) => [index('advisory_firms_name_id_idx').on(table.name, table.id)],
+);
