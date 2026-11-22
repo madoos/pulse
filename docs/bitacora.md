@@ -513,7 +513,7 @@ Sin la clave de OpenRouter, el asistente aparece como no disponible y el resto d
 El modelo de embeddings vive dentro de la API. Cargarlo lleva unos segundos al arrancar, y embeder una pregunta, unos 50 ms. El precio es memoria y tamaño:
 
 - La API pasa de unos 100 MB a unos 480 MB de memoria, y su límite en el VPS, de 256 MiB a 768 MiB. Cabe en la memoria libre que tiene.
-- La imagen pasa de Alpine a Debian, porque ONNX Runtime necesita glibc, y pesa unos 650 MB. Al principio pesaba 1,2 GB: ONNX Runtime trae binarios para todas las plataformas y para GPU, y solo hace falta el de Linux para CPU.
+- La imagen deja Alpine, porque ONNX Runtime necesita glibc. La primera versión, sobre Debian slim, no pasó el escaneo de Snyk: `coreutils` y `adduser` traen dos vulnerabilidades altas sin arreglo, en herramientas que la API nunca usa. Ahora la imagen que se ejecuta es **distroless**: solo glibc, libstdc++ y Node, sin shell ni gestor de paquetes. Pesa unos 560 MB; al principio pesaba 1,2 GB, porque ONNX Runtime trae binarios para todas las plataformas y para GPU, y solo hace falta el de Linux para CPU.
 - El modelo va dentro de la imagen, así que la API nunca lo descarga.
 - En un Mac con Intel no hay binario de ONNX Runtime: allí el asistente solo funciona dentro de Docker.
 

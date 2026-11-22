@@ -2,6 +2,7 @@ import { AgentFailedError, AgentQuotaExceededError } from '@support-assistant/do
 import { ConversationNotFoundError } from '@support-assistant/domain/ConversationLog';
 import { MAX_SEARCHES, TOP_K } from '@support-assistant/domain/Retrieval';
 import {
+  CONVERSATION,
   documentOf,
   fakeAgent,
   fakeDocuments,
@@ -15,7 +16,7 @@ const cite = (id: string) => `[${id}]`;
 
 const ask = { firmId: 1, userId: 'u-1', conversationId: 'c-1', question: '¿Qué incidencias?' };
 
-const setUp = (agent = fakeAgent(), conversation = { id: 'c-1', firmId: 1, userId: 'u-1' }) => {
+const setUp = (agent = fakeAgent(), conversation = CONVERSATION) => {
   const documents = fakeDocuments([
     { document: documentOf('SUP-0001', 1, '2025-06-10'), similarity: 0.85 },
     { document: documentOf('SUP-0002', 1, '2026-01-20'), similarity: 0.83 },
@@ -66,7 +67,7 @@ describe('askQuestion', () => {
   });
 
   it('says there is not enough information for a firm without documents', async () => {
-    const { askQuestion, agent } = setUp(fakeAgent(), { id: 'c-1', firmId: 3, userId: 'u-1' });
+    const { askQuestion, agent } = setUp(fakeAgent(), { ...CONVERSATION, firmId: 3 });
 
     const result = await askQuestion({ ...ask, firmId: 3 });
 

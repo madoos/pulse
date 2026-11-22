@@ -1,4 +1,5 @@
 # Debian, not Alpine: ONNX Runtime, which embeds the questions of the assistant, needs glibc (ADR-0023).
+# The image that runs is distroless, below.
 FROM node:26-slim AS build
 RUN npm install -g --ignore-scripts pnpm@12.6.0
 WORKDIR /repo
@@ -26,19 +27,20 @@ RUN node --input-type=module -e "\
   env.cacheDir = '/models'; \
   await pipeline('feature-extraction', 'Xenova/multilingual-e5-small', { dtype: 'q8' });"
 
-FROM node:26-slim
-# Apply the OS security patches released after the base image, and drop npm,
-# which is not needed to run the API and brings its own vulnerable dependencies.
-RUN apt-get update \
-  && apt-get upgrade -y --no-install-recommends \
-  && rm -rf /var/lib/apt/lists/* /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+# Distroless: glibc and libstdc++, which Node and ONNX Runtime need, without a shell, a package
+# manager or the system tools of Debian, which bring vulnerabilities the API never uses.
+FROM gcr.io/distroless/cc-debian13
+COPY --from=build /usr/local/bin/node /usr/local/bin/node
+# Node also needs libatomic, which distroless does not have. The image is built for x86-64 only.
+COPY --from=build /usr/lib/x86_64-linux-gnu/libatomic.so.1* /usr/lib/x86_64-linux-gnu/
 WORKDIR /app
 COPY --from=build /deploy/node_modules ./node_modules
 COPY --from=build /models /models
 COPY --from=build /repo/apps/api/dist ./
 COPY apps/api/src/shared/infrastructure/database/migrations ./migrations
 COPY apps/api/src/shared/infrastructure/database/business-data/*.csv ./business-data/
-USER node
+# The same unprivileged user as the cluster runs it with.
+USER 1000:1000
 # The released version, passed by the release pipeline, tags every error reported to Sentry.
 ARG VERSION=dev
 ENV NODE_ENV=production PORT=3000 SENTRY_RELEASE=api@${VERSION} EMBEDDING_MODELS_DIR=/models

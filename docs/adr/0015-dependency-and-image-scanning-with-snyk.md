@@ -25,6 +25,8 @@ To keep the images clean:
 - **The runtime images apply the operating system patches** (`apk upgrade`) on top of the base image, which is often weeks behind the security fixes of its packages.
 - **They contain only what is needed to run.** The API image drops npm, which comes with the Node.js base image, is not used at runtime and brings its own vulnerable dependencies.
 
+**Exception: the API image is distroless.** Its embedding model needs ONNX Runtime, which needs glibc, so it cannot run on Alpine ([ADR-0023](0023-support-assistant-with-vector-search-and-an-agent.md)). Debian slim brings system tools (`coreutils`, `adduser`) with high vulnerabilities that have no fix, so the runtime image is `gcr.io/distroless/cc-debian13`: glibc and libstdc++, the Node.js binary and the application, with no shell and no package manager. Without a package manager it cannot apply patches with `apk upgrade`: it gets them when the distroless base image is updated, which happens often, and the next build picks them up.
+
 ## Alternatives considered
 
 - **SonarQube Cloud only:** already in place, but it does not scan the images and does not alert on vulnerabilities published after the analysis.
@@ -43,4 +45,5 @@ To keep the images clean:
 
 - One more external service, its free-plan limits and one more secret (`SNYK_TOKEN`) in CI.
 - `apk upgrade` makes builds depend on the day they run: two builds of the same commit can have different package versions.
+- The API image cannot be patched on top of its base image: a vulnerability in it waits for a new distroless image. It has no shell either, so it cannot be inspected with `docker exec … sh`.
 - A new high or critical vulnerability in a base image can turn CI red without any change in the code, until a patched package or image is available.

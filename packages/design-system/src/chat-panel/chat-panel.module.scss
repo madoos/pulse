@@ -98,13 +98,6 @@
     gap: var(--space-3);
     padding: var(--space-4);
     overflow-y: auto;
-    outline: none;
-
-    &:focus-visible {
-      @include mixins.focus-ring;
-
-      outline-offset: -2px;
-    }
   }
 
   &__suggestions {

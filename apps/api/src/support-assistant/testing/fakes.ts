@@ -33,7 +33,7 @@ export const fakeDocuments = (documents: FoundDocument[]) => {
       const dates = documents
         .filter(({ document }) => document.firmId === firmId)
         .map(({ document }) => document.date)
-        .sort();
+        .sort((a, b) => a.localeCompare(b));
       return dates.length ? { from: dates[0]!, to: dates.at(-1)! } : null;
     }),
   };
@@ -58,7 +58,10 @@ export const fakeAgent = (
   return agent satisfies Agent;
 };
 
-export const fakeLog = (conversation = { id: 'c-1', firmId: 1, userId: 'u-1' }) => {
+/** The conversation every fake log knows, unless a test gives another one. */
+export const CONVERSATION = { id: 'c-1', firmId: 1, userId: 'u-1' };
+
+export const fakeLog = (conversation: typeof CONVERSATION = CONVERSATION) => {
   const recorded: NewMessage[] = [];
   const log = {
     recorded,

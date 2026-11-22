@@ -30,7 +30,7 @@ The data arrives sanitized from the ingestion layer ([ADR-0013](0013-business-da
 
 - Comparing a question with the documents needs both in the same vector space, so the API embeds the question **with the same model** as the ingestion, using transformers.js inside the API process.
 - On Linux x64 it takes about **50 ms** per question. Loading the model takes a few seconds and is done once, when the API starts. The process grows to about 480 MB, so the memory limit of the API goes from 256 MiB to **768 MiB**, which fits in the free memory of the VPS.
-- The model ships **inside the image** of the API, downloaded when the image is built, so the API never needs the network to load it. ONNX Runtime needs glibc, so the image of the API moves from Alpine to **Debian slim**.
+- The model ships **inside the image** of the API, downloaded when the image is built, so the API never needs the network to load it. ONNX Runtime needs glibc, so the image of the API moves from Alpine to **distroless** (`gcr.io/distroless/cc-debian13`): glibc and libstdc++, without the system tools of Debian, which bring vulnerabilities the API never uses ([ADR-0015](0015-dependency-and-image-scanning-with-snyk.md)).
 
 ### A table of support documents
 
@@ -90,8 +90,8 @@ The data arrives sanitized from the ingestion layer ([ADR-0013](0013-business-da
 
 ### Negative
 
-- Two new dependencies: the OpenRouter API, external and with a free quota that can run out, and an embedding model that makes the image of the API larger (about 150 MB) and its memory higher (about 480 MB).
-- The image of the API leaves Alpine for Debian slim, which is larger and brings more packages to keep patched.
+- Two new dependencies: the OpenRouter API, external and with a free quota that can run out, and an embedding model that makes the image of the API larger (about 130 MB) and its memory higher (about 480 MB).
+- The image of the API leaves Alpine for distroless, which has no shell to inspect it and is patched only when its base image is updated.
 - ONNX Runtime has no build for macOS on Intel, so on such a machine the assistant only works inside Docker.
 - The ingestion and the API must use the same embedding model. Changing it means recomputing every embedding.
 - Free models may log what they receive. With real data, the model should be a paid one with a data policy that fits.

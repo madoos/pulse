@@ -94,7 +94,6 @@ export const ChatPanel = ({
         role="log"
         aria-label="Conversación"
         aria-live="polite"
-        tabIndex={0}
       >
         {children}
         {suggestions && suggestions.items.length > 0 && (
