@@ -1,0 +1,48 @@
+@use '../styles/mixins';
+
+.assistant-launcher {
+  position: fixed;
+  right: var(--space-6);
+  bottom: var(--space-6);
+  z-index: 90;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 3rem;
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-inverse);
+  box-shadow: var(--shadow-lg);
+  color: var(--color-text-on-inverse);
+  font: var(--font-body);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  outline: none;
+
+  &[data-hovered] {
+    background: var(--color-surface-inverse-hover);
+  }
+
+  &[data-focus-visible] {
+    @include mixins.focus-ring;
+  }
+
+  &[aria-expanded='true'] {
+    display: none;
+  }
+
+  &__icon {
+    color: var(--color-text-on-inverse-muted);
+  }
+
+  &__badge {
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--color-surface-accent);
+    color: var(--color-text-on-accent);
+    font-size: var(--font-size-100);
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+}

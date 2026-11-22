@@ -1,6 +1,9 @@
+export { AssistantLauncher, type AssistantLauncherProps } from './assistant-launcher';
 export { AppShell, SideNavLink, type AppShellProps, type SideNavLinkProps } from './app-shell';
 export { Badge, type BadgeProps } from './badge';
 export { Button, type ButtonProps } from './button';
+export { ChatMessage, type ChatMessageProps, type ChatSource } from './chat-message';
+export { ChatPanel, type ChatPanelProps } from './chat-panel';
 export { ChartLegend, type ChartLegendItem, type ChartLegendProps } from './chart-legend';
 export { Delta, type DeltaProps } from './delta';
 export { Drawer, type DrawerProps } from './drawer';
