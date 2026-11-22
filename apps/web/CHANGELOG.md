@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.0](https://github.com/madoos/pulse/compare/web-v0.7.0...web-v0.8.0) (2026-11-22)
+
+
+### Features
+
+* **web:** ask the support assistant from the detail of a firm ([743c6d9](https://github.com/madoos/pulse/commit/743c6d99cc53f222ae909785867ea7c04e0a413f))
+* **web:** show the detail of an advisory firm ([8369fb2](https://github.com/madoos/pulse/commit/8369fb2a3d69c9aa57bd8df6a8f34d5b145a7bfc))
+
 ## [0.7.0](https://github.com/madoos/pulse/compare/web-v0.6.0...web-v0.7.0) (2026-11-22)
 
 

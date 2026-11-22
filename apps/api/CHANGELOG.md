@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.8.0](https://github.com/madoos/pulse/compare/api-v0.7.0...api-v0.8.0) (2026-11-22)
+
+
+### Features
+
+* **api:** answer questions about a firm from its support documents ([0ee87d3](https://github.com/madoos/pulse/commit/0ee87d3536c64bf4b8793bca7542ea9931048e47))
+* **api:** serve the detail and the performance of an advisory firm ([0c8c987](https://github.com/madoos/pulse/commit/0c8c9871b35bc83911449053f97938d3b5d36cc7))
+
+
+### Bug Fixes
+
+* **api:** pass the quality gate and the image scan ([3650d31](https://github.com/madoos/pulse/commit/3650d317d2b76a9c114f50d46a9d4d34865adf38))
+
 ## [0.7.0](https://github.com/madoos/pulse/compare/api-v0.6.0...api-v0.7.0) (2026-11-22)
 
 

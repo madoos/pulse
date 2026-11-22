@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.0](https://github.com/madoos/pulse/compare/contracts-v0.7.0...contracts-v0.8.0) (2026-11-22)
+
+
+### Features
+
+* **contracts:** describe an advisory firm and its performance ([a357cd9](https://github.com/madoos/pulse/commit/a357cd9af3587013ebc8f050f6ec3d550a1522dc))
+* **contracts:** describe the conversations with the support assistant ([317ae7a](https://github.com/madoos/pulse/commit/317ae7aea76f3af5151c5a16c166cc944ddc558f))
+
 ## [0.7.0](https://github.com/madoos/pulse/compare/contracts-v0.6.0...contracts-v0.7.0) (2026-11-22)
 
 

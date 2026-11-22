@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0](https://github.com/madoos/pulse/compare/design-system-v0.6.0...design-system-v0.7.0) (2026-11-22)
+
+
+### Features
+
+* **design-system:** add the assistant launcher and the chat window ([4fcf068](https://github.com/madoos/pulse/commit/4fcf068968bbb21d4a4df95582a33883b3d6fe3b))
+
+
+### Bug Fixes
+
+* **api:** pass the quality gate and the image scan ([3650d31](https://github.com/madoos/pulse/commit/3650d317d2b76a9c114f50d46a9d4d34865adf38))
+
 ## [0.6.0](https://github.com/madoos/pulse/compare/design-system-v0.5.0...design-system-v0.6.0) (2026-11-22)
 
 
