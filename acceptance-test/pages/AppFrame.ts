@@ -11,11 +11,15 @@ export class AppFrame {
       .click();
   }
 
-  async openFirms() {
+  async openFromSidebar(name: string) {
     await this.page
       .getByRole('navigation', { name: 'Principal' })
-      .getByRole('link', { name: 'Asesorías' })
+      .getByRole('link', { name })
       .click();
+  }
+
+  async openFirms() {
+    await this.openFromSidebar('Asesorías');
     await expect(this.firmsDrawer).toBeVisible();
   }
 

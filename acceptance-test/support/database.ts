@@ -132,4 +132,25 @@ export class Database {
   async close() {
     await this.pool.end();
   }
+
+  /** Every firm with the basic data the listing shows, sorted by name and id. */
+  async firms(): Promise<ListedFirmRow[]> {
+    const { rows } = await this.pool.query<ListedFirmRow>(
+      `select f.id, f.name, f.city, p.name as province, s.name as specialty, f.employees
+         from advisory_firms f
+         join provinces p on p.id = f.province_id
+         join specialties s on s.code = f.specialty_code
+        order by f.name, f.id`,
+    );
+    return rows;
+  }
 }
+
+export type ListedFirmRow = {
+  id: number;
+  name: string;
+  city: string;
+  province: string;
+  specialty: string;
+  employees: number;
+};

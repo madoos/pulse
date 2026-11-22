@@ -98,12 +98,6 @@ export class NetworkOverviewPage {
     return titles.map((title) => title.replace('›', '').trim());
   }
 
-  async search(text: string) {
-    const search = this.page.getByRole('searchbox', { name: 'Buscar asesoría' });
-    await search.fill(text);
-    await search.press('Enter');
-  }
-
   private filter(name: string) {
     return this.page.getByRole('button', { name: new RegExp(name) });
   }

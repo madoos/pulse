@@ -1,6 +1,7 @@
 import { test as base, createBdd } from 'playwright-bdd';
 import { AdvisoryFirmDetailPage } from '../pages/AdvisoryFirmDetailPage';
 import { AppFrame } from '../pages/AppFrame';
+import { FirmsListing } from '../pages/FirmsListing';
 import { LoginPage } from '../pages/LoginPage';
 import { NetworkOverviewPage } from '../pages/NetworkOverviewPage';
 import { Database } from './database';
@@ -11,6 +12,7 @@ type Fixtures = {
   networkOverview: NetworkOverviewPage;
   firmDetail: AdvisoryFirmDetailPage;
   app: AppFrame;
+  firmsListing: FirmsListing;
   /** What a step remembers for the next ones, such as the advisory firm it clicked. */
   memory: Map<string, string>;
 };
@@ -25,6 +27,7 @@ export const test = base.extend<Fixtures>({
   loginPage: async ({ page }, use) => use(new LoginPage(page)),
   firmDetail: async ({ page }, use) => use(new AdvisoryFirmDetailPage(page)),
   app: async ({ page }, use) => use(new AppFrame(page)),
+  firmsListing: async ({ page }, use) => use(new FirmsListing(page)),
   memory: async ({}, use) => use(new Map()),
 });
 
