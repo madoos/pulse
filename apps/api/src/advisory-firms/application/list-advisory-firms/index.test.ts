@@ -19,6 +19,7 @@ const setUp = (rows: AdvisoryFirmSummary[], total = rows.length) => {
   const repository = {
     page: vi.fn(async () => rows),
     count: vi.fn(async () => total),
+    byId: vi.fn(),
     filters: vi.fn(),
   } satisfies AdvisoryFirmRepository;
   return { repository, listAdvisoryFirms: makeListAdvisoryFirms({ repository }) };

@@ -17,6 +17,25 @@ const setUp = (authenticated = true) => {
       needsAttention: [],
       standouts: [],
     })),
+    getFirmPerformance: vi.fn(async () => ({
+      years: [],
+      sixMonthsAgo: null,
+      specialty: {
+        firms: 0,
+        summary: {
+          activeClients: 0,
+          revenue: 0,
+          revenuePerClient: null,
+          churnRate: null,
+          taxFilings: 0,
+          revenuePerEmployee: null,
+          incidentRate: null,
+        },
+        months: [],
+      },
+      alerts: [],
+      alertsComparedWith: null,
+    })),
   };
   const requireSession: MiddlewareHandler = async (c, next) =>
     authenticated ? next() : c.json({ status: 401 }, 401);
@@ -25,6 +44,23 @@ const setUp = (authenticated = true) => {
 };
 
 describe('performance routes', () => {
+  it('reads an advisory firm for a period and a compared year', async () => {
+    const { app, getFirmPerformance } = setUp();
+
+    const res = await app.request(
+      '/api/v1/advisory-firms/7/performance?fiscalYear=2025&compareWith=2024',
+    );
+
+    expect(res.status).toBe(200);
+    expect(getFirmPerformance).toHaveBeenCalledWith({
+      firmId: 7,
+      fiscalYear: 2025,
+      compareWith: 2024,
+      fromMonth: 4,
+      toMonth: 3,
+    });
+  });
+
   it('lists the fiscal years', async () => {
     const res = await setUp().app.request('/api/v1/fiscal-years');
 

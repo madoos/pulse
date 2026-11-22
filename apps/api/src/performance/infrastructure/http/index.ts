@@ -1,9 +1,12 @@
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
+import type { GetFirmPerformance } from '@performance/application/firm-performance';
 import type { ListFiscalYears } from '@performance/application/list-fiscal-years';
 import type { GetNetworkGroups } from '@performance/application/network-groups';
 import type { GetNetworkHighlights } from '@performance/application/network-highlights';
 import type { GetNetworkPerformance } from '@performance/application/network-performance';
 import {
+  AdvisoryFirmIdSchema,
+  FirmPerformanceSchema,
   FiscalYearsSchema,
   NetworkGroupsQuerySchema,
   NetworkGroupsSchema,
@@ -27,6 +30,7 @@ type Dependencies = {
   getNetworkPerformance: GetNetworkPerformance;
   getNetworkGroups: GetNetworkGroups;
   getNetworkHighlights: GetNetworkHighlights;
+  getFirmPerformance: GetFirmPerformance;
   requireSession: MiddlewareHandler;
 };
 
@@ -35,6 +39,7 @@ export const createPerformanceRoutes = ({
   getNetworkPerformance,
   getNetworkGroups,
   getNetworkHighlights,
+  getFirmPerformance,
   requireSession,
 }: Dependencies) => {
   const middleware = [requireSession];
@@ -102,6 +107,22 @@ export const createPerformanceRoutes = ({
     },
   });
 
+  const firmPerformanceRoute = createRoute({
+    method: 'get',
+    path: '/advisory-firms/{id}/performance',
+    tags: ['Performance'],
+    summary: 'Get an advisory firm month by month, measured as the network is',
+    middleware,
+    request: { params: AdvisoryFirmIdSchema, query: NetworkPerformanceQuerySchema },
+    responses: {
+      200: {
+        description: 'The firm for the selected period, the compared one and six months before',
+        content: { 'application/json': { schema: FirmPerformanceSchema } },
+      },
+      ...errors,
+    },
+  });
+
   return new OpenAPIHono()
     .openapi(fiscalYearsRoute, async (c) => c.json({ fiscalYears: await listFiscalYears() }, 200))
     .openapi(networkPerformanceRoute, async (c) =>
@@ -112,5 +133,11 @@ export const createPerformanceRoutes = ({
     )
     .openapi(networkHighlightsRoute, async (c) =>
       c.json(await getNetworkHighlights(c.req.valid('query')), 200),
+    )
+    .openapi(firmPerformanceRoute, async (c) =>
+      c.json(
+        await getFirmPerformance({ firmId: c.req.valid('param').id, ...c.req.valid('query') }),
+        200,
+      ),
     );
 };

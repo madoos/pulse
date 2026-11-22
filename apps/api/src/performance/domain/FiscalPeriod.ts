@@ -38,3 +38,10 @@ export const sameMonthsIn = (period: FiscalPeriod, fiscalYear: number): FiscalPe
 /** The periods to read: the given one and, if any, the same months of the compared year. */
 export const withComparedYear = (period: FiscalPeriod, compareWith?: number): FiscalPeriod[] =>
   compareWith === undefined ? [period] : [period, sameMonthsIn(period, compareWith)];
+
+/** The month that is `count` months after (or before, if negative) a `YYYY-MM` month. */
+export const addMonths = (month: string, count: number): string => {
+  const [year, calendarMonth] = month.split('-').map(Number) as [number, number];
+  const index = year * 12 + calendarMonth - 1 + count;
+  return `${Math.floor(index / 12)}-${pad((index % 12) + 1)}`;
+};

@@ -88,6 +88,20 @@ describe('Postgres advisory firm repository', () => {
     expect(await repository.count({})).toBe(4);
   });
 
+  it('reads the profile of a firm, or null if it does not exist', async () => {
+    expect(await repository.byId(2)).toEqual({
+      id: 2,
+      name: 'Asesores del Sur',
+      taxId: 'B00000002',
+      province: 'Sevilla',
+      city: 'Dos Hermanas',
+      employees: 4,
+      specialty: 'Laboral',
+      onboardedOn: '2020-01-01',
+    });
+    expect(await repository.byId(99)).toBeNull();
+  });
+
   it('offers only the provinces and specialties that have firms', async () => {
     expect(await repository.filters()).toEqual({
       provinces: [

@@ -1,10 +1,16 @@
 import {
+  AdvisoryFirmNotFoundError,
+  type GetAdvisoryFirm,
+} from '@advisory-firms/application/get-advisory-firm';
+import {
   InvalidCursorError,
   type ListAdvisoryFirms,
 } from '@advisory-firms/application/list-advisory-firms';
 import type { ListFirmFilters } from '@advisory-firms/application/list-firm-filters';
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import {
+  AdvisoryFirmIdSchema,
+  AdvisoryFirmSchema,
   AdvisoryFirmFiltersSchema,
   AdvisoryFirmsPageSchema,
   AdvisoryFirmsQuerySchema,
@@ -18,12 +24,14 @@ const problemContent = { 'application/problem+json': { schema: ProblemSchema } }
 type Dependencies = {
   listAdvisoryFirms: ListAdvisoryFirms;
   listFirmFilters: ListFirmFilters;
+  getAdvisoryFirm: GetAdvisoryFirm;
   requireSession: MiddlewareHandler;
 };
 
 export const createAdvisoryFirmRoutes = ({
   listAdvisoryFirms,
   listFirmFilters,
+  getAdvisoryFirm,
   requireSession,
 }: Dependencies) => {
   const middleware = [requireSession];
@@ -60,6 +68,24 @@ export const createAdvisoryFirmRoutes = ({
     },
   });
 
+  const firmRoute = createRoute({
+    method: 'get',
+    path: '/advisory-firms/{id}',
+    tags: ['Advisory firms'],
+    summary: 'Get the profile of an advisory firm',
+    middleware,
+    request: { params: AdvisoryFirmIdSchema },
+    responses: {
+      200: {
+        description: 'The profile of the firm',
+        content: { 'application/json': { schema: AdvisoryFirmSchema } },
+      },
+      400: { description: 'The id is not valid', content: problemContent },
+      401: { description: 'There is no active session', content: problemContent },
+      404: { description: 'There is no advisory firm with that id', content: problemContent },
+    },
+  });
+
   return new OpenAPIHono()
     .openapi(filtersRoute, async (c) => c.json(await listFirmFilters(), 200))
     .openapi(listRoute, async (c) => {
@@ -67,6 +93,14 @@ export const createAdvisoryFirmRoutes = ({
         return c.json(await listAdvisoryFirms(c.req.valid('query')), 200);
       } catch (error) {
         if (error instanceof InvalidCursorError) return problem(c, 400, error.message);
+        throw error;
+      }
+    })
+    .openapi(firmRoute, async (c) => {
+      try {
+        return c.json(await getAdvisoryFirm(c.req.valid('param').id), 200);
+      } catch (error) {
+        if (error instanceof AdvisoryFirmNotFoundError) return problem(c, 404, error.message);
         throw error;
       }
     });

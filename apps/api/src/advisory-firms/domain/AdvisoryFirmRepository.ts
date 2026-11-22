@@ -8,6 +8,9 @@ export type AdvisoryFirmSummary = {
   specialty: string;
 };
 
+/** The profile of an advisory firm. */
+export type AdvisoryFirm = AdvisoryFirmSummary & { taxId: string; onboardedOn: string };
+
 /** What the listing is narrowed to. Every criterion is optional. */
 export type FirmCriteria = { search?: string; provinceId?: number; specialtyCode?: string };
 
@@ -28,6 +31,8 @@ export type AdvisoryFirmRepository = {
   ) => Promise<AdvisoryFirmSummary[]>;
   /** How many firms meet the criteria. */
   count: (criteria: FirmCriteria) => Promise<number>;
+  /** The profile of a firm, or null if there is none with that id. */
+  byId: (id: number) => Promise<AdvisoryFirm | null>;
   /** The provinces and specialties that have firms, by name. */
   filters: () => Promise<FirmFilters>;
 };

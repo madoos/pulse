@@ -1,3 +1,4 @@
+import { makeGetAdvisoryFirm } from '@advisory-firms/application/get-advisory-firm';
 import { makeListAdvisoryFirms } from '@advisory-firms/application/list-advisory-firms';
 import { makeListFirmFilters } from '@advisory-firms/application/list-firm-filters';
 import { createAdvisoryFirmRoutes } from '@advisory-firms/infrastructure/http';
@@ -14,12 +15,16 @@ import {
 import { makeCheckHealth } from '@health/application/check-health';
 import { createHealthRoutes } from '@health/infrastructure/http';
 import { createPostgresHealthIndicator } from '@health/infrastructure/indicator/postgres';
+import { makeGetFirmPerformance } from '@performance/application/firm-performance';
 import { makeListFiscalYears } from '@performance/application/list-fiscal-years';
 import { makeGetNetworkGroups } from '@performance/application/network-groups';
 import { makeGetNetworkHighlights } from '@performance/application/network-highlights';
 import { makeGetNetworkPerformance } from '@performance/application/network-performance';
 import { createPerformanceRoutes } from '@performance/infrastructure/http';
-import { createPostgresNetworkPerformanceRepository } from '@performance/infrastructure/repository/postgres';
+import {
+  createPostgresFirmPerformanceRepository,
+  createPostgresNetworkPerformanceRepository,
+} from '@performance/infrastructure/repository/postgres';
 import { loadConfig } from '@shared/infrastructure/config';
 import { createDatabase } from '@shared/infrastructure/database';
 import { createApp, startServer } from '@shared/infrastructure/http';
@@ -39,6 +44,7 @@ const sessions = createPostgresSessionRepository(db);
 const tokens = createJwtTokenSigner(config.JWT_SECRET);
 const networkPerformance = createPostgresNetworkPerformanceRepository(db);
 const advisoryFirms = createPostgresAdvisoryFirmRepository(db);
+const firmPerformance = createPostgresFirmPerformanceRepository(db);
 
 const checkHealth = makeCheckHealth([createPostgresHealthIndicator(db)]);
 const logIn = makeLogIn({ users, sessions, tokens, hasher: scryptPasswordHasher });
@@ -50,6 +56,11 @@ const getNetworkGroups = makeGetNetworkGroups({ repository: networkPerformance }
 const getNetworkHighlights = makeGetNetworkHighlights({ repository: networkPerformance });
 const listAdvisoryFirms = makeListAdvisoryFirms({ repository: advisoryFirms });
 const listFirmFilters = makeListFirmFilters({ repository: advisoryFirms });
+const getAdvisoryFirm = makeGetAdvisoryFirm({ repository: advisoryFirms });
+const getFirmPerformance = makeGetFirmPerformance({
+  repository: firmPerformance,
+  network: networkPerformance,
+});
 
 const app = createApp(
   [
@@ -65,9 +76,15 @@ const app = createApp(
       getNetworkPerformance,
       getNetworkGroups,
       getNetworkHighlights,
+      getFirmPerformance,
       requireSession,
     }),
-    createAdvisoryFirmRoutes({ listAdvisoryFirms, listFirmFilters, requireSession }),
+    createAdvisoryFirmRoutes({
+      listAdvisoryFirms,
+      listFirmFilters,
+      getAdvisoryFirm,
+      requireSession,
+    }),
   ],
   {
     corsOrigin: config.NODE_ENV === 'development' ? config.CORS_ORIGIN : undefined,

@@ -6,7 +6,10 @@ import {
 } from '@advisory-firms/infrastructure/repository/postgres/schema';
 import { startTestDatabase } from '@shared/infrastructure/database/testing';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createPostgresNetworkPerformanceRepository } from '.';
+import {
+  createPostgresFirmPerformanceRepository,
+  createPostgresNetworkPerformanceRepository,
+} from '.';
 import { monthlyMetrics } from './schema';
 
 const metric = (firmId: number, month: string, activeClients: number, revenueCents: number) => ({
@@ -81,6 +84,66 @@ describe('Postgres network performance repository', () => {
   }, 120_000);
 
   afterAll(() => database?.stop());
+
+  it('reads the months of one firm that have data', async () => {
+    const firm = createPostgresFirmPerformanceRepository(database.db);
+
+    expect(await firm.monthlyTotals(2, ['2025-04', '2025-05', '2026-03'])).toEqual([
+      {
+        month: '2025-04',
+        firms: 1,
+        activeClients: 300,
+        churnedClients: 2,
+        revenueCents: 500_000,
+        taxFilings: 0,
+        taxAgencyIncidents: 0,
+      },
+      {
+        month: '2026-03',
+        firms: 1,
+        activeClients: 320,
+        churnedClients: 2,
+        revenueCents: 600_000,
+        taxFilings: 0,
+        taxAgencyIncidents: 0,
+      },
+    ]);
+  });
+
+  it('adds up the other firms of its specialty, month by month', async () => {
+    const firm = createPostgresFirmPerformanceRepository(database.db);
+
+    expect(await firm.specialtyTotals(2, ['2025-04', '2026-03'])).toEqual([
+      {
+        month: '2025-04',
+        firms: 1,
+        activeClients: 100,
+        churnedClients: 2,
+        revenueCents: 200_000,
+        taxFilings: 0,
+        taxAgencyIncidents: 0,
+        employees: 5,
+      },
+      {
+        month: '2026-03',
+        firms: 1,
+        activeClients: 110,
+        churnedClients: 2,
+        revenueCents: 300_000,
+        taxFilings: 0,
+        taxAgencyIncidents: 0,
+        employees: 5,
+      },
+    ]);
+    expect(await firm.specialtyTotals(3, ['2025-04'])).toEqual([]);
+  });
+
+  it('reads the employees of a firm', async () => {
+    const firm = createPostgresFirmPerformanceRepository(database.db);
+
+    expect(await firm.employees(2)).toBe(5);
+    expect(await firm.employees(99)).toBeNull();
+  });
 
   it('lists the fiscal years with metrics, the most recent first', async () => {
     expect(await repository.fiscalYears()).toEqual([2025, 2024]);

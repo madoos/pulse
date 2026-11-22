@@ -140,3 +140,11 @@ export const standoutsOf = (firms: FirmPeriod[], count = STANDOUTS): Standout[] 
     .sort((a, b) => b.clientGrowth - a.clientGrowth)
     .slice(0, count);
 };
+
+/** The alerts of one firm, measured against the whole network. Empty if it is not in it. */
+export const alertsOfFirm = (firms: FirmPeriod[], firmId: number): Alert[] => {
+  const lastMonth = lastMonthOf(firms);
+  const firm = firms.find((f) => f.firm.id === firmId);
+  if (!lastMonth || !firm) return [];
+  return alertsOf(firm, { lastMonth, networkChurnRate: networkChurnRateOf(firms) });
+};

@@ -17,17 +17,19 @@ const whereOf = ({ search, provinceId, specialtyCode }: FirmCriteria): SQL | und
     specialtyCode === undefined ? undefined : eq(f.specialtyCode, specialtyCode),
   );
 
+const summaryColumns = {
+  id: f.id,
+  name: f.name,
+  province: provinces.name,
+  city: f.city,
+  employees: f.employees,
+  specialty: specialties.name,
+};
+
 export const createPostgresAdvisoryFirmRepository = (db: Database): AdvisoryFirmRepository => ({
   page: (criteria, after, limit) =>
     db
-      .select({
-        id: f.id,
-        name: f.name,
-        province: provinces.name,
-        city: f.city,
-        employees: f.employees,
-        specialty: specialties.name,
-      })
+      .select(summaryColumns)
       .from(f)
       .innerJoin(provinces, eq(provinces.id, f.provinceId))
       .innerJoin(specialties, eq(specialties.code, f.specialtyCode))
@@ -40,6 +42,16 @@ export const createPostgresAdvisoryFirmRepository = (db: Database): AdvisoryFirm
       )
       .orderBy(asc(f.name), asc(f.id))
       .limit(limit),
+
+  byId: async (id) => {
+    const [firm] = await db
+      .select({ ...summaryColumns, taxId: f.taxId, onboardedOn: f.onboardedOn })
+      .from(f)
+      .innerJoin(provinces, eq(provinces.id, f.provinceId))
+      .innerJoin(specialties, eq(specialties.code, f.specialtyCode))
+      .where(eq(f.id, id));
+    return firm ?? null;
+  },
 
   count: async (criteria) => {
     const [row] = await db.select({ total: count() }).from(f).where(whereOf(criteria));

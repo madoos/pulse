@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { fiscalYearOf, monthOf, monthsOf, sameMonthsIn, withComparedYear } from './FiscalPeriod';
+import {
+  fiscalYearOf,
+  monthOf,
+  monthsOf,
+  sameMonthsIn,
+  withComparedYear,
+  addMonths,
+} from './FiscalPeriod';
 
 describe('FiscalPeriod', () => {
   it('places January to March in the following calendar year', () => {
@@ -38,5 +45,13 @@ describe('FiscalPeriod', () => {
     expect(monthsOf(sameMonthsIn(period, 2024))).toEqual(['2024-04', '2024-05', '2024-06']);
     expect(withComparedYear(period)).toEqual([period]);
     expect(withComparedYear(period, 2024)).toEqual([period, { ...period, fiscalYear: 2024 }]);
+  });
+});
+
+describe('addMonths', () => {
+  it('moves across years in both directions', () => {
+    expect(addMonths('2026-03', -6)).toBe('2025-09');
+    expect(addMonths('2025-11', 3)).toBe('2026-02');
+    expect(addMonths('2026-01', -1)).toBe('2025-12');
   });
 });

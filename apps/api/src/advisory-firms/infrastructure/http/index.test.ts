@@ -1,3 +1,4 @@
+import { AdvisoryFirmNotFoundError } from '@advisory-firms/application/get-advisory-firm';
 import { InvalidCursorError } from '@advisory-firms/application/list-advisory-firms';
 import { createApp } from '@shared/infrastructure/http';
 import type { MiddlewareHandler } from 'hono';
@@ -16,6 +17,12 @@ const setUp = (authenticated = true) => {
   const dependencies = {
     listAdvisoryFirms: vi.fn(async () => page),
     listFirmFilters: vi.fn(async () => ({ provinces: [], specialties: [] })),
+    getAdvisoryFirm: vi.fn(async (id: number) => ({
+      ...page.items[0]!,
+      id,
+      taxId: 'B1',
+      onboardedOn: '2020-01-01',
+    })),
   };
   const requireSession: MiddlewareHandler = async (c, next) =>
     authenticated ? next() : c.json({ status: 401 }, 401);
@@ -63,6 +70,22 @@ describe('advisory firm routes', () => {
 
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ provinces: [], specialties: [] });
+  });
+
+  it('gets the profile of a firm by its id', async () => {
+    const { app, getAdvisoryFirm } = setUp();
+
+    const res = await app.request('/api/v1/advisory-firms/7');
+
+    expect(res.status).toBe(200);
+    expect(getAdvisoryFirm).toHaveBeenCalledWith(7);
+  });
+
+  it('answers a firm that does not exist with a 404 problem', async () => {
+    const { app, getAdvisoryFirm } = setUp();
+    getAdvisoryFirm.mockRejectedValueOnce(new AdvisoryFirmNotFoundError(7));
+
+    expect((await app.request('/api/v1/advisory-firms/7')).status).toBe(404);
   });
 
   it('requires a session', async () => {

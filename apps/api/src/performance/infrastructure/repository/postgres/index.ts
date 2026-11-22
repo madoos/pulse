@@ -5,13 +5,14 @@ import {
   specialties,
 } from '@advisory-firms/infrastructure/repository/postgres/schema';
 import { monthsOf, type FiscalPeriod } from '@performance/domain/FiscalPeriod';
+import type { FirmPerformanceRepository } from '@performance/domain/FirmPerformanceRepository';
 import type { FirmPeriod } from '@performance/domain/Highlights';
 import type {
   GroupBy,
   NetworkPerformanceRepository,
 } from '@performance/domain/NetworkPerformanceRepository';
 import type { Database } from '@shared/infrastructure/database';
-import { and, count, desc, eq, inArray, sql, type SQL } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, ne, sql, type SQL } from 'drizzle-orm';
 import type { PgSelect } from 'drizzle-orm/pg-core';
 import { monthlyMetrics as m } from './schema';
 
@@ -146,5 +147,68 @@ export const createPostgresNetworkPerformanceRepository = (
       firms.set(id, entry);
     }
     return [...firms.values()];
+  },
+});
+
+const taxFilings = sql`${m.filingsIncomeTax} + ${m.filingsVat} + ${m.filingsCorporateTax} + ${m.filingsOther}`;
+
+const firmSums = {
+  ...monthlySums,
+  taxFilings: sql<number>`sum(${taxFilings})::int`,
+  taxAgencyIncidents: sql<number>`sum(${m.taxAgencyIncidents})::int`,
+};
+
+/** One firm, read by the primary key (firm_id, month). */
+export const createPostgresFirmPerformanceRepository = (
+  db: Database,
+): FirmPerformanceRepository => ({
+  monthlyTotals: (firmId, months) =>
+    db
+      .select({ ...firmSums })
+      .from(m)
+      .where(
+        and(
+          eq(m.firmId, firmId),
+          inArray(
+            m.month,
+            months.map((month) => `${month}-01`),
+          ),
+        ),
+      )
+      .groupBy(m.month)
+      .orderBy(m.month),
+
+  specialtyTotals: (firmId, months) => {
+    const firm = db
+      .select({ specialtyCode: advisoryFirms.specialtyCode })
+      .from(advisoryFirms)
+      .where(eq(advisoryFirms.id, firmId));
+    return db
+      .select({
+        ...firmSums,
+        employees: sql<number>`sum(${advisoryFirms.employees})::int`,
+      })
+      .from(m)
+      .innerJoin(advisoryFirms, eq(advisoryFirms.id, m.firmId))
+      .where(
+        and(
+          inArray(advisoryFirms.specialtyCode, firm),
+          ne(advisoryFirms.id, firmId),
+          inArray(
+            m.month,
+            months.map((month) => `${month}-01`),
+          ),
+        ),
+      )
+      .groupBy(m.month)
+      .orderBy(m.month);
+  },
+
+  employees: async (firmId) => {
+    const [firm] = await db
+      .select({ employees: advisoryFirms.employees })
+      .from(advisoryFirms)
+      .where(eq(advisoryFirms.id, firmId));
+    return firm?.employees ?? null;
   },
 });
