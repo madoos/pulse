@@ -18,6 +18,8 @@ import { sessionEpic } from '@session/session.epics';
 import { sessionSlice } from '@session/session.slice';
 import { checkSystemStatusEpic } from '@system-status/systemStatus.epics';
 import { systemStatusSlice } from '@system-status/systemStatus.slice';
+import { supportAssistantEpic } from '@support-assistant/supportAssistant.epics';
+import { supportAssistantSlice } from '@support-assistant/supportAssistant.slice';
 import { useDispatch, useSelector } from 'react-redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 
@@ -34,6 +36,7 @@ const rootReducer = combineReducers({
   networkGroups: networkGroupsSlice.reducer,
   networkHighlights: networkHighlightsSlice.reducer,
   session: sessionSlice.reducer,
+  supportAssistant: supportAssistantSlice.reducer,
   systemStatus: systemStatusSlice.reducer,
 });
 
@@ -47,6 +50,7 @@ const rootEpic = combineEpics<Action, Action, RootState, Dependencies>(
   networkHighlightsEpic,
   firmsListingEpic,
   advisoryFirmDetailEpic,
+  supportAssistantEpic,
 );
 
 export const createStore = (dependencies: Dependencies) => {

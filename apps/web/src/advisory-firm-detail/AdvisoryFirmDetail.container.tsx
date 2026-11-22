@@ -10,6 +10,7 @@ import {
 } from '@shared/period-filters/period.filters';
 import { backHref } from '@shared/navigation/firmLink';
 import { useEffect, useMemo } from 'react';
+import { SupportAssistantContainer } from '@support-assistant/SupportAssistant.container';
 import { useLocation, useParams, useSearchParams } from 'react-router';
 import { AdvisoryFirmDetail } from './AdvisoryFirmDetail';
 import {
@@ -49,21 +50,26 @@ export const AdvisoryFirmDetailContainer = () => {
       setParams(periodSearchParams(changePeriod(filters, change)), { replace: true, state });
   };
 
+  const firm = profile.id === firmId && profile.status === 'loaded' ? profile.data : null;
+
   return (
-    <AdvisoryFirmDetail
-      backTo={backHref(state)}
-      profile={profile.id === firmId ? profile : { status: 'loading', data: null }}
-      fiscalYears={fiscalYears}
-      filters={filters}
-      calendarMonths={filters ? monthsOfPeriod(filters) : []}
-      performance={
-        performance.request?.firmId === firmId ? performance : { status: 'loading', data: null }
-      }
-      onFiltersChange={onFiltersChange}
-      onRetryProfile={() => dispatch(firmRequested(firmId))}
-      onRetryPerformance={() =>
-        performance.request && dispatch(firmPerformanceRequested(performance.request))
-      }
-    />
+    <>
+      <AdvisoryFirmDetail
+        backTo={backHref(state)}
+        profile={profile.id === firmId ? profile : { status: 'loading', data: null }}
+        fiscalYears={fiscalYears}
+        filters={filters}
+        calendarMonths={filters ? monthsOfPeriod(filters) : []}
+        performance={
+          performance.request?.firmId === firmId ? performance : { status: 'loading', data: null }
+        }
+        onFiltersChange={onFiltersChange}
+        onRetryProfile={() => dispatch(firmRequested(firmId))}
+        onRetryPerformance={() =>
+          performance.request && dispatch(firmPerformanceRequested(performance.request))
+        }
+      />
+      {firm && <SupportAssistantContainer firmId={firm.id} firmName={firm.name} />}
+    </>
   );
 };

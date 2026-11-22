@@ -12,6 +12,7 @@
       "@login/*": ["./src/login/*"],
       "@network-overview/*": ["./src/network-overview/*"],
       "@session/*": ["./src/session/*"],
+      "@support-assistant/*": ["./src/support-assistant/*"],
       "@system-status/*": ["./src/system-status/*"]
     }
   },

@@ -32,6 +32,12 @@ describe('createStore', () => {
       },
       networkHighlights: { status: 'idle', query: null, data: null, alertFilter: 'all' },
       session: { status: 'unknown', user: null },
+      supportAssistant: {
+        isOpen: false,
+        firmId: null,
+        conversation: { status: 'idle', id: null },
+        exchanges: [],
+      },
       systemStatus: { status: 'checking' },
     });
   });
