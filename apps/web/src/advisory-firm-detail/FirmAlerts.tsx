@@ -10,6 +10,20 @@ export type FirmAlertsProps = {
   comparedWith: number | null;
 };
 
+/** The alerts at a glance, while their panel is closed. */
+export const AlertsSummary = ({ alerts }: { alerts: Alert[] }) =>
+  alerts.length === 0 ? (
+    <Badge tone="success">Sin alertas</Badge>
+  ) : (
+    <span className={styles['advisory-firm-detail__alert-summary']}>
+      {alerts.map((alert) => (
+        <Badge key={alert.type} tone="danger">
+          {ALERT_LABELS[alert.type]}
+        </Badge>
+      ))}
+    </span>
+  );
+
 /** What goes wrong in the firm, in red, by the same rules as in the network overview. */
 export const FirmAlerts = ({ alerts, comparedWith }: FirmAlertsProps) => {
   const against =

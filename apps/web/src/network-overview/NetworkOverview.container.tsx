@@ -53,11 +53,13 @@ export const NetworkOverviewContainer = () => {
       <PageHeader
         title="Vista de red"
         description="Cómo evoluciona la red de asesorías y cuáles necesitan atención"
+        sticky
         actions={
           <SearchField
             label="Buscar asesoría"
             hideLabel
-            placeholder="Buscar asesoría por nombre"
+            placeholder="Nombre de la asesoría"
+            submitLabel="Buscar"
             onSubmit={(search) => firmsDrawer.open({ search })}
           />
         }
@@ -72,6 +74,7 @@ export const NetworkOverviewContainer = () => {
             <Panel
               title="Filtros"
               description={<span aria-live="polite">{describeFilters(filters)}</span>}
+              collapsible
             >
               <PeriodFilters fiscalYears={fiscalYears} filters={filters} onChange={onChange}>
                 <GroupBySelect groupBy={filters.groupBy} onChange={onChange} />

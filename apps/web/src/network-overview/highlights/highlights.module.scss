@@ -60,11 +60,23 @@
     }
   }
 
+  &__summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
   &__growth {
     color: var(--color-text-success);
-    font-size: var(--font-size-500);
+    font-size: var(--font-size-400);
     font-weight: var(--font-weight-bold);
     font-variant-numeric: tabular-nums;
+
+    // What the number measures reads as the rest of the card, not as part of the number.
+    .highlights__context {
+      font-size: var(--font-size-300);
+      font-weight: var(--font-weight-regular);
+    }
   }
 
   &__alerts {

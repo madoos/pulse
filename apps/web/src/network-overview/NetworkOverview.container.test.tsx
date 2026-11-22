@@ -1,3 +1,4 @@
+import { openPanel } from '@shared/testing/panel';
 import { ApiError } from '@shared/api';
 import { createFakeApi } from '@shared/testing/api';
 import { renderWithStore } from '@shared/testing/render';
@@ -42,6 +43,7 @@ describe('NetworkOverviewContainer', () => {
       screen.getByText('Estás viendo todo el año 2025-26, sin comparar con otro año.'),
     ).toBeInTheDocument();
     expect(screen.getByRole('article', { name: 'Bajas al mes' })).toHaveTextContent('1,5 %');
+    await openPanel('Filtros');
     expect(screen.getByRole('button', { name: /Año fiscal/ })).toHaveTextContent('2025-26');
     expect(screen.getByRole('button', { name: /Comparar con/ })).toHaveTextContent('Ninguno');
   });
@@ -59,6 +61,7 @@ describe('NetworkOverviewContainer', () => {
     renderAt('');
 
     const panel = await screen.findByRole('region', { name: 'Necesitan atención' });
+    await openPanel('Necesitan atención');
     expect(within(panel).getByRole('link', { name: 'Gabinete Fiscal Tinerfeño' })).toHaveAttribute(
       'href',
       '/advisory-firms/1',
@@ -103,6 +106,7 @@ describe('NetworkOverviewContainer', () => {
     const performance = vi.fn(() => of({ years: [performance2025, performance2024] }));
     renderAt('', api({ network: { performance } }));
 
+    await openPanel('Filtros');
     await userEvent.click(await screen.findByRole('button', { name: /Comparar con/ }));
     await userEvent.click(screen.getByRole('option', { name: '2024-25' }));
 

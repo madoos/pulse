@@ -1,3 +1,4 @@
+import { openPanel } from '@shared/testing/panel';
 import type { FirmMonthlyPoint, FirmPerformance } from '@pulse/contracts';
 import { ApiError } from '@shared/api';
 import { createFakeApi } from '@shared/testing/api';
@@ -120,6 +121,7 @@ describe('AdvisoryFirmDetailContainer', () => {
   it('shows in red what goes wrong, against the previous year', async () => {
     renderAt('/advisory-firms/7');
 
+    await openPanel('Alertas');
     const alerts = await screen.findByRole('list', { name: 'Alertas' });
     const [clients, churn] = within(alerts).getAllByRole('listitem');
     expect(clients).toHaveTextContent('Pierde clientes');
@@ -134,6 +136,7 @@ describe('AdvisoryFirmDetailContainer', () => {
       createFakeApi({ advisoryFirms: { performance: () => of({ ...performance, alerts: [] }) } }),
     );
 
+    await openPanel('Alertas');
     expect(await screen.findByText('Sin alertas')).toBeInTheDocument();
   });
 
@@ -188,6 +191,7 @@ describe('AdvisoryFirmDetailContainer', () => {
       expect(load).toHaveBeenCalledWith(7, { fiscalYear: 2025, fromMonth: 10, toMonth: 3 }),
     );
 
+    await openPanel('Filtros');
     await userEvent.click(screen.getByRole('button', { name: /Comparar con/ }));
     await userEvent.click(await screen.findByRole('option', { name: '2024-25' }));
 
@@ -216,6 +220,7 @@ describe('AdvisoryFirmDetailContainer', () => {
   it('goes back to the page it was opened from, keeping it through filter changes', async () => {
     renderAt({ pathname: '/advisory-firms/7', state: { from: '/?firms=open&q=gestor' } });
 
+    await openPanel('Filtros');
     await userEvent.click(await screen.findByRole('button', { name: /Comparar con/ }));
     await userEvent.click(await screen.findByRole('option', { name: '2024-25' }));
 

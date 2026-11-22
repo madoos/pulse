@@ -48,6 +48,20 @@ export const NeedsAttention = ({
           : `Frente a los mismos meses de ${formatFiscalYear(previousFiscalYear)}, el año anterior, aunque compares con otro.`
       }
       aside={<FilterScope uses={['period']} />}
+      collapsible
+      summary={
+        firms.length === 0 ? (
+          <Badge tone="success">Ninguna asesoría necesita atención</Badge>
+        ) : (
+          <span className={styles['highlights__summary']}>
+            {chips
+              .slice(1)
+              .flatMap(({ id, label, count }) =>
+                count > 0 ? [<Badge key={id} tone="danger">{`${label} ${count}`}</Badge>] : [],
+              )}
+          </span>
+        )
+      }
     >
       {firms.length === 0 ? (
         <Message title="Ninguna asesoría necesita atención en este periodo" />

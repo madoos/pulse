@@ -11,7 +11,7 @@ import { formatFiscalYear } from '@shared/format';
 import { Link } from 'react-router';
 import type { LoadStatus, ProfileStatus } from './advisoryFirmDetail.slice';
 import { AgainstSpecialty } from './AgainstSpecialty';
-import { FirmAlerts } from './FirmAlerts';
+import { AlertsSummary, FirmAlerts } from './FirmAlerts';
 import { FirmProfile } from './FirmProfile';
 import { SixMonthsAgo } from './SixMonthsAgo';
 import styles from './advisory-firm-detail.module.scss';
@@ -122,6 +122,7 @@ export const AdvisoryFirmDetail = ({
           <Panel
             title="Filtros"
             description={<span aria-live="polite">{describePeriod(filters)}</span>}
+            collapsible
           >
             <PeriodFilters fiscalYears={fiscalYears} filters={filters} onChange={onFiltersChange} />
           </Panel>
@@ -129,6 +130,8 @@ export const AdvisoryFirmDetail = ({
             title="Alertas"
             description="Lo que va mal en el periodo, con las mismas reglas que en la red"
             aside={<FilterScope uses={['period']} />}
+            collapsible
+            summary={performance.data && <AlertsSummary alerts={performance.data.alerts} />}
           >
             <SectionState
               status={performance.status}
