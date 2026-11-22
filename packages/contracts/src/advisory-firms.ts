@@ -63,3 +63,22 @@ export const AdvisoryFirmFiltersSchema = z
   .meta({ id: 'AdvisoryFirmFilters', description: 'The values the listing can be filtered by' });
 
 export type AdvisoryFirmFilters = z.infer<typeof AdvisoryFirmFiltersSchema>;
+
+export const AdvisoryFirmIdSchema = z.object({
+  id: z.coerce.number().int().positive().meta({ description: 'Advisory firm id' }),
+});
+
+export const AdvisoryFirmSchema = z
+  .object({
+    id: z.number().int(),
+    name: z.string(),
+    taxId: z.string().meta({ description: 'CIF' }),
+    province: z.string(),
+    city: z.string(),
+    specialty: z.string(),
+    onboardedOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    employees: z.number().int(),
+  })
+  .meta({ id: 'AdvisoryFirm', description: 'The profile of an advisory firm' });
+
+export type AdvisoryFirm = z.infer<typeof AdvisoryFirmSchema>;

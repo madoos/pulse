@@ -213,3 +213,100 @@ export const NetworkHighlightsSchema = z
   });
 
 export type NetworkHighlights = z.infer<typeof NetworkHighlightsSchema>;
+
+const taxFilings = z.number().int().meta({ description: 'Tax filings of every kind' });
+
+const revenuePerEmployee = ratio.meta({
+  description: 'Revenue over the employees of the firm, in euros',
+});
+
+const incidentRate = ratio.meta({
+  description: 'Incidents with the tax agency over tax filings, null without filings',
+});
+
+export const FirmPeriodSummarySchema = PeriodSummarySchema.extend({
+  taxFilings,
+  revenuePerEmployee,
+  incidentRate,
+}).meta({
+  id: 'FirmPeriodSummary',
+  description: 'The metrics of an advisory firm in a period',
+});
+
+export type FirmPeriodSummary = z.infer<typeof FirmPeriodSummarySchema>;
+
+export const FirmMonthlyPointSchema = MonthlyPointSchema.omit({ firmsWithData: true })
+  .extend({ taxFilings, revenuePerEmployee, incidentRate })
+  .meta({ id: 'FirmMonthlyPoint', description: 'The metrics of an advisory firm in one month' });
+
+export type FirmMonthlyPoint = z.infer<typeof FirmMonthlyPointSchema>;
+
+/** The average firm of a specialty: its totals are averages, so they need not be whole. */
+const averaged = {
+  activeClients: z.number().meta({ description: 'Average active clients' }),
+  taxFilings: z.number().meta({ description: 'Average tax filings' }),
+};
+
+export const AverageFirmPeriodSummarySchema = FirmPeriodSummarySchema.extend(averaged).meta({
+  id: 'AverageFirmPeriodSummary',
+});
+
+export const AverageFirmMonthlyPointSchema = FirmMonthlyPointSchema.extend(averaged).meta({
+  id: 'AverageFirmMonthlyPoint',
+});
+
+export const FirmPerformanceSchema = z
+  .object({
+    years: z
+      .array(
+        z.object({
+          fiscalYear: z.number().int(),
+          summary: FirmPeriodSummarySchema,
+          months: z
+            .array(FirmMonthlyPointSchema)
+            .meta({ description: 'Only the months with data' }),
+        }),
+      )
+      .meta({ description: 'The selected fiscal year first, then the compared one if any' }),
+    sixMonthsAgo: z
+      .object({
+        current: FirmMonthlyPointSchema.meta({
+          description: 'The last month of the period with data',
+        }),
+        previous: FirmMonthlyPointSchema.nullable().meta({
+          description: 'Six months before it, null without data',
+        }),
+        specialty: z
+          .object({
+            current: AverageFirmMonthlyPointSchema.nullable(),
+            previous: AverageFirmMonthlyPointSchema.nullable(),
+          })
+          .meta({
+            description:
+              'The average firm of the rest of its specialty in the same two months, so seasonality shows',
+          }),
+      })
+      .nullable()
+      .meta({ description: 'The last month against six months before, null without data' }),
+    specialty: z
+      .object({
+        firms: z.number().int().meta({ description: 'The other firms of its specialty' }),
+        summary: AverageFirmPeriodSummarySchema,
+        months: z
+          .array(AverageFirmMonthlyPointSchema)
+          .meta({ description: 'Only the months with data' }),
+      })
+      .meta({
+        description:
+          'The average firm of the rest of its specialty in the selected period, to compare with',
+      }),
+    alerts: z.array(AlertSchema).meta({
+      description: 'What goes wrong in the period, by the same rules as in the network',
+    }),
+    alertsComparedWith: z.number().int().nullable().meta({
+      description: 'The year the alerts compare with, null when there is no previous year',
+    }),
+  })
+  .meta({ id: 'FirmPerformance', description: 'An advisory firm month by month' });
+
+export type FirmPerformance = z.infer<typeof FirmPerformanceSchema>;
