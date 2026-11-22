@@ -13,10 +13,12 @@ COPY apps/api apps/api
 RUN pnpm --filter @pulse/api build
 # The production dependencies, for what the bundle leaves out: the embedding library and its binaries.
 RUN pnpm --filter @pulse/api deploy --prod --legacy /deploy
-# ONNX Runtime ships binaries for every platform and for GPUs: only the CPU one for Linux x64 runs here.
-RUN cd /deploy/node_modules/.pnpm \
+# ONNX Runtime ships binaries for every platform and for GPUs: only the CPU one for Linux and the
+# architecture the image is built for runs here, x64 or arm64.
+RUN other=$(node -p "process.arch === 'arm64' ? 'x64' : 'arm64'") \
+  && cd /deploy/node_modules/.pnpm \
   && find . -path '*onnxruntime-node/bin/napi-v*/*' -mindepth 1 -maxdepth 7 -type d \
-    \( -name darwin -o -name win32 -o -name arm64 \) -prune -exec rm -rf {} + \
+    \( -name darwin -o -name win32 -o -name "$other" \) -prune -exec rm -rf {} + \
   && find . -name 'libonnxruntime_providers_cuda.so' -o -name 'libonnxruntime_providers_tensorrt.so' \
     | xargs rm -f \
   && find . -path '*onnxruntime-web*/dist/*' -name '*.wasm' -delete
@@ -26,13 +28,16 @@ RUN node --input-type=module -e "\
   const { env, pipeline } = await import('@huggingface/transformers'); \
   env.cacheDir = '/models'; \
   await pipeline('feature-extraction', 'Xenova/multilingual-e5-small', { dtype: 'q8' });"
+# Node also needs libatomic, which distroless does not have. Its folder depends on the architecture
+# (x86_64-linux-gnu, aarch64-linux-gnu), so it is staged here with its full path.
+RUN dir=/usr/lib/$(uname -m)-linux-gnu \
+  && mkdir -p /runtime$dir && cp -a $dir/libatomic.so.1* /runtime$dir/
 
 # Distroless: glibc and libstdc++, which Node and ONNX Runtime need, without a shell, a package
 # manager or the system tools of Debian, which bring vulnerabilities the API never uses.
 FROM gcr.io/distroless/cc-debian13
 COPY --from=build /usr/local/bin/node /usr/local/bin/node
-# Node also needs libatomic, which distroless does not have. The image is built for x86-64 only.
-COPY --from=build /usr/lib/x86_64-linux-gnu/libatomic.so.1* /usr/lib/x86_64-linux-gnu/
+COPY --from=build /runtime/ /
 WORKDIR /app
 COPY --from=build /deploy/node_modules ./node_modules
 COPY --from=build /models /models
