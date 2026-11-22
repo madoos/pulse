@@ -479,3 +479,55 @@ Hay dos soluciones, de menos a más:
 La primera es poco trabajo y probablemente basta. Lo dejo para una fase de optimización.
 
 El precio de todo lo demás es que la facturación por empleado de años pasados divide entre la plantilla de hoy, porque no hay histórico de empleados, y que la página es larga: tres secciones de gráficas. Valoré separarla en pestañas, pero prefiero verlo todo de un vistazo.
+
+## 2026-11-22 — El asistente de soporte: preguntar a los documentos de una asesoría
+
+Además de las métricas, de cada asesoría hay chats, notas internas, tickets y emails: 330 documentos, entre 4 y 9 por asesoría. El enunciado pide poder preguntarles cosas como "¿qué incidencias recurrentes tiene?" y obtener una respuesta con los documentos que la respaldan. Lo recojo en el [ADR-0023](adr/0023-support-assistant-with-vector-search-and-an-agent.md).
+
+### Lo que importa no es la prosa
+
+Que el modelo escriba bonito es lo de menos. Lo que no puede fallar:
+
+- **Aislamiento:** una pregunta sobre la asesoría A nunca usa un documento de la B.
+- **Trazabilidad:** cada respuesta cita sus fuentes y se pueden comprobar.
+- **Honestidad:** si no hay información, lo dice en vez de inventar.
+
+### Cómo funciona
+
+- **Cada documento llega con su embedding**, un vector que resume su significado. Calcularlo es trabajo de la ingesta, como limpiar los datos. Aquí lo simulo igual que con las asesorías y las métricas: un script calcula los embeddings y escribe un fichero que carga una seed.
+- **La pregunta se convierte en un vector con el mismo modelo**, dentro de la API, y se buscan los **10 documentos más parecidos de esa asesoría**. Siempre 10 como mucho, tenga la asesoría 9 documentos o 10.000.
+- **La asesoría la pone el código, nunca el modelo.** Sale de la URL y va en la consulta SQL antes que nada.
+- **Si ningún documento se parece lo bastante, no se llama al modelo:** se responde que no hay información suficiente. Es gratis, inmediato y se puede testear.
+- **Un agente redacta la respuesta.** Recibe los documentos encontrados y tiene una herramienta para buscar otra vez con otras palabras, una categoría, un estado o **fechas**: los embeddings no entienden de fechas, así que "los últimos meses" se acotan con un rango. Puede buscar hasta 4 veces y luego tiene que responder.
+- **Las fuentes las comprueba el código.** Solo cuentan los documentos que devolvieron las búsquedas de esa asesoría; si el modelo cita un id inventado, se quita de la respuesta.
+- **Todo queda registrado:** cada pregunta, con su texto y su vector, cada búsqueda con lo que encontró, la respuesta, el modelo y los tokens. Guardar el vector de la pregunta permite optimizar después sin recalcular nada.
+
+### El modelo
+
+Uso los modelos gratuitos de OpenRouter (`openrouter/free`): para una prueba bastan. Tienen dos pegas, y las dos se ven en la interfaz. Su cuota se agota, y entonces el asistente lo dice claro en vez de fallar sin más. Y cambian: cada pregunta puede responderla un modelo distinto. En las pruebas, uno escribió los ids con un guion tipográfico (`SUP‑0001`) y las fuentes salían vacías; ahora el código reconoce los dos guiones.
+
+Sin la clave de OpenRouter, el asistente aparece como no disponible y el resto de la aplicación funciona igual. La clave vive en `.env` en local y en un Secret de Kubernetes en el VPS, nunca en el repositorio.
+
+### Lo que cuesta
+
+El modelo de embeddings vive dentro de la API. Cargarlo lleva unos segundos al arrancar, y embeder una pregunta, unos 50 ms. El precio es memoria y tamaño:
+
+- La API pasa de unos 100 MB a unos 480 MB de memoria, y su límite en el VPS, de 256 MiB a 768 MiB. Cabe en la memoria libre que tiene.
+- La imagen pasa de Alpine a Debian, porque ONNX Runtime necesita glibc, y pesa unos 650 MB. Al principio pesaba 1,2 GB: ONNX Runtime trae binarios para todas las plataformas y para GPU, y solo hace falta el de Linux para CPU.
+- El modelo va dentro de la imagen, así que la API nunca lo descarga.
+- En un Mac con Intel no hay binario de ONNX Runtime: allí el asistente solo funciona dentro de Docker.
+
+### Lo que queda fuera
+
+- Calcular los embeddings de los documentos: es cosa de la ingesta.
+- Reordenar los resultados con un reranker: con menos de 10 documentos por asesoría, el top 10 ya los tiene casi todos.
+- Un índice vectorial aproximado (HNSW): hace falta cuando una sola asesoría tenga miles de documentos.
+- Tests de aceptación del asistente: el modelo es externo, gratuito y no determinista, y un escenario que pase por él fallaría al azar. Las reglas que importan están cubiertas con tests unitarios y de integración con un agente falso.
+
+### Las preguntas que hay que responder
+
+El enunciado pide responder en el README:
+
+4. ¿Cómo garantizas el aislamiento entre asesorías? ¿Qué pasaría si mañana una asesoría tiene 10.000 documentos?
+5. ¿Cómo gestionas la trazabilidad de las respuestas? ¿Qué pasa si un documento de soporte se actualiza o se elimina?
+6. ¿Qué coste y complejidad tiene tu solución? ¿Qué dependencias externas introduces y cómo afectan al despliegue?
