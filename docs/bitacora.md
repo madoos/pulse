@@ -420,3 +420,62 @@ El enunciado dice *"al abrir Pulse quiero ver las asesorías"*. Lo interpreto di
 Los cinco escenarios del listado corren contra el sistema entero, con los datos de los seeds. El de "ver todas" hace scroll hasta el final, así que comprueba de verdad que la segunda página llega: 30 asesorías y luego 20. Lo esperado sale de la base de datos, como en el resto.
 
 El precio es más piezas que una lista normal: un cursor en la API, un store que va acumulando páginas y un componente virtual con filas de altura fija. Y el buscar del navegador no encuentra las asesorías que aún no se han cargado: para eso está el buscador del cajón. Con 5.000 asesorías el siguiente cuello de botella sería la búsqueda con `ilike`, que recorre la tabla; ahí tocaría un índice de trigramas (`pg_trgm`) sobre el nombre sin acentos.
+
+---
+
+## 2026-11-22 — El detalle de una asesoría
+
+El enunciado pide que al entrar en una asesoría veas sus datos y, sobre todo, cómo evoluciona: si gana clientes, si factura más o menos que hace seis meses y si presenta muchas declaraciones. Lo recojo en el [ADR-0022](adr/0022-firm-detail-measured-as-the-network-and-against-its-specialty.md).
+
+### Medida como la red
+
+- **Los mismos cuatro indicadores que la red**, calculados con las mismas reglas: clientes activos, facturación, facturación por cliente y bajas al mes. Y tres más: **declaraciones**, porque el enunciado pregunta por ellas, **facturación por empleado**, para saber cuánto factura cada persona, e **incidencias con Hacienda**, para saber si presenta bien.
+- **Los mismos filtros**, también en la URL: año fiscal, meses y comparar con otro año. Sin agrupar, porque una asesoría sola no tiene nada que agrupar.
+- **Las mismas alertas que en la vista de red**, en rojo y calculadas por el mismo código. Una asesoría nunca puede tener una alerta en su detalle y otra distinta en "Necesitan atención".
+
+Lo que lo hace fácil de usar es que no hay que aprender nada nuevo: quien ha entendido la vista de red entiende el detalle.
+
+### Presentar mucho no es presentar bien
+
+Saber cuántas declaraciones presenta una asesoría no dice si las presenta bien. Por eso el detalle tiene también las **incidencias con Hacienda**, pero no como número, sino como porcentaje: de cada 100 declaraciones, cuántas acaban en una incidencia.
+
+El número a secas engaña. Una asesoría grande tiene más incidencias que una pequeña solo por presentar más, y cualquiera tiene más en plena campaña de renta. El porcentaje se puede comparar con otro año y con la media de su especialidad, y ahí sí se ve si una asesoría tiene un problema. Más es peor, así que sube en rojo, como las bajas.
+
+El precio es que una asesoría tiene pocas incidencias al mes, de 0 a 9, y la línea mensual da saltos. El dato fiable es el del periodo, el número grande de la tarjeta.
+
+### La trampa de los seis meses
+
+"¿Factura más o menos que hace seis meses?" parece una pregunta sencilla, pero esconde una trampa: el trabajo de una asesoría sigue el calendario fiscal. En toda la red, marzo factura un 17 % más que septiembre del mismo año, y las declaraciones suben un 28 %. Comparar con hace seis meses es comparar dos épocas distintas, y casi todas las asesorías parecerían crecer solo por el calendario.
+
+La solución es compararla con quien tiene su misma estacionalidad: **el resto de asesorías de su especialidad**.
+
+- **Una sección nueva, "Frente a su especialidad"**, con las mismas gráficas: una línea para la asesoría y otra para la asesoría media del resto de su especialidad. Como las dos viven el mismo calendario, la distancia entre las líneas es mérito o problema de la asesoría.
+- **"Hace seis meses" muestra también lo que cambió su especialidad** en esos mismos dos meses, y la diferencia en puntos, en verde o rojo. Una asesoría que factura un 20 % más mientras su especialidad factura un 25 % más no va mejor: va peor.
+- **La media es de una asesoría, no el total de la especialidad**, para que las dos líneas compartan escala. Y **la propia asesoría queda fuera**, para que no se compare consigo misma.
+
+Descarté los índices estacionales, que serían la solución de libro: son difíciles de explicar y con tres años de datos no son fiables.
+
+### Un detalle que solo salió en Docker
+
+La asesoría media tiene decimales: 156,4 clientes, 85,3 declaraciones. El contrato exigía enteros, y la web rechazaba la respuesta de la API. Los tests unitarios no lo vieron porque usaban números redondos; lo cazaron los de aceptación contra el sistema entero. Ahora la asesoría media tiene su propio esquema en el contrato.
+
+### Ordenar la casa
+
+El detalle reutiliza mucho de la vista de red: las tarjetas con gráfica, los filtros, las métricas, las alertas. Al principio lo importaba directamente de la carpeta de la vista de red, y eso incumplía el [ADR-0004](adr/0004-frontend-react-redux-observable.md): cada feature es independiente, y lo que comparten varias va en `shared/`. Lo moví, con nombres que ya no hablan de la red (`MetricCards`, `PeriodFilters`). Ahora ninguna feature importa de otra.
+
+### Lo que queda para afinar
+
+Hay un coste que hoy no se nota y con 5.000 asesorías sí.
+
+Para las alertas, el detalle solo necesita dos cosas: los totales de **esta** asesoría y **un único número de la red**, su media de bajas, para saber si esta asesoría tiene 1,5 veces más. Pero ahora la API reutiliza el mismo código que "Necesitan atención": pide los totales de **todas** las asesorías, calcula las alertas de todas y se queda con las de una. Con 50 asesorías tarda menos de 0,2 segundos. Con 5.000, abrir un detalle supondría leer unas 120.000 filas, mandar 5.000 a la API y recorrerlas para usar una.
+
+**No es un problema de índices.** El índice `(fiscal_year, month)` ya existe y hace bien su trabajo: encontrar rápido las filas del periodo. Y aquí sí hacen falta las filas de todas las asesorías, porque la media de la red sale de todas. Lo que sobra es lo de después: devolver 5.000 filas y calcular 5.000 alertas para mirar una. Es como pedir el expediente de cada alumno de la clase, corregirlos todos y mirar solo uno, cuando bastaba con pedir la nota media y ese expediente.
+
+Hay dos soluciones, de menos a más:
+
+- **Pedir solo lo que hace falta:** que la base de datos calcule la media de bajas de la red y devuelva una fila en vez de 5.000, y leer aparte los totales de esta asesoría por su clave primaria. Las reglas de las alertas no cambian.
+- **Guardar esa media en caché por periodo:** no cambia hasta que llegan datos nuevos, una vez al mes, así que se calcula una vez y la reutilizan todos los detalles.
+
+La primera es poco trabajo y probablemente basta. Lo dejo para una fase de optimización.
+
+El precio de todo lo demás es que la facturación por empleado de años pasados divide entre la plantilla de hoy, porque no hay histórico de empleados, y que la página es larga: tres secciones de gráficas. Valoré separarla en pestañas, pero prefiero verlo todo de un vistazo.
