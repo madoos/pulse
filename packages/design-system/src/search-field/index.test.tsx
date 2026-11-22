@@ -22,6 +22,17 @@ describe('SearchField', () => {
     expect(screen.getByRole('searchbox', { name: 'Buscar asesoría' })).toBeInTheDocument();
   });
 
+  it('searches with its button as with Enter, when it has one', async () => {
+    const onSubmit = vi.fn();
+    render(<SearchField label="Buscar asesoría" submitLabel="Buscar" onSubmit={onSubmit} />);
+
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Buscar asesoría' }), 'gest{Enter}');
+    await userEvent.click(screen.getByRole('button', { name: 'Buscar' }));
+
+    expect(onSubmit).toHaveBeenNthCalledWith(1, 'gest');
+    expect(onSubmit).toHaveBeenNthCalledWith(2, 'gest');
+  });
+
   it('has no accessibility violations', async () => {
     const { container } = render(<SearchField label="Buscar asesoría" defaultValue="ga" />);
 

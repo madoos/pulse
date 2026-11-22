@@ -24,3 +24,23 @@ export const WithActions: Story = {
 export const WithBack: Story = {
   args: { title: 'Gestoria Manchega Integral', back: <a href="#">← Volver</a> },
 };
+
+export const Sticky: Story = {
+  args: {
+    sticky: true,
+    actions: (
+      <SearchField
+        label="Buscar asesoría"
+        hideLabel
+        placeholder="Nombre de la asesoría"
+        submitLabel="Buscar"
+      />
+    ),
+  },
+  render: (args) => (
+    <div style={{ height: '200vh' }}>
+      <PageHeader {...args} />
+      <p>Al hacer scroll, la cabecera se queda arriba.</p>
+    </div>
+  ),
+};

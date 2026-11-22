@@ -91,4 +91,42 @@
   &[data-empty] &__clear {
     display: none;
   }
+
+  &__with-submit {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-2);
+    min-width: 0;
+
+    .search-field {
+      flex: 1;
+    }
+  }
+
+  &__submit {
+    min-height: 2.75rem;
+    padding: var(--space-2) var(--space-4);
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--color-action-primary);
+    color: var(--color-text-on-action);
+    font: var(--font-body);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    outline: none;
+
+    &[data-hovered] {
+      background: var(--color-action-primary-hover);
+    }
+
+    &[data-focus-visible] {
+      @include mixins.focus-ring;
+    }
+
+    &[data-disabled] {
+      background: var(--color-action-disabled);
+      color: var(--color-text-disabled);
+      cursor: default;
+    }
+  }
 }

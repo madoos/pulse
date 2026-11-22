@@ -17,3 +17,7 @@ export const Default: Story = {};
 export const WithValue: Story = { args: { defaultValue: 'Gestoría' } };
 
 export const HiddenLabel: Story = { args: { hideLabel: true } };
+
+export const WithSubmitButton: Story = {
+  args: { hideLabel: true, placeholder: 'Nombre de la asesoría', submitLabel: 'Buscar' },
+};

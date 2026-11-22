@@ -1,0 +1,5 @@
+// The page takes the whole window: without this, the browser leaves a margin of 8px around it,
+// and a layout as tall as the window overflows it.
+body {
+  margin: 0;
+}
