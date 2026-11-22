@@ -1,9 +1,9 @@
 import { useSearchParams } from 'react-router';
 
-/** The drawer of advisory firms lives in the URL, over any page: `?firms=open&q=…&specialty=…`. */
+/** The drawer of advisory firms lives in the URL, over any page: `?firms=open&q=…&province=…`. */
 export const FIRMS_PARAM = 'firms';
 
-export const FIRM_FILTERS = ['specialty', 'community', 'size'] as const;
+export const FIRM_FILTERS = ['province', 'specialty'] as const;
 
 export type FirmFilter = (typeof FIRM_FILTERS)[number];
 
@@ -19,9 +19,8 @@ export const readFirmsDrawer = (params: URLSearchParams): FirmsDrawerState => ({
   isOpen: params.get(FIRMS_PARAM) === 'open',
   search: params.get('q') ?? '',
   filters: {
+    province: params.get('province'),
     specialty: params.get('specialty'),
-    community: params.get('community'),
-    size: params.get('size'),
   },
 });
 

@@ -7,6 +7,16 @@ import { createStore } from './store';
 describe('createStore', () => {
   it('starts with the state of every feature', () => {
     expect(createStore({ api: createFakeApi() }).getState()).toEqual({
+      firmsListing: {
+        query: null,
+        status: 'idle',
+        items: [],
+        total: 0,
+        nextCursor: null,
+        isLoadingMore: false,
+        moreFailed: false,
+        filters: { status: 'idle', data: null },
+      },
       login: { status: 'idle' },
       networkOverview: { status: 'idle', fiscalYears: [] },
       networkPerformance: { status: 'idle', query: null, data: null },

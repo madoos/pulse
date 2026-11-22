@@ -12,21 +12,13 @@ import {
   type PeriodQuery,
 } from '@pulse/contracts';
 import type { Observable } from 'rxjs';
-import type { Request } from './request';
+import { toSearch, type Request } from './request';
 
 export type NetworkApi = {
   fiscalYears: () => Observable<FiscalYears>;
   performance: (query: NetworkPerformanceQuery) => Observable<NetworkPerformance>;
   groups: (query: NetworkGroupsQuery) => Observable<NetworkGroups>;
   highlights: (query: PeriodQuery) => Observable<NetworkHighlights>;
-};
-
-const toSearch = (query: Record<string, string | number | undefined>) => {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(query)) {
-    if (value !== undefined) params.set(key, String(value));
-  }
-  return `?${params.toString()}`;
 };
 
 export const createNetworkApi = (request: Request): NetworkApi => ({

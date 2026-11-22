@@ -13,7 +13,7 @@ describe('firmsDrawer', () => {
     expect(readFirmsDrawer(params)).toEqual({
       isOpen: true,
       search: 'gestor',
-      filters: { specialty: 'fiscal', community: null, size: null },
+      filters: { province: null, specialty: 'fiscal' },
     });
     expect(readFirmsDrawer(new URLSearchParams('year=2025')).isOpen).toBe(false);
   });
@@ -21,13 +21,13 @@ describe('firmsDrawer', () => {
   it('opens over the params of the page and drops empty values', () => {
     const params = new URLSearchParams('year=2025&q=old');
 
-    expect(openFirmsDrawer(params, { search: '', community: 'madrid' }).toString()).toBe(
-      'year=2025&firms=open&community=madrid',
+    expect(openFirmsDrawer(params, { search: '', province: '28' }).toString()).toBe(
+      'year=2025&firms=open&province=28',
     );
   });
 
   it('closes leaving only the params of the page', () => {
-    const params = new URLSearchParams('year=2025&firms=open&q=gestor&size=small');
+    const params = new URLSearchParams('year=2025&firms=open&q=gestor&province=28');
 
     expect(closeFirmsDrawer(params).toString()).toBe('year=2025');
   });

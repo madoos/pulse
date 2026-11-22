@@ -6,7 +6,12 @@ type FakeApi = { [Entity in keyof Api]?: Partial<Api[Entity]> };
 
 const summary = { activeClients: 0, revenue: 0, revenuePerClient: null, churnRate: null };
 
-export const createFakeApi = ({ health, network, session }: FakeApi = {}): Api => ({
+export const createFakeApi = ({ advisoryFirms, health, network, session }: FakeApi = {}): Api => ({
+  advisoryFirms: {
+    list: () => of({ items: [], total: 0, nextCursor: null }),
+    filters: () => of({ provinces: [], specialties: [] }),
+    ...advisoryFirms,
+  },
   health: { get: () => of({ status: 'ok' }), ...health },
   network: {
     fiscalYears: () => of({ fiscalYears: [2025, 2024] }),

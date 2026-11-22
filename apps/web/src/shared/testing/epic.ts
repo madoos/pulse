@@ -9,7 +9,8 @@ type Cold = TestScheduler['createColdObservable'];
 
 export type EpicScenario = {
   api: (cold: Cold) => Api;
-  actions: { marbles: string; values: Record<string, Action> };
+  /** Hot actions, for epics that subscribe to the actions more than once. */
+  actions: { marbles: string; values: Record<string, Action>; hot?: boolean };
   expected: { marbles: string; values: Record<string, Action> };
 };
 
@@ -18,9 +19,10 @@ export const expectEpic = (
   { api, actions, expected }: EpicScenario,
 ) =>
   new TestScheduler((actual, wanted) => expect(actual).toEqual(wanted)).run(
-    ({ cold, expectObservable }) => {
+    ({ cold, hot, expectObservable }) => {
+      const action$ = (actions.hot ? hot : cold)(actions.marbles, actions.values);
       const output$ = epic(
-        cold(actions.marbles, actions.values) as unknown as Parameters<typeof epic>[0],
+        action$ as unknown as Parameters<typeof epic>[0],
         new StateObservable(NEVER as Observable<unknown>, {}),
         { api: api(cold) },
       );

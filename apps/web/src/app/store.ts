@@ -1,5 +1,7 @@
 import type { Api } from '@shared/api';
 import { combineReducers, configureStore, type Action } from '@reduxjs/toolkit';
+import { firmsListingEpic } from '@advisory-firms/firmsListing.epics';
+import { firmsListingSlice } from '@advisory-firms/firmsListing.slice';
 import { loginEpic } from '@login/login.epics';
 import { loginSlice } from '@login/login.slice';
 import { networkGroupsEpic } from '@network-overview/groups/networkGroups.epics';
@@ -22,6 +24,7 @@ export type Dependencies = {
 };
 
 const rootReducer = combineReducers({
+  firmsListing: firmsListingSlice.reducer,
   login: loginSlice.reducer,
   networkOverview: networkOverviewSlice.reducer,
   networkPerformance: networkPerformanceSlice.reducer,
@@ -39,6 +42,7 @@ const rootEpic = combineEpics<Action, Action, RootState, Dependencies>(
   networkPerformanceEpic,
   networkGroupsEpic,
   networkHighlightsEpic,
+  firmsListingEpic,
 );
 
 export const createStore = (dependencies: Dependencies) => {

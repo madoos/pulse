@@ -54,7 +54,7 @@ export const NetworkOverviewContainer = () => {
           <SearchField
             label="Buscar asesoría"
             hideLabel
-            placeholder="Buscar asesoría por nombre, ciudad o CIF"
+            placeholder="Buscar asesoría por nombre"
             onSubmit={(search) => firmsDrawer.open({ search })}
           />
         }

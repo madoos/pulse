@@ -33,3 +33,13 @@ export const createRequest =
       if (!response.ok) throw new ApiError(response.status);
       return schema.parse(response.status === 204 ? undefined : await response.json());
     });
+
+/** The query string of a request, leaving out the values that are not given. */
+export const toSearch = (query: Record<string, string | number | null | undefined>) => {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value !== undefined && value !== null && value !== '') params.set(key, String(value));
+  }
+  const search = params.toString();
+  return search ? `?${search}` : '';
+};
