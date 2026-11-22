@@ -21,8 +21,3 @@ When('I click {string}', async ({ page }, name: string) => {
 Then('the detail page of that advisory firm opens', async ({ firmDetail, db, memory }) => {
   await firmDetail.expectOpenFor(await db.firmIdNamed(memory.get('firm') ?? ''));
 });
-
-Then('I go to the network overview', async ({ page, networkOverview }) => {
-  await expect(page).toHaveURL(/\/$/);
-  await networkOverview.expectShown();
-});

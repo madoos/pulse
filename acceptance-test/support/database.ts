@@ -129,6 +129,78 @@ export class Database {
     return rows[0].id;
   }
 
+  /** The profile of a firm, as the detail shows it. */
+  async firmProfile(id: number) {
+    const { rows } = await this.pool.query<Record<string, string | number>>(
+      `select f.name, f.tax_id, p.name as province, f.city, s.name as specialty, f.employees,
+              to_char(f.onboarded_on, 'DD/MM/YYYY') as onboarded_on
+         from advisory_firms f
+         join provinces p on p.id = f.province_id
+         join specialties s on s.code = f.specialty_code
+        where f.id = $1`,
+      [id],
+    );
+    if (!rows[0]) throw new Error(`There is no advisory firm with id ${id}`);
+    return rows[0];
+  }
+
+  /** The months of a firm in a fiscal year, in order, with revenue in euros. */
+  async firmMonths(id: number, fiscalYear: number) {
+    const { rows } = await this.pool.query<FirmMonth>(
+      `select to_char(month, 'YYYY-MM') as month, active_clients as "activeClients",
+              (revenue_advisory + revenue_management + revenue_consulting)::float8 / 100 as revenue,
+              filings_income_tax + filings_vat + filings_corporate_tax + filings_other as "taxFilings",
+              tax_agency_incidents as "taxAgencyIncidents"
+         from monthly_metrics where firm_id = $1 and fiscal_year = $2 order by month`,
+      [id, fiscalYear],
+    );
+    return rows;
+  }
+
+  /** One month of a firm, given as "2025-09", or null without data. */
+  async firmMonth(id: number, month: string): Promise<FirmMonth | null> {
+    const { rows } = await this.pool.query<FirmMonth>(
+      `select to_char(month, 'YYYY-MM') as month, active_clients as "activeClients",
+              (revenue_advisory + revenue_management + revenue_consulting)::float8 / 100 as revenue,
+              filings_income_tax + filings_vat + filings_corporate_tax + filings_other as "taxFilings"
+         from monthly_metrics where firm_id = $1 and month = $2::date`,
+      [id, `${month}-01`],
+    );
+    return rows[0] ?? null;
+  }
+
+  /**
+   * The revenue in euros of the average firm of the rest of its specialty in a fiscal year:
+   * each month, the revenue of the other firms over how many had data.
+   */
+  async specialtyAverageRevenue(id: number, fiscalYear: number): Promise<number> {
+    const { rows } = await this.pool.query<{ revenue: number }>(
+      `select coalesce(sum(average), 0)::float8 as revenue from (
+         select avg(m.revenue_advisory + m.revenue_management + m.revenue_consulting) / 100 as average
+           from monthly_metrics m
+           join advisory_firms f on f.id = m.firm_id
+          where f.specialty_code = (select specialty_code from advisory_firms where id = $1)
+            and f.id <> $1 and m.fiscal_year = $2
+          group by m.month) months`,
+      [id, fiscalYear],
+    );
+    return rows[0]!.revenue;
+  }
+
+  /** The revenue in euros of the average firm of the rest of its specialty in one month. */
+  async specialtyAverageRevenueIn(id: number, month: string): Promise<number> {
+    const { rows } = await this.pool.query<{ revenue: number }>(
+      `select avg(m.revenue_advisory + m.revenue_management + m.revenue_consulting)::float8 / 100
+              as revenue
+         from monthly_metrics m
+         join advisory_firms f on f.id = m.firm_id
+        where f.specialty_code = (select specialty_code from advisory_firms where id = $1)
+          and f.id <> $1 and m.month = $2::date`,
+      [id, `${month}-01`],
+    );
+    return rows[0]!.revenue;
+  }
+
   async close() {
     await this.pool.end();
   }
@@ -153,4 +225,13 @@ export type ListedFirmRow = {
   province: string;
   specialty: string;
   employees: number;
+};
+
+export type FirmMonth = {
+  month: string;
+  activeClients: number;
+  revenue: number;
+  taxFilings: number;
+  /** Only read for the months of a fiscal year. */
+  taxAgencyIncidents?: number;
 };

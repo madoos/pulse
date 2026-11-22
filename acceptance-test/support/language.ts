@@ -51,3 +51,7 @@ export const listOf = (text: string) =>
 
 /** "16.608.611 €" is 16608611. */
 export const numberOf = (text: string) => Number(text.replace(/[^\d,]/g, '').replace(',', '.'));
+
+/** A number with its sign, as the application writes changes: "−1,9 p.p." is -1.9. */
+export const signedNumberOf = (text: string) =>
+  /[−-]/.test(text) ? -numberOf(text) : numberOf(text);
