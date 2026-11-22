@@ -37,6 +37,10 @@ services:
       DATABASE_URL: postgres://pulse:pulse@db:5432/pulse
       JWT_SECRET: local-development-secret-not-for-production
       CORS_ORIGIN: http://localhost:${WEB_PORT:-8080}
+      # Support assistant (ADR-0023). The key is read from .env; without it the assistant is
+      # unavailable and everything else works.
+      OPEN_ROUTER_API_KEY: ${OPEN_ROUTER_API_KEY:-}
+      ASSISTANT_MODEL: openrouter/free
     ports:
       - '${API_PORT:-3000}:3000'
     depends_on:

@@ -46,6 +46,17 @@ spec:
                 secretKeyRef:
                   name: auth
                   key: jwt-secret
+            # Support assistant (ADR-0023). The key is created by hand on the cluster:
+            #   kubectl -n pulse create secret generic assistant --from-literal=open-router-api-key=…
+            # Optional: without it the assistant reports itself as unavailable.
+            - name: OPEN_ROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: assistant
+                  key: open-router-api-key
+                  optional: true
+            - name: ASSISTANT_MODEL
+              value: openrouter/free
             # A DSN only allows sending events to the project, so it is not a secret.
             - name: SENTRY_DSN
               value: https://959b2b61d594913be41b66cab131475e@o4512470119612416.ingest.de.sentry.io/4512470135406672
@@ -55,16 +66,19 @@ spec:
               port: http
             periodSeconds: 5
           livenessProbe:
+            # Loading the embedding model takes a few seconds at start.
+            initialDelaySeconds: 20
             tcpSocket:
               port: http
             periodSeconds: 10
             failureThreshold: 3
+          # The embedding model of the assistant takes about 480 MB once loaded (ADR-0023).
           resources:
             requests:
               cpu: 50m
-              memory: 128Mi
+              memory: 384Mi
             limits:
-              memory: 256Mi
+              memory: 768Mi
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
