@@ -121,6 +121,7 @@ Every technical decision is recorded in the [ADRs](docs/adr/README.md), each wit
 | Real ingestion and normalization | The source data had errors, such as negative VAT or repeated months, that distort the metrics of a period. I cleaned them by hand (see below). | An ingestion process that validates, normalizes and corrects or discards those records before loading them. |
 | Materialized views | Almost every query is a sum, average or grouping over data that does not change. | Precompute them in materialized views, refreshed when each month's data arrives. |
 | Acceptance tests for the assistant | The model is not deterministic and depends on an external platform with costs. | A fake model for the end-to-end scenario, and separate evaluations with a fixed set of questions. |
+| A smoother UI | Today each section shows a generic loading state, and changing a filter reloads it without transition. | Skeletons with the shape of each section, smooth transitions between states, and keeping the previous data visible while the new data loads. |
 | Better semantic search | Accuracy depends on how the documents are described, and there is no way to know whether the answers help. | Categorize and tag the documents before indexing them, and measure when users mark an answer as valid. |
 
 #### 2. Which part is the most fragile or the least efficient?
