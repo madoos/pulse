@@ -7,7 +7,12 @@ const required = { DATABASE_URL, JWT_SECRET };
 
 describe('loadConfig', () => {
   it('defaults to production on port 3000', () => {
-    expect(loadConfig(required)).toEqual({ NODE_ENV: 'production', PORT: 3000, ...required });
+    expect(loadConfig(required)).toEqual({
+      NODE_ENV: 'production',
+      PORT: 3000,
+      ASSISTANT_MODEL: 'openrouter/free',
+      ...required,
+    });
   });
 
   it('requires the database URL', () => {
@@ -28,6 +33,24 @@ describe('loadConfig', () => {
 
     expect(loadConfig({ ...required, ...sentry })).toMatchObject(sentry);
     expect(() => loadConfig({ ...required, SENTRY_DSN: 'not-a-url' })).toThrow('SENTRY_DSN');
+  });
+
+  it('accepts the settings of the support assistant', () => {
+    expect(
+      loadConfig({
+        ...required,
+        OPEN_ROUTER_API_KEY: 'a-key',
+        ASSISTANT_MODEL: 'some/model',
+        EMBEDDING_MODELS_DIR: '/models',
+      }),
+    ).toMatchObject({
+      OPEN_ROUTER_API_KEY: 'a-key',
+      ASSISTANT_MODEL: 'some/model',
+      EMBEDDING_MODELS_DIR: '/models',
+    });
+    expect(
+      loadConfig({ ...required, OPEN_ROUTER_API_KEY: '' }).OPEN_ROUTER_API_KEY,
+    ).toBeUndefined();
   });
 
   it('requires the allowed CORS origin in development', () => {

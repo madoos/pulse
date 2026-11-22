@@ -11,6 +11,15 @@ const ConfigSchema = z
     SENTRY_DSN: z.url().optional(),
     SENTRY_ENVIRONMENT: z.string().optional(),
     SENTRY_RELEASE: z.string().optional(),
+    // Support assistant (ADR-0023): without a key it reports itself as unavailable.
+    // Empty counts as not set, as docker compose passes it when .env does not have it.
+    OPEN_ROUTER_API_KEY: z
+      .string()
+      .optional()
+      .transform((key) => key || undefined),
+    ASSISTANT_MODEL: z.string().min(1).default('openrouter/free'),
+    // Where the embedding model is; the image ships it, so it is never downloaded at runtime.
+    EMBEDDING_MODELS_DIR: z.string().min(1).optional(),
   })
   .refine((config) => config.NODE_ENV !== 'development' || config.CORS_ORIGIN, {
     message: 'CORS_ORIGIN is required in development',

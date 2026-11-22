@@ -9,12 +9,15 @@
     "start": "node dist/main.js",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate --config src/shared/infrastructure/database/drizzle.config.ts",
-    "db:migrate": "tsx src/shared/infrastructure/database/migrate.ts"
+    "db:migrate": "tsx src/shared/infrastructure/database/migrate.ts",
+    "ingest:support": "tsx src/support-assistant/infrastructure/ingestion/ingest-support-documents.ts"
   },
   "dependencies": {
     "@hono/node-server": "^2.1.9",
     "@hono/swagger-ui": "^0.6.2",
     "@hono/zod-openapi": "^1.6.3",
+    "@huggingface/transformers": "^4.3.2",
+    "@openrouter/agent": "^1.2.2",
     "@pulse/contracts": "workspace:*",
     "@sentry/node": "^11.16.0",
     "csv-parse": "^7.0.3",
@@ -27,6 +30,7 @@
     "@testcontainers/postgresql": "^12.2.2",
     "@types/node": "^26.6.6",
     "@types/pg": "^8.23.1",
+    "csv-stringify": "^6.9.0",
     "drizzle-kit": "^0.31.11",
     "testcontainers": "^12.2.2",
     "tsup": "^9.0.0",

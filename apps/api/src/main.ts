@@ -29,6 +29,16 @@ import { loadConfig } from '@shared/infrastructure/config';
 import { createDatabase } from '@shared/infrastructure/database';
 import { createApp, startServer } from '@shared/infrastructure/http';
 import { createErrorReporter } from '@shared/infrastructure/monitoring';
+import { makeAskQuestion } from '@support-assistant/application/ask-question';
+import { makeGetConversation } from '@support-assistant/application/get-conversation';
+import { makeStartConversation } from '@support-assistant/application/start-conversation';
+import { createOpenRouterAgent } from '@support-assistant/infrastructure/agent/openrouter';
+import { createTransformersEmbedder } from '@support-assistant/infrastructure/embedder/transformers';
+import { createSupportAssistantRoutes } from '@support-assistant/infrastructure/http';
+import {
+  createPostgresConversationLog,
+  createPostgresSupportDocumentRepository,
+} from '@support-assistant/infrastructure/repository/postgres';
 
 const config = loadConfig();
 const reportError = createErrorReporter({
@@ -62,6 +72,33 @@ const getFirmPerformance = makeGetFirmPerformance({
   network: networkPerformance,
 });
 
+const createAssistant = (apiKey: string) => {
+  const embedder = createTransformersEmbedder({
+    cacheDir: config.EMBEDDING_MODELS_DIR,
+    allowRemoteModels: !config.EMBEDDING_MODELS_DIR,
+  });
+  // Loaded at start, so the first question does not wait for the model.
+  embedder.warmUp().catch((error: unknown) => {
+    console.error('The embedding model could not be loaded', error);
+    reportError(error);
+  });
+  const log = createPostgresConversationLog(db);
+  return {
+    startConversation: makeStartConversation({
+      log,
+      firmExists: async (id) => (await advisoryFirms.byId(id)) !== null,
+    }),
+    getConversation: makeGetConversation({ log }),
+    askQuestion: makeAskQuestion({
+      documents: createPostgresSupportDocumentRepository(db),
+      embedder,
+      agent: createOpenRouterAgent({ apiKey, model: config.ASSISTANT_MODEL }),
+      log,
+      report: (report) => console.info(JSON.stringify({ event: 'assistant.question', ...report })),
+    }),
+  };
+};
+
 const app = createApp(
   [
     createHealthRoutes(checkHealth),
@@ -83,6 +120,10 @@ const app = createApp(
       listAdvisoryFirms,
       listFirmFilters,
       getAdvisoryFirm,
+      requireSession,
+    }),
+    createSupportAssistantRoutes({
+      assistant: config.OPEN_ROUTER_API_KEY ? createAssistant(config.OPEN_ROUTER_API_KEY) : null,
       requireSession,
     }),
   ],

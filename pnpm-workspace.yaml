@@ -4,9 +4,11 @@ packages:
   - acceptance-test
 
 allowBuilds:
+  '@openrouter/sdk': false
   '@parcel/watcher': false
   cpu-features: false
   esbuild: true
   lefthook: true
+  onnxruntime-node: true
   protobufjs: false
   ssh2: false

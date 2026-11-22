@@ -6,7 +6,10 @@ const titles: Partial<Record<ContentfulStatusCode, string>> = {
   400: 'Bad Request',
   401: 'Unauthorized',
   404: 'Not Found',
+  429: 'Too Many Requests',
   500: 'Internal Server Error',
+  502: 'Bad Gateway',
+  503: 'Service Unavailable',
 };
 
 export const problem = <S extends ContentfulStatusCode>(c: Context, status: S, detail?: string) => {

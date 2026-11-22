@@ -6,7 +6,7 @@ import {
 } from '@shared/infrastructure/database';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { z } from 'zod';
-import { createBusinessDataSeed } from './business-data';
+import { createBusinessDataSeed, createSupportDocumentsSeed } from './business-data';
 import { runSeeds } from './seeds';
 
 const env = z
@@ -26,6 +26,7 @@ try {
   const applied = await runSeeds(db, [
     createInitialUserSeed({ email: env.SEED_USER_EMAIL, password: env.SEED_USER_PASSWORD }),
     createBusinessDataSeed(BUSINESS_DATA_FOLDER),
+    createSupportDocumentsSeed(BUSINESS_DATA_FOLDER),
   ]);
   console.log(applied.length ? `Seeds applied: ${applied.join(', ')}` : 'No pending seeds');
 } finally {
