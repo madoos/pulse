@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/madoos/pulse/compare/web-v0.6.0...web-v0.7.0) (2026-11-22)
+
+
+### Features
+
+* **web:** show the advisory firms in the drawer, loaded page by page ([50de951](https://github.com/madoos/pulse/commit/50de9513a42478f797341d97fe9eb4f9c142270c))
+
 ## [0.6.0](https://github.com/madoos/pulse/compare/web-v0.5.0...web-v0.6.0) (2026-11-21)
 
 
