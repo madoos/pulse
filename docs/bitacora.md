@@ -385,3 +385,38 @@ Empiezo con 21 escenarios: 18 de la vista de red, la búsqueda desde la cabecera
 Por el camino salieron dos ajustes. Las líneas de los gráficos no están en el árbol de accesibilidad, así que les añado un atributo con el nombre de su serie para poder contarlas sin depender de clases CSS. Y el login tardaba más de cinco segundos con varios tests entrando a la vez, porque comprobar una contraseña es lento a propósito: le doy más margen.
 
 El precio es que los escenarios que necesitan datos que los seeds no tienen (un año nuevo que llega, un mes sin datos, un periodo sin alertas) no se pueden probar de punta a punta sin inventar datos. Esos se quedan en los tests de integración.
+
+---
+
+## 2026-11-22 — El listado de asesorías
+
+Antes de construir el listado volví al enunciado y recorté los casos de uso a lo que pide: ver todas las asesorías con sus datos básicos (nombre, dónde están, cuánta gente tienen y a qué se dedican), buscar, filtrar por provincia y especialidad, y entrar en una. Ordenar, filtrar por tamaño o por comunidad y buscar por CIF eran ideas mías, no necesidades del usuario, y cada escenario de más es código que mantener.
+
+### Pensado para 5.000, no para 50
+
+Hoy hay 50 asesorías y cargarlas todas de golpe funcionaría, pero la pregunta de qué pasa con 5.000 está sobre la mesa. Lo recojo en el [ADR-0021](adr/0021-listing-in-a-drawer-with-virtual-rendering-and-paged-loading.md):
+
+- **La API devuelve el listado por páginas, con cursor.** Las asesorías van ordenadas por nombre e id, y cada página trae el cursor de la siguiente: la última asesoría que se ha visto. A diferencia de un `offset`, la base de datos no lee y descarta las filas anteriores, así que la última página cuesta lo mismo que la primera, y no se saltan ni se repiten filas si los datos cambian entre una página y otra. Un índice `(name, id)` sostiene ese orden.
+- **Buscar y filtrar se hace en la base de datos**, nunca en el navegador. La búsqueda ignora mayúsculas y acentos con `unaccent`, que ya estaba instalado desde el [ADR-0005](adr/0005-use-postgresql.md): "martinez" encuentra "Martínez".
+- **La lista es virtual.** Solo están en la página las filas que se ven; al acercarte al final, pide la siguiente página. Está en el design system como `VirtualList`, sobre el `Virtualizer` de React Aria, que mantiene el teclado y los lectores de pantalla funcionando aunque las filas no existan en el DOM. No hizo falta ninguna dependencia nueva.
+
+### Aquí RxJS se gana el sueldo
+
+Este es el flujo para el que elegí redux-observable en el [ADR-0004](adr/0004-frontend-react-redux-observable.md). Todo lo difícil de un buscador con scroll infinito se expresa con operadores, sin flags en el estado:
+
+- **`debounceTime` y `distinctUntilChanged`:** se pregunta a la API cuando dejas de escribir, y no se repite si la búsqueda no ha cambiado.
+- **`switchMap`:** una búsqueda nueva cancela la anterior, así que una respuesta lenta nunca pisa a una más reciente.
+- **`exhaustMap`:** mientras carga una página no se pide otra, por rápido que hagas scroll.
+- **`takeUntil`:** al cerrar el cajón se cancela lo que esté en vuelo, y al volver a abrirlo se carga de nuevo.
+
+Cada caso tiene su test de canicas (marble testing), que comprueba el tiempo de forma determinista: que se pide a los 300 ms, que la respuesta lenta se descarta, que la página de una búsqueda anterior no se mezcla con la nueva.
+
+### Un cajón y no la página de inicio
+
+El enunciado dice *"al abrir Pulse quiero ver las asesorías"*. Lo interpreto distinto a propósito: al abrir Pulse ves cómo va la red, y el listado se abre en un cajón lateral desde cualquier página. Buscar una asesoría es algo que se hace en mitad de otra tarea, revisando la red o una alerta, y así no pierdes lo que estabas mirando. El estado del cajón vive en la URL, y el "Volver" del detalle te devuelve al cajón con tu búsqueda y tus filtros.
+
+### Probado de punta a punta
+
+Los cinco escenarios del listado corren contra el sistema entero, con los datos de los seeds. El de "ver todas" hace scroll hasta el final, así que comprueba de verdad que la segunda página llega: 30 asesorías y luego 20. Lo esperado sale de la base de datos, como en el resto.
+
+El precio es más piezas que una lista normal: un cursor en la API, un store que va acumulando páginas y un componente virtual con filas de altura fija. Y el buscar del navegador no encuentra las asesorías que aún no se han cargado: para eso está el buscador del cajón. Con 5.000 asesorías el siguiente cuello de botella sería la búsqueda con `ilike`, que recorre la tabla; ahí tocaría un índice de trigramas (`pg_trgm`) sobre el nombre sin acentos.
