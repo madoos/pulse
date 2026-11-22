@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/madoos/pulse/compare/api-v0.6.0...api-v0.7.0) (2026-11-22)
+
+
+### Features
+
+* **api:** list the advisory firms page by page with a cursor ([fc07b14](https://github.com/madoos/pulse/commit/fc07b140aa6aebed423ee485991e71c7d4829a73))
+
 ## [0.6.0](https://github.com/madoos/pulse/compare/api-v0.5.0...api-v0.6.0) (2026-11-21)
 
 

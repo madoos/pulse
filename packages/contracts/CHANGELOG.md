@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/madoos/pulse/compare/contracts-v0.6.0...contracts-v0.7.0) (2026-11-22)
+
+
+### Features
+
+* **contracts:** add the paged advisory firm listing schemas ([1f1db22](https://github.com/madoos/pulse/commit/1f1db223712813afb89f1869fa1f47a146531dbb))
+
 ## [0.6.0](https://github.com/madoos/pulse/compare/contracts-v0.5.0...contracts-v0.6.0) (2026-11-21)
 
 

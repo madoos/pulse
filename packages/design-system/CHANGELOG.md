@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/madoos/pulse/compare/design-system-v0.5.0...design-system-v0.6.0) (2026-11-22)
+
+
+### Features
+
+* **design-system:** add a virtual list that loads more on scroll ([612cc1c](https://github.com/madoos/pulse/commit/612cc1ce869f03ee4c2aac6143574befeaa0d0fb))
+
 ## [0.5.0](https://github.com/madoos/pulse/compare/design-system-v0.4.0...design-system-v0.5.0) (2026-11-21)
 
 
