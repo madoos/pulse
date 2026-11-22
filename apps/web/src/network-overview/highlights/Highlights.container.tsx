@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from '@app/store';
-import { SectionState } from '@network-overview/SectionState';
+import { SectionState } from '@shared/section-state/SectionState';
 import { NeedsAttention } from './NeedsAttention';
 import { alertFilterChanged, highlightsRequested } from './networkHighlights.slice';
 import { Standouts } from './Standouts';

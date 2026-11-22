@@ -1,4 +1,3 @@
-import type { NetworkPerformance } from '@pulse/contracts';
 import {
   ChartLegend,
   Delta,
@@ -7,12 +6,31 @@ import {
   type ChartLegendItem,
 } from '@pulse/design-system';
 import { formatMonthName, formatShortMonth } from '@shared/format';
-import { METRICS, METRIC_KEYS, deltaOf } from '@network-overview/metrics';
-import styles from '@network-overview/network-overview.module.scss';
+import {
+  METRICS,
+  METRIC_KEYS,
+  deltaOf,
+  type MetricKey,
+  type MonthOf,
+} from '@shared/metrics/metrics';
+import styles from './metric-cards.module.scss';
 import type { MetricChart } from './charts';
 
-export type NetworkKpisProps = {
-  performance: NetworkPerformance;
+/** The network or a firm, year by year: the selected year first, then the compared one. */
+export type MetricCardsOf = {
+  years: {
+    fiscalYear: number;
+    summary: Partial<Record<MetricKey, number | null>>;
+    months: MonthOf[];
+  }[];
+};
+
+export type MetricCardsProps = {
+  performance: MetricCardsOf;
+  /** The metrics to show, the four of the network by default. */
+  metrics?: MetricKey[];
+  /** What each value means, when it is not what it means for the network. */
+  footnotes?: Partial<Record<MetricKey, string>>;
   /** The calendar months of the period, in fiscal order. */
   calendarMonths: number[];
   /** The chart of each metric: one line per year, or per group. Null while it loads. */
@@ -21,32 +39,38 @@ export type NetworkKpisProps = {
   legend: ChartLegendItem[];
   /** What the lines are, for screen readers: "una línea por año". */
   linesAre: string;
+  /** How the second value is introduced in the change: "antes" by default. */
+  referenceIs?: string;
 };
 
-/** Each metric of the network: its value, its change and its evolution month by month. */
-export const NetworkKpis = ({
+/** A card per metric: its value, its change and its evolution month by month. */
+export const MetricCards = ({
   performance,
+  metrics = METRIC_KEYS,
+  footnotes = {},
   calendarMonths,
   charts,
   legend,
   linesAre,
-}: NetworkKpisProps) => {
+  referenceIs,
+}: MetricCardsProps) => {
   const [selected, compared] = performance.years;
   if (!selected) return null;
   const range = `de ${formatMonthName(calendarMonths[0] ?? 4)} a ${formatMonthName(calendarMonths.at(-1) ?? 3)}`;
   return (
     <>
       {legend.length > 1 && <ChartLegend items={legend} />}
-      <div className={styles['network-overview__kpis']}>
-        {METRIC_KEYS.map((key) => {
+      <div className={styles['metric-cards']}>
+        {metrics.map((key) => {
           const metric = METRICS[key];
-          const delta = compared && deltaOf(key, selected.summary[key], compared.summary[key]);
+          const value = selected.summary[key] ?? null;
+          const delta = compared && deltaOf(key, value, compared.summary[key] ?? null, referenceIs);
           const chart = charts?.find((c) => c.metric === key);
           return (
             <StatCard
               key={key}
               label={metric.label}
-              value={metric.format(selected.summary[key])}
+              value={metric.format(value)}
               change={
                 delta && (
                   <Delta direction={delta.direction} tone={delta.tone}>
@@ -68,7 +92,7 @@ export const NetworkKpis = ({
                   />
                 )
               }
-              footnote={metric.footnote}
+              footnote={footnotes[key] ?? metric.footnote}
             />
           );
         })}

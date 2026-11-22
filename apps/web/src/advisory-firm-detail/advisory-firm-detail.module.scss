@@ -1,6 +1,10 @@
 @use '@pulse/design-system/mixins.scss' as mixins;
 
 .advisory-firm-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+
   &__back {
     color: var(--color-action-primary);
     font-weight: var(--font-weight-semibold);
@@ -15,9 +19,73 @@
     }
   }
 
-  &__grid {
+  &__profile {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
-    gap: var(--space-6);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+    gap: var(--space-4);
+    margin: 0;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  &__label {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-100);
+  }
+
+  &__value {
+    margin: 0;
+    font-weight: var(--font-weight-semibold);
+  }
+
+  &__alerts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  &__alert-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    border-left: 4px solid var(--color-text-danger);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-danger);
+    list-style: none;
+  }
+
+  &__alert {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-2);
+    margin: 0;
+    font-size: var(--font-size-200);
+  }
+
+  &__alert-value {
+    font-weight: var(--font-weight-semibold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__alert-context {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-200);
+  }
+
+  &__rules {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-200);
+
+    summary {
+      cursor: pointer;
+    }
   }
 }

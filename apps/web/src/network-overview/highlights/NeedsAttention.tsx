@@ -1,9 +1,9 @@
 import { ALERT_TYPES, type FirmNeedingAttention } from '@pulse/contracts';
 import { Badge, Button, FilterChips, Message, Panel } from '@pulse/design-system';
-import { FilterScope } from '@network-overview/FilterScope';
+import { FilterScope } from '@shared/period-filters/FilterScope';
 import { formatFiscalYear } from '@shared/format';
 import { useState } from 'react';
-import { ALERT_LABELS, ALERT_RULES, describeAlert } from './alerts';
+import { ALERT_LABELS, ALERT_RULES, describeAlert } from '@shared/metrics/alerts';
 import { FirmCard, FirmCards } from './FirmCard';
 import styles from './highlights.module.scss';
 import type { AlertFilter } from './networkHighlights.slice';

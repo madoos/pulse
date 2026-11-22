@@ -10,6 +10,7 @@ import {
   formatPercent,
   formatPoints,
   formatShortMonth,
+  formatDate,
 } from '.';
 
 describe('format', () => {
@@ -39,5 +40,11 @@ describe('format', () => {
     expect(formatMonthName(4)).toBe('abril');
     expect(formatShortMonth(3)).toBe('mar');
     expect(formatMonth('2026-03')).toBe('mar 2026');
+  });
+});
+
+describe('formatDate', () => {
+  it('writes the day first', () => {
+    expect(formatDate('2018-03-15')).toBe('15/03/2018');
   });
 });

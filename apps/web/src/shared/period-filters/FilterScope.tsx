@@ -1,4 +1,4 @@
-import styles from './network-overview.module.scss';
+import styles from './period-filters.module.scss';
 
 export type FilterKey = 'period' | 'compare' | 'group';
 
@@ -10,10 +10,10 @@ const NAMES: Record<FilterKey, string> = {
 
 /** Which filters change a section, so it is clear what each filter does. */
 export const FilterScope = ({ uses }: { uses: FilterKey[] }) => (
-  <span className={styles['network-overview__scope']}>
-    <span className={styles['network-overview__scope-label']}>Usa:</span>
+  <span className={styles['filter-scope']}>
+    <span className={styles['filter-scope__label']}>Usa:</span>
     {uses.map((key) => (
-      <span key={key} className={styles['network-overview__scope-filter']}>
+      <span key={key} className={styles['filter-scope__filter']}>
         {NAMES[key]}
       </span>
     ))}

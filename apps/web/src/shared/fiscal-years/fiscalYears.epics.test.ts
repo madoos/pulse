@@ -2,12 +2,8 @@ import { createFakeApi } from '@shared/testing/api';
 import { expectEpic } from '@shared/testing/epic';
 import { of, throwError } from 'rxjs';
 import { describe, it } from 'vitest';
-import { loadFiscalYearsEpic } from './networkOverview.epics';
-import {
-  fiscalYearsFailed,
-  fiscalYearsLoaded,
-  fiscalYearsRequested,
-} from './networkOverview.slice';
+import { loadFiscalYearsEpic } from './fiscalYears.epics';
+import { fiscalYearsFailed, fiscalYearsLoaded, fiscalYearsRequested } from './fiscalYears.slice';
 
 const requested = { marbles: '-a', values: { a: fiscalYearsRequested() } };
 

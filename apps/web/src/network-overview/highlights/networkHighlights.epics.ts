@@ -1,5 +1,5 @@
 import type { Action } from '@reduxjs/toolkit';
-import { periodQueryOf, sameQuery } from '@network-overview/networkOverview.filters';
+import { periodQueryOf, sameQuery } from '@shared/period-filters/period.filters';
 import { networkFiltersChanged } from '@network-overview/networkOverview.slice';
 import type { Api } from '@shared/api';
 import { combineEpics, type Epic } from 'redux-observable';

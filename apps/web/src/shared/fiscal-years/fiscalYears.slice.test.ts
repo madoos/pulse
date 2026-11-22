@@ -3,19 +3,19 @@ import {
   fiscalYearsFailed,
   fiscalYearsLoaded,
   fiscalYearsRequested,
-  networkOverviewSlice,
-} from './networkOverview.slice';
+  fiscalYearsSlice,
+} from './fiscalYears.slice';
 
-const reduce = networkOverviewSlice.reducer;
+const reduce = fiscalYearsSlice.reducer;
 
-describe('network overview slice', () => {
+describe('fiscal years slice', () => {
   it('loads the fiscal years', () => {
     const loading = reduce(undefined, fiscalYearsRequested());
 
     expect(loading.status).toBe('loading');
     expect(reduce(loading, fiscalYearsLoaded([2025, 2024]))).toEqual({
       status: 'loaded',
-      fiscalYears: [2025, 2024],
+      years: [2025, 2024],
     });
   });
 

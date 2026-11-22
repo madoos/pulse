@@ -10,6 +10,35 @@ export const createFakeApi = ({ advisoryFirms, health, network, session }: FakeA
   advisoryFirms: {
     list: () => of({ items: [], total: 0, nextCursor: null }),
     filters: () => of({ provinces: [], specialties: [] }),
+    get: (id) =>
+      of({
+        id,
+        name: `Asesoría ${id}`,
+        taxId: 'B00000000',
+        province: 'Madrid',
+        city: 'Madrid',
+        specialty: 'Fiscal',
+        onboardedOn: '2020-01-01',
+        employees: 10,
+      }),
+    performance: (_id, query) =>
+      of({
+        years: [
+          {
+            fiscalYear: query.fiscalYear,
+            summary: { ...summary, taxFilings: 0, revenuePerEmployee: null, incidentRate: null },
+            months: [],
+          },
+        ],
+        sixMonthsAgo: null,
+        specialty: {
+          firms: 0,
+          summary: { ...summary, taxFilings: 0, revenuePerEmployee: null, incidentRate: null },
+          months: [],
+        },
+        alerts: [],
+        alertsComparedWith: null,
+      }),
     ...advisoryFirms,
   },
   health: { get: () => of({ status: 'ok' }), ...health },

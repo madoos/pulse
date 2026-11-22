@@ -1,5 +1,7 @@
 import type { Api } from '@shared/api';
 import { combineReducers, configureStore, type Action } from '@reduxjs/toolkit';
+import { advisoryFirmDetailEpic } from '@advisory-firm-detail/advisoryFirmDetail.epics';
+import { advisoryFirmDetailSlice } from '@advisory-firm-detail/advisoryFirmDetail.slice';
 import { firmsListingEpic } from '@advisory-firms/firmsListing.epics';
 import { firmsListingSlice } from '@advisory-firms/firmsListing.slice';
 import { loginEpic } from '@login/login.epics';
@@ -8,10 +10,10 @@ import { networkGroupsEpic } from '@network-overview/groups/networkGroups.epics'
 import { networkGroupsSlice } from '@network-overview/groups/networkGroups.slice';
 import { networkHighlightsEpic } from '@network-overview/highlights/networkHighlights.epics';
 import { networkHighlightsSlice } from '@network-overview/highlights/networkHighlights.slice';
-import { loadFiscalYearsEpic } from '@network-overview/networkOverview.epics';
-import { networkOverviewSlice } from '@network-overview/networkOverview.slice';
 import { networkPerformanceEpic } from '@network-overview/performance/networkPerformance.epics';
 import { networkPerformanceSlice } from '@network-overview/performance/networkPerformance.slice';
+import { loadFiscalYearsEpic } from '@shared/fiscal-years/fiscalYears.epics';
+import { fiscalYearsSlice } from '@shared/fiscal-years/fiscalYears.slice';
 import { sessionEpic } from '@session/session.epics';
 import { sessionSlice } from '@session/session.slice';
 import { checkSystemStatusEpic } from '@system-status/systemStatus.epics';
@@ -24,9 +26,10 @@ export type Dependencies = {
 };
 
 const rootReducer = combineReducers({
+  advisoryFirmDetail: advisoryFirmDetailSlice.reducer,
   firmsListing: firmsListingSlice.reducer,
   login: loginSlice.reducer,
-  networkOverview: networkOverviewSlice.reducer,
+  fiscalYears: fiscalYearsSlice.reducer,
   networkPerformance: networkPerformanceSlice.reducer,
   networkGroups: networkGroupsSlice.reducer,
   networkHighlights: networkHighlightsSlice.reducer,
@@ -43,6 +46,7 @@ const rootEpic = combineEpics<Action, Action, RootState, Dependencies>(
   networkGroupsEpic,
   networkHighlightsEpic,
   firmsListingEpic,
+  advisoryFirmDetailEpic,
 );
 
 export const createStore = (dependencies: Dependencies) => {

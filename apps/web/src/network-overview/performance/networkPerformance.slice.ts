@@ -1,6 +1,6 @@
 import type { NetworkPerformance, NetworkPerformanceQuery } from '@pulse/contracts';
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { LoadStatus } from '@network-overview/networkOverview.slice';
+import type { LoadStatus } from '@shared/section-state/SectionState';
 
 export type NetworkPerformanceState = {
   status: LoadStatus;

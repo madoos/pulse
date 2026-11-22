@@ -1,6 +1,8 @@
 import { Button, Message } from '@pulse/design-system';
 import type { ReactNode } from 'react';
-import type { LoadStatus } from './networkOverview.slice';
+
+/** How far a section got loading its data. */
+export type LoadStatus = 'idle' | 'loading' | 'loaded' | 'failed';
 
 export type SectionStateProps = {
   status: LoadStatus;

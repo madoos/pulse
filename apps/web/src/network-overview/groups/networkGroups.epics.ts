@@ -1,6 +1,7 @@
 import type { NetworkGroupsQuery } from '@pulse/contracts';
 import type { Action } from '@reduxjs/toolkit';
-import { groupsQueryOf, sameQuery } from '@network-overview/networkOverview.filters';
+import { groupsQueryOf } from '@network-overview/networkOverview.filters';
+import { sameQuery } from '@shared/period-filters/period.filters';
 import { networkFiltersChanged } from '@network-overview/networkOverview.slice';
 import type { Api } from '@shared/api';
 import { combineEpics, type Epic } from 'redux-observable';

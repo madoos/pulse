@@ -1,8 +1,9 @@
 import { useAppDispatch, useAppSelector } from '@app/store';
 import type { NetworkFilters } from '@network-overview/networkOverview.filters';
-import { SectionState } from '@network-overview/SectionState';
-import { groupCharts, networkCharts, yearLegend } from './charts';
-import { NetworkKpis } from './NetworkKpis';
+import { SectionState } from '@shared/section-state/SectionState';
+import { yearLegend } from '@shared/metric-cards/charts';
+import { groupCharts, networkCharts } from './charts';
+import { MetricCards } from '@shared/metric-cards/MetricCards';
 import { performanceRequested } from './networkPerformance.slice';
 
 const GROUP_NAMES = { specialty: 'especialidad', 'autonomous-community': 'comunidad autónoma' };
@@ -43,7 +44,7 @@ export const IndicatorsContainer = ({
       onRetry={() => performance.query && dispatch(performanceRequested(performance.query))}
     >
       {data && (
-        <NetworkKpis
+        <MetricCards
           performance={data}
           calendarMonths={calendarMonths}
           charts={charts ?? null}

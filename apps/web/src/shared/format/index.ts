@@ -80,3 +80,6 @@ export const formatMonth = (month: string) => {
   const [year, calendarMonth] = month.split('-').map(Number) as [number, number];
   return `${formatShortMonth(calendarMonth)} ${year}`;
 };
+
+/** A date given as `YYYY-MM-DD`, as Spain writes it: 15/03/2018. */
+export const formatDate = (date: string) => date.split('-').reverse().join('/');

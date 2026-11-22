@@ -1,6 +1,6 @@
 import type { FirmNeedingAttention, Standout } from '@pulse/contracts';
 import { Badge, Message, Panel } from '@pulse/design-system';
-import { FilterScope } from '@network-overview/FilterScope';
+import { FilterScope } from '@shared/period-filters/FilterScope';
 import { formatChange, formatFiscalYear, formatPercent } from '@shared/format';
 import { FirmCard, FirmCards } from './FirmCard';
 import styles from './highlights.module.scss';

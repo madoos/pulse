@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   changeFilters,
+  describeFilters,
   groupsQueryOf,
-  monthsOfPeriod,
-  performanceQueryOf,
   resolveFilters,
   toSearchParams,
   type NetworkFilters,
@@ -21,12 +20,8 @@ const filters: NetworkFilters = {
 };
 
 describe('network filters', () => {
-  it('selects the most recent year and the whole fiscal year by default, with no comparison', () => {
-    expect(resolve('')).toEqual(filters);
-  });
-
-  it('reads every filter from the URL', () => {
-    expect(resolve('year=2024&compare=2023&from=4&to=6&group=specialty')).toEqual({
+  it('reads the period and the grouping from the URL', () => {
+    expect(resolve('year=2024&compare=2023&to=6&group=specialty')).toEqual({
       fiscalYear: 2024,
       compareWith: 2023,
       fromMonth: 4,
@@ -35,42 +30,23 @@ describe('network filters', () => {
     });
   });
 
-  it('drops what is not valid', () => {
-    expect(resolve('year=1990&compare=2025&from=6&to=4&group=city')).toEqual(filters);
+  it('drops an unknown grouping', () => {
+    expect(resolve('group=city')).toEqual(filters);
   });
 
-  it('resets the comparison when the selected year becomes the compared one', () => {
+  it('keeps the grouping when the period changes', () => {
+    expect(changeFilters({ ...filters, groupBy: 'specialty' }, { toMonth: 6 }).groupBy).toBe(
+      'specialty',
+    );
+  });
+
+  it('writes the grouping to the URL after the period', () => {
     expect(
-      changeFilters({ ...filters, compareWith: 2024 }, { fiscalYear: 2024 }).compareWith,
-    ).toBeNull();
+      toSearchParams({ ...filters, compareWith: 2024, groupBy: 'autonomous-community' }).toString(),
+    ).toBe('year=2025&compare=2024&group=autonomous-community');
   });
 
-  it('keeps the range of months in order', () => {
-    const range = { ...filters, fromMonth: 5, toMonth: 6 };
-
-    expect(changeFilters(range, { fromMonth: 9 })).toMatchObject({ fromMonth: 9, toMonth: 9 });
-    expect(changeFilters(range, { toMonth: 4 })).toMatchObject({ fromMonth: 4, toMonth: 4 });
-  });
-
-  it('writes only what differs from the defaults to the URL', () => {
-    expect(toSearchParams(filters).toString()).toBe('year=2025');
-    expect(
-      toSearchParams({
-        ...filters,
-        compareWith: 2024,
-        toMonth: 6,
-        groupBy: 'autonomous-community',
-      }).toString(),
-    ).toBe('year=2025&compare=2024&to=6&group=autonomous-community');
-  });
-
-  it('lists the months of the period in fiscal order', () => {
-    expect(monthsOfPeriod({ fromMonth: 11, toMonth: 2 })).toEqual([11, 12, 1, 2]);
-    expect(monthsOfPeriod(filters)).toHaveLength(12);
-  });
-
-  it('builds the queries of each section', () => {
-    expect(performanceQueryOf(filters)).toEqual({ fiscalYear: 2025, fromMonth: 4, toMonth: 3 });
+  it('asks for groups only when there is a grouping', () => {
     expect(groupsQueryOf(filters)).toBeNull();
     expect(groupsQueryOf({ ...filters, compareWith: 2024, groupBy: 'specialty' })).toEqual({
       fiscalYear: 2025,
@@ -79,5 +55,11 @@ describe('network filters', () => {
       toMonth: 3,
       groupBy: 'specialty',
     });
+  });
+
+  it('says in words what is shown, with the grouping', () => {
+    expect(describeFilters({ ...filters, groupBy: 'specialty' })).toBe(
+      'Estás viendo todo el año 2025-26, sin comparar con otro año, por especialidad.',
+    );
   });
 });

@@ -7,22 +7,25 @@ import { useSearchParams } from 'react-router';
 import { GroupTableContainer } from './groups/GroupTable.container';
 import { NeedsAttentionContainer, StandoutsContainer } from './highlights/Highlights.container';
 import styles from './network-overview.module.scss';
-import { NetworkFilters, describeFilters } from './NetworkFilters';
+import { fiscalYearsRequested } from '@shared/fiscal-years/fiscalYears.slice';
+import { FilterScope } from '@shared/period-filters/FilterScope';
+import { PeriodFilters } from '@shared/period-filters/PeriodFilters';
+import { monthsOfPeriod } from '@shared/period-filters/period.filters';
+import { SectionState } from '@shared/section-state/SectionState';
+import { GroupBySelect } from './GroupBySelect';
 import {
   changeFilters,
-  monthsOfPeriod,
+  describeFilters,
   resolveFilters,
   toSearchParams,
   type NetworkFilters as Filters,
 } from './networkOverview.filters';
-import { fiscalYearsRequested, networkFiltersChanged } from './networkOverview.slice';
-import { FilterScope } from './FilterScope';
+import { networkFiltersChanged } from './networkOverview.slice';
 import { IndicatorsContainer } from './performance/Indicators.container';
-import { SectionState } from './SectionState';
 
 /** The network overview. The filters live in the URL; every section loads from them. */
 export const NetworkOverviewContainer = () => {
-  const { status, fiscalYears } = useAppSelector((state) => state.networkOverview);
+  const { status, years: fiscalYears } = useAppSelector((state) => state.fiscalYears);
   const dispatch = useAppDispatch();
   const [params, setParams] = useSearchParams();
   const firmsDrawer = useFirmsDrawer();
@@ -70,7 +73,9 @@ export const NetworkOverviewContainer = () => {
               title="Filtros"
               description={<span aria-live="polite">{describeFilters(filters)}</span>}
             >
-              <NetworkFilters fiscalYears={fiscalYears} filters={filters} onChange={onChange} />
+              <PeriodFilters fiscalYears={fiscalYears} filters={filters} onChange={onChange}>
+                <GroupBySelect groupBy={filters.groupBy} onChange={onChange} />
+              </PeriodFilters>
             </Panel>
             <GroupTableContainer filters={filters} />
             <Panel

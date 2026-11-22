@@ -1,4 +1,4 @@
-import type { MonthlyPoint, PeriodSummary } from '@pulse/contracts';
+import type { FirmPeriodSummary, PeriodSummary } from '@pulse/contracts';
 import type { DeltaProps } from '@pulse/design-system';
 import {
   formatChange,
@@ -9,7 +9,11 @@ import {
   formatPoints,
 } from '@shared/format';
 
-export type MetricKey = keyof PeriodSummary;
+/** Every metric: the network's, and the tax filings measured for each firm. */
+export type MetricKey = keyof FirmPeriodSummary;
+
+/** The metrics of the network. */
+export type NetworkMetricKey = keyof PeriodSummary;
 
 type Metric = {
   label: string;
@@ -24,7 +28,7 @@ type Metric = {
 
 const count = (value: number | null) => (value === null ? 'n/d' : formatNumber(value));
 
-/** The four metrics of the network, and how to read them. */
+/** The metrics, and how to read them. */
 export const METRICS: Record<MetricKey, Metric> = {
   activeClients: {
     label: 'Clientes activos',
@@ -58,9 +62,39 @@ export const METRICS: Record<MetricKey, Metric> = {
     change: 'points',
     footnote: 'De cada 100 clientes, cuántos se van en un mes: bajas entre clientes activos.',
   },
+  revenuePerEmployee: {
+    label: 'Facturación por empleado',
+    format: formatEuros,
+    formatTick: (value) => formatEuros(value),
+    higherIsBetter: true,
+    change: 'relative',
+    footnote: 'Facturación del periodo entre los empleados de la asesoría.',
+  },
+  incidentRate: {
+    label: 'Incidencias con Hacienda',
+    format: (value) => formatPercent(value),
+    formatTick: (value) => formatPercent(value),
+    higherIsBetter: false,
+    change: 'points',
+    footnote: 'De cada 100 declaraciones, cuántas acaban en una incidencia con Hacienda.',
+  },
+  taxFilings: {
+    label: 'Declaraciones',
+    format: count,
+    formatTick: formatNumber,
+    higherIsBetter: true,
+    change: 'relative',
+    footnote: 'Declaraciones presentadas en el periodo: renta, IVA, sociedades y otras.',
+  },
 };
 
-export const METRIC_KEYS = Object.keys(METRICS) as MetricKey[];
+/** The four metrics of the network overview. */
+export const METRIC_KEYS: NetworkMetricKey[] = [
+  'activeClients',
+  'revenue',
+  'revenuePerClient',
+  'churnRate',
+];
 
 const THRESHOLD = 0.0005;
 
@@ -69,26 +103,37 @@ export const deltaOf = (
   metric: MetricKey,
   value: number | null,
   reference: number | null,
+  /** How the reference is introduced: "antes 216", or "su especialidad 216". */
+  referenceIs = 'antes',
 ): (Omit<DeltaProps, 'children'> & { text: string }) | null => {
   if (value === null || reference === null) return null;
   const { change, higherIsBetter } = METRICS[metric];
   if (change === 'relative' && reference === 0) return null;
   const amount = change === 'relative' ? (value - reference) / reference : value - reference;
   const formatted = change === 'relative' ? formatChange(amount) : formatPoints(amount);
-  const text = `${formatted} · antes ${METRICS[metric].format(reference)}`;
+  const text = `${formatted} · ${referenceIs} ${METRICS[metric].format(reference)}`;
   if (Math.abs(amount) < THRESHOLD) return { direction: 'flat', tone: 'neutral', text };
   const direction = amount > 0 ? 'up' : 'down';
   const tone = (direction === 'up') === higherIsBetter ? 'good' : 'bad';
   return { direction, tone, text };
 };
 
+/** Whether a change in points of a metric is good, bad or too small to matter. */
+export const toneOf = (metric: MetricKey, points: number): Omit<DeltaProps, 'children'> => {
+  if (Math.abs(points) < THRESHOLD) return { direction: 'flat', tone: 'neutral' };
+  const direction = points > 0 ? 'up' : 'down';
+  return {
+    direction,
+    tone: (direction === 'up') === METRICS[metric].higherIsBetter ? 'good' : 'bad',
+  };
+};
+
 /** The values of a metric for each month of the period, null where there is no data. */
-export const valuesByMonth = (
-  months: MonthlyPoint[],
-  calendarMonths: number[],
-  metric: MetricKey,
-) =>
+export const valuesByMonth = (months: MonthOf[], calendarMonths: number[], metric: MetricKey) =>
   calendarMonths.map((calendarMonth) => {
     const point = months.find((m) => Number(m.month.slice(5)) === calendarMonth);
-    return point ? point[metric] : null;
+    return point?.[metric] ?? null;
   });
+
+/** A month of the network, a group or a firm. */
+export type MonthOf = { month: string } & Partial<Record<MetricKey, number | null>>;

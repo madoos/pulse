@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from '@app/store';
 import type { NetworkFilters } from '@network-overview/networkOverview.filters';
-import { SectionState } from '@network-overview/SectionState';
+import { SectionState } from '@shared/section-state/SectionState';
 import { GroupTable } from './GroupTable';
 import { groupsRequested, groupsSorted } from './networkGroups.slice';
 

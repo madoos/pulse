@@ -1,0 +1,62 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
+import { FilterGroup, PeriodFilters, describePeriod } from './PeriodFilters';
+
+const filters = { fiscalYear: 2025, compareWith: null, fromMonth: 6, toMonth: 3 };
+
+describe('PeriodFilters', () => {
+  it('does not offer the selected year to compare with', async () => {
+    render(
+      <PeriodFilters fiscalYears={[2025, 2024, 2023]} filters={filters} onChange={() => {}} />,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /Comparar con/ }));
+
+    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual([
+      'Ninguno',
+      '2024-25',
+      '2023-24',
+    ]);
+  });
+
+  it('only offers months after the first one as the last one', async () => {
+    render(<PeriodFilters fiscalYears={[2025]} filters={filters} onChange={() => {}} />);
+
+    await userEvent.click(screen.getByRole('button', { name: /Hasta/ }));
+
+    expect(screen.queryByRole('option', { name: 'abril' })).toBeNull();
+    expect(screen.getByRole('option', { name: 'junio' })).toBeInTheDocument();
+  });
+
+  it('reports the change of a filter', async () => {
+    const onChange = vi.fn();
+    render(<PeriodFilters fiscalYears={[2025, 2024]} filters={filters} onChange={onChange} />);
+
+    await userEvent.click(screen.getByRole('button', { name: /Comparar con/ }));
+    await userEvent.click(screen.getByRole('option', { name: '2024-25' }));
+
+    expect(onChange).toHaveBeenCalledWith({ compareWith: 2024 });
+  });
+
+  it('shows the other filters given to it after the period', () => {
+    render(
+      <PeriodFilters fiscalYears={[2025]} filters={filters} onChange={() => {}}>
+        <FilterGroup title="Desglose">extra</FilterGroup>
+      </PeriodFilters>,
+    );
+
+    expect(screen.getByRole('group', { name: 'Desglose' })).toHaveTextContent('extra');
+  });
+});
+
+describe('describePeriod', () => {
+  it('says in words what is shown', () => {
+    expect(describePeriod({ ...filters, fromMonth: 4 })).toBe(
+      'Estás viendo todo el año 2025-26, sin comparar con otro año.',
+    );
+    expect(describePeriod({ ...filters, fromMonth: 1, compareWith: 2023 }, ', y más')).toBe(
+      'Estás viendo de enero a marzo 2025-26 frente a los mismos meses de 2023-24, y más.',
+    );
+  });
+});

@@ -1,29 +1,30 @@
 import { FISCAL_MONTHS, fiscalMonthIndex } from '@pulse/contracts';
 import { Select } from '@pulse/design-system';
 import { formatFiscalYear, formatMonthName } from '@shared/format';
-import type { NetworkFilters as Filters } from './networkOverview.filters';
-import styles from './network-overview.module.scss';
+import type { ReactNode } from 'react';
+import type { PeriodFilters as Filters } from './period.filters';
+import styles from './period-filters.module.scss';
 
-export type NetworkFiltersProps = {
+export type PeriodFiltersProps = {
   fiscalYears: number[];
   filters: Filters;
   onChange: (change: Partial<Filters>) => void;
+  /** More groups of filters, after the period and the comparison. */
+  children?: ReactNode;
 };
 
 const NONE = 'none';
 
-const GROUP_NAMES = { specialty: 'especialidad', 'autonomous-community': 'comunidad autónoma' };
-
 const monthOption = (month: number) => ({ id: String(month), label: formatMonthName(month) });
 
-/** What the filters show, in words: "Estás viendo de abril a marzo de 2025-26…". */
-export const describeFilters = ({
-  fiscalYear,
-  compareWith,
-  fromMonth,
-  toMonth,
-  groupBy,
-}: Filters) => {
+/**
+ * What the filters show, in words: "Estás viendo de abril a marzo de 2025-26…".
+ * `more` adds what other filters do, such as ", por especialidad".
+ */
+export const describePeriod = (
+  { fiscalYear, compareWith, fromMonth, toMonth }: Filters,
+  more = '',
+) => {
   const months =
     fromMonth === 4 && toMonth === 3
       ? 'todo el año'
@@ -32,19 +33,26 @@ export const describeFilters = ({
     compareWith === null
       ? ', sin comparar con otro año'
       : ` frente a los mismos meses de ${formatFiscalYear(compareWith)}`;
-  const grouping = groupBy ? `, por ${GROUP_NAMES[groupBy]}` : '';
-  return `Estás viendo ${months} ${formatFiscalYear(fiscalYear)}${comparison}${grouping}.`;
+  return `Estás viendo ${months} ${formatFiscalYear(fiscalYear)}${comparison}${more}.`;
 };
 
-export const NetworkFilters = ({ fiscalYears, filters, onChange }: NetworkFiltersProps) => {
+/** A group of filters with its title, such as "Periodo". */
+export const FilterGroup = ({ title, children }: { title: string; children: ReactNode }) => (
+  <fieldset className={styles['period-filters__group']}>
+    <legend className={styles['period-filters__group-title']}>{title}</legend>
+    {children}
+  </fieldset>
+);
+
+/** The fiscal year, the months and the year to compare with. */
+export const PeriodFilters = ({ fiscalYears, filters, onChange, children }: PeriodFiltersProps) => {
   const years = fiscalYears.map((year) => ({ id: String(year), label: formatFiscalYear(year) }));
   const toMonths = FISCAL_MONTHS.filter(
     (month) => fiscalMonthIndex(month) >= fiscalMonthIndex(filters.fromMonth),
   );
   return (
-    <form className={styles['network-overview__filters']} aria-label="Filtros">
-      <fieldset className={styles['network-overview__group']}>
-        <legend className={styles['network-overview__group-title']}>Periodo</legend>
+    <form className={styles['period-filters']} aria-label="Filtros">
+      <FilterGroup title="Periodo">
         <Select
           label="Año fiscal"
           options={years}
@@ -63,9 +71,8 @@ export const NetworkFilters = ({ fiscalYears, filters, onChange }: NetworkFilter
           selectedKey={String(filters.toMonth)}
           onSelectionChange={(key) => onChange({ toMonth: Number(key) })}
         />
-      </fieldset>
-      <fieldset className={styles['network-overview__group']}>
-        <legend className={styles['network-overview__group-title']}>Comparación</legend>
+      </FilterGroup>
+      <FilterGroup title="Comparación">
         <Select
           label="Comparar con"
           options={[
@@ -75,22 +82,8 @@ export const NetworkFilters = ({ fiscalYears, filters, onChange }: NetworkFilter
           selectedKey={filters.compareWith === null ? NONE : String(filters.compareWith)}
           onSelectionChange={(key) => onChange({ compareWith: key === NONE ? null : Number(key) })}
         />
-      </fieldset>
-      <fieldset className={styles['network-overview__group']}>
-        <legend className={styles['network-overview__group-title']}>Desglose</legend>
-        <Select
-          label="Agrupar por"
-          options={[
-            { id: NONE, label: 'Ninguno' },
-            { id: 'specialty', label: 'Especialidad' },
-            { id: 'autonomous-community', label: 'Comunidad autónoma' },
-          ]}
-          selectedKey={filters.groupBy ?? NONE}
-          onSelectionChange={(key) =>
-            onChange({ groupBy: key === NONE ? null : (key as Filters['groupBy']) })
-          }
-        />
-      </fieldset>
+      </FilterGroup>
+      {children}
     </form>
   );
 };

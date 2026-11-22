@@ -1,6 +1,6 @@
 import type { GroupBy, GroupPerformance } from '@pulse/contracts';
 import { Delta, Panel, Table, type TableColumn, type TableSort } from '@pulse/design-system';
-import { FilterScope } from '@network-overview/FilterScope';
+import { FilterScope } from '@shared/period-filters/FilterScope';
 import {
   formatChange,
   formatEuros,
