@@ -1,5 +1,6 @@
 import { expect, type Page } from '@playwright/test';
 import { LineChartObject } from './LineChartObject';
+import { openPanel } from './panel';
 
 /** The detail page of an advisory firm. */
 export class AdvisoryFirmDetailPage {
@@ -76,8 +77,9 @@ export class AdvisoryFirmDetailPage {
     return this.page.getByRole('region', { name: 'Indicadores' }).getByRole('article');
   }
 
-  /** An alert of the firm, which only shows when something goes wrong. */
-  alert(label: string) {
+  /** An alert of the firm, which only shows when something goes wrong. Opens the alerts. */
+  async alert(label: string) {
+    await openPanel(this.page, 'Alertas');
     return this.page
       .getByRole('list', { name: 'Alertas' })
       .getByRole('listitem')
@@ -85,6 +87,7 @@ export class AdvisoryFirmDetailPage {
   }
 
   async compareWith(label: string) {
+    await openPanel(this.page, 'Filtros');
     await this.page.getByRole('button', { name: /Comparar con/ }).click();
     await this.page.getByRole('option', { name: label, exact: true }).click();
   }

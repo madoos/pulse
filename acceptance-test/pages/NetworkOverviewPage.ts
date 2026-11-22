@@ -2,6 +2,7 @@ import { expect, type Page } from '@playwright/test';
 import { GroupPanel } from './GroupPanel';
 import { LineChartObject } from './LineChartObject';
 import { NeedsAttentionPanel } from './NeedsAttentionPanel';
+import { openPanel } from './panel';
 import { StandoutsPanel } from './StandoutsPanel';
 
 /** The labels of the KPI cards, in the order they are shown. */
@@ -49,11 +50,13 @@ export class NetworkOverviewPage {
 
   /** The value shown by a filter: "2025-26", "Ninguno"… */
   async selected(filter: string) {
+    await openPanel(this.page, 'Filtros');
     return (await this.filter(filter).innerText()).replace('▾', '').trim();
   }
 
   /** Opens a filter and returns its options, leaving it open. */
   async openFilter(filter: string) {
+    await openPanel(this.page, 'Filtros');
     await this.filter(filter).click();
     const listbox = this.page.getByRole('listbox');
     await expect(listbox).toBeVisible();
@@ -103,6 +106,7 @@ export class NetworkOverviewPage {
   }
 
   private async choose(filter: string, option: string) {
+    await openPanel(this.page, 'Filtros');
     await this.filter(filter).click();
     await this.page.getByRole('option', { name: option, exact: true }).click();
     await expect(this.filter(filter)).toContainText(option);

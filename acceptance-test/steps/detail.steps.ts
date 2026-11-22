@@ -149,7 +149,7 @@ When(
 );
 
 Then('I see the alert {string} in red', async ({ firmDetail }, label: string) => {
-  await expect(firmDetail.alert(label)).toBeVisible();
+  await expect(await firmDetail.alert(label)).toBeVisible();
 });
 
 Then(
